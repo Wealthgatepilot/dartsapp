@@ -47,6 +47,8 @@ export interface CricketTurnData {
   points: number;
   /** Punkte, die Gegner in dieser Aufnahme bekommen haben (Cut-Throat). */
   given: Record<number, number>;
+  /** Eigene Punkte je Dart dieser Aufnahme (für Vergleiche „nach gleich vielen Darts“). */
+  dartPoints: number[];
 }
 
 export interface CricketLegState {
@@ -108,11 +110,15 @@ function cricketRules(setup: CricketSetup): Rules<CricketLegState, CricketTurnDa
       points: Object.fromEntries(order.map((p) => [p, 0])),
       winner: null,
     }),
-    newTurn: () => ({ marks: 0, points: 0, given: {} }),
+    newTurn: () => ({ marks: 0, points: 0, given: {}, dartPoints: [] }),
     applyDart: (ls, turn, d) => {
       const f = d.field!;
       const slot = turn.slot;
-      if (f.m === 0 || !s.targets.includes(f.n)) return { scored: 0, endsTurn: false };
+      if (f.m === 0 || !s.targets.includes(f.n)) {
+        turn.dartPoints.push(0);
+        return { scored: 0, endsTurn: false };
+      }
+      const pointsBefore = turn.points;
       const m = marksOf(f);
       const have = ls.marks[slot][f.n];
       const closing = Math.min(m, Math.max(0, s.closeAt - have));
@@ -137,6 +143,7 @@ function cricketRules(setup: CricketSetup): Rules<CricketLegState, CricketTurnDa
         }
       }
       turn.marks += counted;
+      turn.dartPoints.push(turn.points - pointsBefore);
 
       // Gewonnen? Zuerst der Werfer, dann die anderen (bei Cut-Throat können Punkte an Gegner
       // einen Spieler, der schon alles zu hat, auf den letzten Platz der Punkte bringen).

@@ -567,7 +567,7 @@ Jede Partie ist ein normales Spiel mit eigener `gameId` und `tournamentMatchId`.
   - X01: Startwert + In + Out
   - Cricket: Zielzahlen + Treffer bis zu + Variante
   - Shanghai: Startzahl + Rundenzahl + „Shanghai beendet“
-  - Doppelfeld-Training: Modus (+ n)
+  - Doppelfeld-Training: Modus (+ n) + gewählte Ziele
 - Prozentwerte mit einer Nachkommastelle. Ist der Nenner 0, wird „—“ angezeigt.
 
 ### 11.2 X01 (je Leg und Spieler)
@@ -578,7 +578,7 @@ Bezeichnungen: `D` = geworfene Darts des Spielers im Leg (inklusive Bust-Darts u
 |---|---|
 | **3-Dart-Average** | `P / D × 3` |
 | **First-9-Average** | Punkte der ersten 9 Darts (bzw. aller Darts, wenn weniger) / Anzahl dieser Darts × 3 |
-| **Double-Versuch** | Ein Dart ist ein Double-Versuch, wenn der Rest **vor** diesem Dart mit einem einzigen Dart gecheckt werden kann. Double-Out: Rest ∈ {2, 4, 6, …, 40, 50}. Ziel-Feld = D(Rest/2), bei 50 Bullseye. Master-Out: zählt nur Reste mit Double-Möglichkeit (wie Double-Out), Single-Out: keine Versuche. |
+| **Double-Versuch** | Ein Dart ist ein Double-Versuch, wenn der Rest **vor** diesem Dart mit einem einzigen Dart gecheckt werden kann. Double-Out: Rest ∈ {2, 4, 6, …, 40, 50}. Ziel-Feld = D(Rest/2), bei 50 Bullseye. Master-Out: zählt nur Reste mit Double-Möglichkeit (wie Double-Out), Single-Out: keine Versuche. Nur wenn der Spieler schon „drin“ ist. In einer Bust-Aufnahme läuft der Rest für die Versuche mit den geworfenen Punkten mit. |
 | **Double-Out-Quote** | `Checkouts / Double-Versuche × 100 %` |
 | **Darts bis zum Finish** | `D` in gewonnenen Legs (nur Legs, die der Spieler gecheckt hat) |
 | **Höchster Checkout** | Rest zu Beginn der Aufnahme, in der gecheckt wurde |
@@ -590,7 +590,7 @@ Bezeichnungen: `D` = geworfene Darts des Spielers im Leg (inklusive Bust-Darts u
 |---|---|
 | **Zählende Marks** | Marks, die eine Zahl schließen, plus überzählige Marks, die Punkte bringen (Standard) bzw. Gegnern Punkte geben (Cut-Throat). Marks ohne Wirkung zählen nicht. |
 | **Marks pro 3 Darts (MPR)** | `zählende Marks / D × 3` |
-| **Höchste Gesamtpunktzahl** | Punkte des Spielers am Leg-Ende |
+| **Höchste Gesamtpunktzahl** | Punkte des Spielers am Leg-Ende. Nur bei Standard; bei Cut-Throat sind Punkte schlecht und keine Bestleistung. Für den Stand nach d Darts zählen die eigenen Punkte aus den ersten d Darts. |
 | **Wenigste Darts bis zum Sieg** | `D` in gewonnenen Legs |
 
 ### 11.4 Shanghai (je Durchgang und Spieler)
