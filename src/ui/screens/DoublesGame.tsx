@@ -2,11 +2,11 @@
 
 import { useMemo } from 'preact/hooks';
 import {
-  DOUBLE_TARGETS,
   computeDoubles,
   confirmDoublesTurn,
   currentTarget,
   quote,
+  targetsOf,
   throwDoublesDart,
   undoDoubles,
   type DoublesState,
@@ -76,7 +76,7 @@ function Cards({
               {p.hits} getroffen · {p.darts - p.hits} falsch · {p.darts} Darts
             </div>
             <div class="score-meta">
-              Quote {quote(p.hits, p.darts)} · Ziel {Math.min(p.index + 1, 21)}/21
+              Quote {quote(p.hits, p.darts)} · Ziel {Math.min(p.index + 1, p.sequence.length)}/{p.sequence.length}
             </div>
           </div>
         );
@@ -125,7 +125,7 @@ function Results({ state, order, nameOf }: { state: DoublesState; order: number[
               );
             })}
           </tr>
-          {DOUBLE_TARGETS.map((f) => {
+          {targetsOf(state.setup.settings).map((f) => {
             const key = fieldLabel(f);
             return (
               <tr key={key}>

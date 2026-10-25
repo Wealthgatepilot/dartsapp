@@ -442,10 +442,11 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 |---|---|
 | Zielfolge | **jeder seine eigene Zufallsfolge**, alle dieselbe Zufallsfolge |
 | Modus | **bis zum Treffer**, feste Zahl Darts pro Feld (1–30, Std. 9) |
+| Ziele | frei wählbar aus D1–D20 und Bullseye, mindestens eins; **alle 21** (Wunsch Gianluca, 25.10.2026) |
 
 **Regeln**
 
-1. Ziele: D1 bis D20 und Bullseye, 21 Ziele. Beim Bull zählt **nur das Bullseye**.
+1. Ziele: die gewählten aus D1 bis D20 und Bullseye (Standard: alle 21). Beim Bull zählt **nur das Bullseye**. Ältere Spiele ohne Zielauswahl gelten als „alle 21“; ihre Zufallsfolge bleibt dieselbe. Alle Angaben „21“ in diesem Abschnitt meinen „Anzahl der gewählten Ziele“.
 2. Zufallsfolge: Mischen nach Fisher-Yates mit einem Zufallswert (`seed`), der im Spiel gespeichert wird. Dadurch ist die Folge später nachvollziehbar. Bei „dieselbe Folge“ ein Seed für alle, sonst ein Seed je Spieler.
 3. Eingabe über Treffer/Falsch (4.5). Treffer = genau das Ziel-Double (beim Bull: Bullseye).
 4. **Bis zum Treffer:** Ein Ziel bleibt, bis es getroffen ist. Danach kommt sofort das nächste Ziel, auch mitten in der Aufnahme. Ein Spieler ist fertig, wenn er alle 21 Ziele getroffen hat. Fertige Spieler werden übersprungen. Spielende, wenn alle fertig sind. Platzierung: wenigste Darts.

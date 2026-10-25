@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_CRICKET } from '../../src/engine/cricket';
-import { cricketRules, x01Rules } from '../../src/engine/rules';
+import { DEFAULT_DOUBLES } from '../../src/engine/doubles';
+import { cricketRules, doublesRules, x01Rules } from '../../src/engine/rules';
 import { formatAverage, legNumbers, matchNumbers } from '../../src/engine/stats';
 import { X01Game } from './helpers';
 
@@ -45,6 +46,20 @@ describe('Regeltext Cricket (SPEC 5.4)', () => {
     expect(ct).toContain('einmal getroffen');
     expect(ct).toContain('höchstens so viele Punkte');
     expect(cricketRules({ ...DEFAULT_CRICKET, legs: { count: 3, kind: 'bestOf' } }).join(' ')).toContain('Best of 3');
+  });
+});
+
+describe('Regeltext Doppelfeld-Training (SPEC 5.4)', () => {
+  it('nennt die gewählten Ziele und ihre Anzahl', () => {
+    expect(doublesRules(DEFAULT_DOUBLES).join(' ')).toContain('D1 bis D20 und das Bullseye');
+    expect(doublesRules(DEFAULT_DOUBLES).join(' ')).toContain('alle 21 Ziele');
+    const few = doublesRules({ ...DEFAULT_DOUBLES, targets: [16, 20] }).join(' ');
+    expect(few).toContain('Ziele sind D16 und D20, in zufälliger Reihenfolge.');
+    expect(few).not.toContain('Bullseye');
+    expect(few).toContain('alle 2 Ziele');
+    const fixed = doublesRules({ ...DEFAULT_DOUBLES, targets: [25], mode: { kind: 'fixed', darts: 9 } }).join(' ');
+    expect(fixed).toContain('Ziele sind Bullseye. Beim Bull zählt nur das Bullseye.');
+    expect(fixed).toContain('Nach 1 × 9 Darts');
   });
 });
 

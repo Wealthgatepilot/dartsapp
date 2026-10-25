@@ -1,7 +1,7 @@
 // Regeltexte aus Bausteinen, passend zu den gewählten Einstellungen (SPEC 5.4).
 
 import type { CricketSettings } from './cricket';
-import type { DoublesSettings } from './doubles';
+import { targetsOf, type DoublesSettings } from './doubles';
 import { targetOfRound, type ShanghaiSettings } from './shanghai';
 import { winsNeeded, type InOut, type Race, type X01Settings } from './x01';
 
@@ -84,22 +84,31 @@ export function shanghaiRules(s: ShanghaiSettings): string[] {
   return out;
 }
 
+function doublesTargetText(s: DoublesSettings): string {
+  const t = targetsOf(s);
+  const bull = t.some((f) => f.n === 25) ? ' Beim Bull zählt nur das Bullseye.' : '';
+  if (t.length === 21) return `Ziele sind D1 bis D20 und das Bullseye, in zufälliger Reihenfolge.${bull}`;
+  const names = t.map((f) => (f.n === 25 ? 'Bullseye' : `D${f.n}`));
+  const list = names.length > 1 ? `${names.slice(0, -1).join(', ')} und ${names[names.length - 1]}` : names[0];
+  return `Ziele sind ${list}${names.length > 1 ? ', in zufälliger Reihenfolge' : ''}.${bull}`;
+}
+
 export function doublesRules(s: DoublesSettings): string[] {
   const out = [
-    'Ziele sind D1 bis D20 und das Bullseye, in zufälliger Reihenfolge. Beim Bull zählt nur das Bullseye.',
+    doublesTargetText(s),
     s.sequence === 'shared' ? 'Alle spielen dieselbe Zielfolge.' : 'Jeder bekommt seine eigene Zielfolge.',
     'Nach jedem Dart tippst du „Treffer“ oder „Falsch“.',
   ];
   if (s.mode.kind === 'untilHit') {
     out.push(
       'Ein Ziel bleibt, bis du es triffst. Dann kommt sofort das nächste, auch mitten in der Aufnahme.',
-      'Fertig ist, wer alle 21 Ziele getroffen hat. Es gewinnt, wer dafür die wenigsten Darts braucht.',
+      `Fertig ist, wer alle ${targetsOf(s).length} Ziele getroffen hat. Es gewinnt, wer dafür die wenigsten Darts braucht.`,
     );
   } else {
     const n = s.mode.darts;
     out.push(
       `Auf jedes Ziel wirfst du genau ${n === 1 ? 'einen Dart' : `${n} Darts`}, egal ob getroffen. Danach kommt das nächste Ziel, auch mitten in der Aufnahme.`,
-      `Nach 21 × ${n} Darts ist Schluss. Es gewinnt, wer die meisten Treffer hat.`,
+      `Nach ${targetsOf(s).length} × ${n} Darts ist Schluss. Es gewinnt, wer die meisten Treffer hat.`,
     );
   }
   out.push('Am Ende siehst du für jedes Feld Würfe, Treffer und Trefferquote.');

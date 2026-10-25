@@ -18,9 +18,15 @@ export interface DoublesSettings {
   sequence: 'own' | 'shared';
   /** Bis zum Treffer, oder eine feste Zahl Darts pro Feld (1–30). */
   mode: { kind: 'untilHit' } | { kind: 'fixed'; darts: number };
+  /** Gewählte Ziele als Zahlen (1–20, 25 = Bullseye). Fehlt die Angabe (ältere Spiele), gelten alle 21. */
+  targets?: number[];
 }
 
-export const DEFAULT_DOUBLES: DoublesSettings = { sequence: 'own', mode: { kind: 'untilHit' } };
+export const DEFAULT_DOUBLES: DoublesSettings = {
+  sequence: 'own',
+  mode: { kind: 'untilHit' },
+  targets: [...Array.from({ length: 20 }, (_, i) => i + 1), 25],
+};
 
 export interface DoublesSetup {
   gameId: string;
@@ -33,7 +39,13 @@ export interface DoublesSetup {
 /** Die 21 Ziele: D1–D20 und Bullseye (beim Bull zählt nur das Bullseye). */
 export const DOUBLE_TARGETS: Field[] = [...Array.from({ length: 20 }, (_, i) => ({ n: i + 1, m: 2 as const })), { n: BULL, m: 2 }];
 
+/** Die gewählten Ziele in fester Grundreihenfolge (D1 … D20, DB), vor dem Mischen. */
+export function targetsOf(s: DoublesSettings): Field[] {
+  return s.targets ? DOUBLE_TARGETS.filter((f) => s.targets!.includes(f.n)) : DOUBLE_TARGETS;
+}
+
 export function validateDoubles(s: DoublesSettings): string[] {
+  if (s.targets && !targetsOf(s).length) return ['Mindestens ein Ziel wählen.'];
   if (s.mode.kind === 'fixed' && (!Number.isInteger(s.mode.darts) || s.mode.darts < 1 || s.mode.darts > 30)) {
     return ['Darts pro Feld: 1 bis 30.'];
   }
@@ -53,9 +65,9 @@ function random(seed: number): () => number {
 }
 
 /** Zielfolge mischen nach Fisher-Yates (SPEC 7.4, Regel 2). */
-export function shuffledTargets(seed: number): Field[] {
+export function shuffledTargets(seed: number, targets: readonly Field[] = DOUBLE_TARGETS): Field[] {
   const rnd = random(seed);
-  const list = [...DOUBLE_TARGETS];
+  const list = [...targets];
   for (let i = list.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
     [list[i], list[j]] = [list[j], list[i]];
@@ -65,7 +77,8 @@ export function shuffledTargets(seed: number): Field[] {
 
 /** Zielfolge eines Spielers: gemeinsam aus dem Spiel-Seed, sonst je Platz ein abgeleiteter Seed. */
 export function sequenceFor(setup: DoublesSetup, slot: number): Field[] {
-  return shuffledTargets(setup.settings.sequence === 'shared' ? setup.seed : setup.seed + (slot + 1) * 7919);
+  const seed = setup.settings.sequence === 'shared' ? setup.seed : setup.seed + (slot + 1) * 7919;
+  return shuffledTargets(seed, targetsOf(setup.settings));
 }
 
 export interface FieldStats {
@@ -75,7 +88,7 @@ export interface FieldStats {
 
 export interface DoublesPlayer {
   sequence: Field[];
-  /** Position in der Zielfolge (0–21; 21 = fertig). */
+  /** Position in der Zielfolge (0 bis Anzahl Ziele; am Ende = fertig). */
   index: number;
   /** Darts auf das aktuelle Ziel (für „feste Zahl“). */
   dartsOnTarget: number;

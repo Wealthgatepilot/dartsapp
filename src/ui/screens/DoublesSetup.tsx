@@ -8,6 +8,8 @@ import { href } from '../router';
 import { PlayerPicker, useSavedSetup, useStartGame, type Pick } from '../setup';
 import { StartButton } from './X01Setup';
 
+const ALL = DEFAULT_DOUBLES.targets!;
+
 interface SavedSetup {
   settings: DoublesSettings;
   picks: Pick[];
@@ -22,6 +24,10 @@ export function DoublesSetup() {
   const errors = validateDoubles(s);
   if (setup.picks.length === 0) errors.push('Mindestens einen Spieler wählen.');
   const fixedDarts = s.mode.kind === 'fixed' ? s.mode.darts : 9;
+  // Ältere gespeicherte Einstellungen ohne Zielauswahl: alle 21
+  const targets = s.targets ?? ALL;
+  const toggle = (n: number) =>
+    set({ targets: ALL.filter((x) => (x === n ? !targets.includes(n) : targets.includes(x))) });
 
   const go = async () => {
     if (errors.length) return;
@@ -66,6 +72,29 @@ export function DoublesSetup() {
             ]}
             onChange={(kind) => set({ mode: kind === 'untilHit' ? { kind } : { kind, darts: fixedDarts } })}
           />
+        </div>
+        <div class="field">
+          <span>Ziele</span>
+          <div class="chips">
+            {ALL.map((n) => (
+              <button
+                key={n}
+                class={targets.includes(n) ? 'chip chip-num on' : 'chip chip-num'}
+                onClick={() => toggle(n)}
+                aria-pressed={targets.includes(n)}
+              >
+                {n === 25 ? 'Bull' : `D${n}`}
+              </button>
+            ))}
+          </div>
+          <div class="row">
+            <button class="btn btn-small" onClick={() => set({ targets: ALL })}>
+              Alle 21
+            </button>
+            <button class="btn btn-small" onClick={() => set({ targets: [] })}>
+              Keine
+            </button>
+          </div>
         </div>
         {s.mode.kind === 'fixed' && (
           <div class="setting">

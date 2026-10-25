@@ -15,6 +15,27 @@ async function next(page: Page) {
   await expect(page.locator('.turnbox')).toContainText('Noch kein Dart');
 }
 
+test('Training nur auf D16 und D20', async ({ page }) => {
+  await createProfiles(page, 'Gian');
+  await page.goto('./#/training');
+  await page.getByRole('button', { name: 'Gian' }).click();
+  await page.getByRole('button', { name: 'Keine' }).click();
+  await expect(page.getByText('Mindestens ein Ziel wählen.')).toBeVisible();
+  await page.getByRole('button', { name: 'D16', exact: true }).click();
+  await page.getByRole('button', { name: 'D20', exact: true }).click();
+  await page.getByRole('button', { name: 'Spiel starten' }).click();
+
+  await expect(page.locator('.score-card')).toContainText('Ziel 1/2');
+  await expect(page.locator('.hm-hit')).toHaveText(/^D(16|20)$/);
+  await tap(page, 'miss');
+  await tap(page, 'hit');
+  await tap(page, 'hit');
+  const end = page.getByRole('dialog', { name: 'Spielende' });
+  await expect(end).toContainText('Gian gewinnt');
+  await expect(end.locator('tbody tr')).toHaveCount(3); // Gesamt, D16, D20
+  await expect(end.locator('tr', { hasText: 'Gesamt' })).toContainText('2/3');
+});
+
 test('ganzes Doppelfeld-Training bis zum Treffer', async ({ page }) => {
   page.on('dialog', (d) => d.accept());
   await createProfiles(page, 'Gian', 'Jörn');

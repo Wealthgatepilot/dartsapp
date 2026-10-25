@@ -81,6 +81,30 @@ describe('Zielfolge', () => {
   });
 });
 
+describe('Freie Zielwahl', () => {
+  it('nur die gewählten Ziele, gemischt; fertig nach allen gewählten', () => {
+    const g = Training.create({ targets: [16, 20, 25] }, 1);
+    const seq = g.state.players[A].sequence.map(fieldLabel);
+    expect(new Set(seq)).toEqual(new Set(['D16', 'D20', 'DB']));
+    g.throw('xxx');
+    expect(g.state.finished).toBe(true);
+    expect(g.state.matchWinner).toBe(A);
+  });
+
+  it('ältere Spiele ohne Zielauswahl: alle 21 Ziele, gleiche Zufallsfolge wie vorher', () => {
+    const base = { gameId: 't', order: [0], seed: 99 };
+    const old = sequenceFor({ ...base, settings: { sequence: 'own', mode: { kind: 'untilHit' } } }, 0).map(fieldLabel);
+    const all = sequenceFor({ ...base, settings: DEFAULT_DOUBLES }, 0).map(fieldLabel);
+    expect(old).toHaveLength(21);
+    expect(all).toEqual(old);
+    expect(old).toEqual(shuffledTargets(99 + 7919).map(fieldLabel));
+  });
+
+  it('mindestens ein Ziel', () => {
+    expect(validateDoubles({ ...DEFAULT_DOUBLES, targets: [] })).toHaveLength(1);
+  });
+});
+
 describe('Bis zum Treffer', () => {
   it('Falsch: Ziel bleibt; Treffer: nächstes Ziel', () => {
     const g = Training.create({}, 1);
