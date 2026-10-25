@@ -1,0 +1,117 @@
+// Ein ganzes Leg 501 Double-Out am simulierten Handy (ROADMAP: „Ein automatisierter Durchlauf
+// in Handygröße spielt ein ganzes Leg“), mit Bust, Rückgängig, Neuladen und Runde bearbeiten.
+
+import { expect, test, type Locator, type Page } from '@playwright/test';
+
+const ORDER = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
+const DRAG = [20, 70, 110]; // Zugweite für S, D, T (SPEC 4.3: Stufen alle 50 Punkte)
+
+/** Wirft einen Dart über das Board: Segment halten, zur Leiste ziehen, loslassen. */
+async function throwOn(page: Page, board: Locator, field: string) {
+  const m = field === 'DB' ? 2 : field === 'SB' ? 1 : 'SDT'.indexOf(field[0]) + 1;
+  const n = field.endsWith('B') ? 25 : Number(field.slice(1));
+  const box = (await board.boundingBox())!;
+  const R = box.width / 2;
+  const cx = box.x + R;
+  const cy = box.y + R;
+  const a = (ORDER.indexOf(n) * 18 * Math.PI) / 180;
+  const x = n === 25 ? cx : cx + Math.sin(a) * 0.6 * R;
+  const y = n === 25 ? cy : cy - Math.cos(a) * 0.6 * R;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  const bar = (await page.locator('.ringbar').boundingBox())!;
+  const d = DRAG[m - 1];
+  const [dx, dy] = bar.y + bar.height <= y ? [0, -d] : bar.x > x ? [d, 0] : [-d, 0];
+  await page.mouse.move(x + dx, y + dy, { steps: 4 });
+  await page.mouse.up();
+}
+
+async function dart(page: Page, field: string) {
+  const pills = page.locator('.turnbox .pill');
+  const before = await pills.count();
+  if (field === '0') await page.getByRole('button', { name: 'Daneben', exact: true }).click();
+  else await throwOn(page, page.locator('.board-wrap svg.board'), field);
+  await expect(pills).toHaveCount(before + 1);
+}
+
+async function turn(page: Page, ...fields: string[]) {
+  for (const f of fields) await dart(page, f);
+  await page.getByRole('button', { name: 'Weiter →' }).click();
+  await expect(page.locator('.turnbox')).toContainText('Noch kein Dart');
+}
+
+const rest = (page: Page, name: string) =>
+  page.locator('.score-card', { hasText: name }).locator('.score-rest');
+
+test('ganzes Leg 501 Double-Out mit Bust, Rückgängig, Neuladen und Runde bearbeiten', async ({ page }) => {
+  page.on('dialog', (d) => d.accept());
+
+  // Profile anlegen
+  await page.goto('./#/profile');
+  for (const name of ['Gian', 'Jörn']) {
+    await page.getByPlaceholder('Name').fill(name);
+    await page.getByRole('button', { name: 'Anlegen' }).click();
+    await expect(page.locator('.list-row', { hasText: name })).toBeVisible();
+  }
+
+  // Spiel einrichten: 501, Single-In, Double-Out, 1 Leg (Standard)
+  await page.goto('./#/x01');
+  await page.getByRole('button', { name: 'Gian' }).click();
+  await page.getByRole('button', { name: 'Jörn' }).click();
+  await page.getByRole('button', { name: 'Spiel starten' }).click();
+  await expect(page.locator('.topbar h1')).toHaveText('501 · Double-Out');
+
+  await turn(page, 'T20', 'T20', 'T20'); // Gian 321
+  await turn(page, '0', '0', '0'); // Jörn 501
+  await turn(page, 'T20', 'T20', 'T20'); // Gian 141
+  await expect(rest(page, 'Gian')).toHaveText('141');
+
+  // Jörn: ein falscher Dart, Rückgängig, dann richtig
+  await dart(page, 'S1');
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(page.locator('.turnbox .pill')).toHaveCount(0);
+  await turn(page, 'S20', 'S20', 'S20'); // Jörn 441
+  await expect(rest(page, 'Jörn')).toHaveText('441');
+
+  // Neuladen mitten im Spiel: Stand muss erhalten bleiben
+  await page.reload();
+  await page.goto('./#/');
+  await page.getByRole('button', { name: 'Fortsetzen' }).click();
+  await expect(rest(page, 'Gian')).toHaveText('141');
+  await expect(page.locator('.checkout-main')).toHaveText('T20 T19 D12');
+
+  // Gian überwirft: 141 − 60 − 60 = 21, T20 → Bust
+  await dart(page, 'T20');
+  await dart(page, 'T20');
+  await dart(page, 'T20');
+  await expect(page.locator('.calc')).toContainText('BUST');
+  await expect(rest(page, 'Gian')).toHaveText('141');
+  await page.getByRole('button', { name: 'Weiter →' }).click();
+  await expect(page.locator('.turnbox')).toContainText('Noch kein Dart');
+
+  await turn(page, 'S20', 'S20', 'S20'); // Jörn 381
+
+  // Runde bearbeiten: Jörns zweite Aufnahme, erster Dart war T20 statt S20 → 341
+  await page.getByRole('button', { name: '✎ Runden' }).click();
+  await page.locator('.modal .list-button', { hasText: 'R2' }).filter({ hasText: 'Jörn' }).click();
+  await page.locator('.modal .pill-main').first().click();
+  await throwOn(page, page.locator('.modal svg.board'), 'T20');
+  await expect(page.locator('.modal .pill-main').first()).toHaveText('T20 · 60');
+  await page.getByRole('button', { name: 'Übernehmen' }).click();
+  await expect(rest(page, 'Jörn')).toHaveText('341');
+
+  // Gian checkt 141: T20 T19 D12
+  await dart(page, 'T20');
+  await dart(page, 'T19');
+  await dart(page, 'D12');
+  const end = page.getByRole('dialog', { name: 'Spielende' });
+  await expect(end).toContainText('Gian gewinnt');
+  const gian = end.locator('tr', { hasText: 'Gian' });
+  // 501 Punkte in 12 Darts (Bust-Aufnahme zählt 3 Darts) = 125,25; höchster Checkout 141
+  await expect(gian).toContainText('125,25');
+  await expect(gian.locator('td').nth(3)).toHaveText('12');
+  await expect(gian.locator('td').nth(4)).toHaveText('141');
+
+  await end.getByRole('button', { name: 'Fertig' }).click();
+  await expect(page.locator('.list-row', { hasText: '🏆 Gian' })).toBeVisible();
+});

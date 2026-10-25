@@ -1,5 +1,6 @@
 import { BoardTest } from './BoardTest';
 import { DataProvider } from './data';
+import { PwaProvider } from './pwa';
 import { useRoute } from './router';
 import { Game } from './screens/Game';
 import { Home } from './screens/Home';
@@ -9,9 +10,11 @@ import { X01Setup } from './screens/X01Setup';
 
 export function App() {
   return (
-    <DataProvider>
-      <Screens />
-    </DataProvider>
+    <PwaProvider>
+      <DataProvider>
+        <Screens />
+      </DataProvider>
+    </PwaProvider>
   );
 }
 

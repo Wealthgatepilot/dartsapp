@@ -1,17 +1,26 @@
 import { defineConfig, devices } from '@playwright/test';
 
 // Vier Handy-Varianten aus der SPEC: iPhone (WebKit = Safari-Technik) und Android (Chromium),
-// jeweils Hoch- und Querformat.
+// jeweils Hoch- und Querformat. Die Tests laufen gegen den Entwicklungsserver,
+// der Offline-Test gegen die gebaute App (nur dort gibt es den Service Worker).
 export default defineConfig({
   testDir: 'tests/e2e',
   use: {
     baseURL: 'http://localhost:5174/dartsapp/',
   },
-  webServer: {
-    command: 'npx vite --port 5174 --strictPort',
-    url: 'http://localhost:5174/dartsapp/',
-    reuseExistingServer: false,
-  },
+  webServer: [
+    {
+      command: 'npx vite --port 5174 --strictPort',
+      url: 'http://localhost:5174/dartsapp/',
+      reuseExistingServer: false,
+    },
+    {
+      command: 'npm run build && npx vite preview --port 4174 --strictPort',
+      url: 'http://localhost:4174/dartsapp/',
+      reuseExistingServer: false,
+      timeout: 180_000,
+    },
+  ],
   projects: [
     { name: 'iphone-hoch', use: { ...devices['iPhone 13'] } },
     { name: 'iphone-quer', use: { ...devices['iPhone 13 landscape'] } },

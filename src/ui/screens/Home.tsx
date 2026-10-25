@@ -1,6 +1,12 @@
 import { useMemo, useState } from 'preact/hooks';
 import { BACKUP_REMINDER_DAYS, daysSince, exportBackup } from '../backup';
 import { lastBackupText } from './BackupCard';
+import { isInstalled } from '../../data/persist';
+import { usePwa } from '../pwa';
+
+function isIos(): boolean {
+  return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes('Mac') && navigator.maxTouchPoints > 1);
+}
 import { listGames, unfinishedGame, x01SetupOf } from '../../engine/games';
 import { listProfiles } from '../../engine/profiles';
 import { gameEventsOf } from '../../engine/events';
@@ -12,6 +18,15 @@ import { href, navigate } from '../router';
 export function Home() {
   const { events, append, store, lastBackupAt, reload } = useAppData();
   const [snoozed, setSnoozed] = useState(false);
+  const pwa = usePwa();
+  const installed = isInstalled();
+  const [hideInstallHint, setHideInstallHint] = useState(() => {
+    try {
+      return localStorage.getItem('hideInstallHint') === '1';
+    } catch {
+      return false;
+    }
+  });
   const profiles = useMemo(() => listProfiles(events), [events]);
   const running = useMemo(() => unfinishedGame(events), [events]);
   const recent = useMemo(() => listGames(events).filter((g) => g.ended === 'finished' && !g.hidden).slice(0, 5), [events]);
@@ -34,6 +49,49 @@ export function Home() {
           ⚙
         </a>
       </header>
+
+      {pwa.needRefresh && (
+        <section class="card card-accent">
+          <p>Eine neue Version der App ist da.</p>
+          <button class="btn btn-primary" onClick={pwa.update}>
+            Jetzt neu laden
+          </button>
+        </section>
+      )}
+
+      {!installed && !hideInstallHint && (
+        <section class="card card-warn">
+          <h2>App installieren</h2>
+          <p>
+            {isIos()
+              ? 'Tippe in Safari auf „Teilen“ (Quadrat mit Pfeil) und dann auf „Zum Home-Bildschirm“.'
+              : 'Tippe im Browser-Menü (⋮) auf „App installieren“ oder „Zum Startbildschirm hinzufügen“.'}
+          </p>
+          <p class="small">
+            Wichtig: Was du hier im Browser spielst, ist in der installierten App nicht zu sehen. Beide haben einen eigenen
+            Speicher.
+          </p>
+          <button
+            class="btn btn-small"
+            onClick={() => {
+              setHideInstallHint(true);
+              try {
+                localStorage.setItem('hideInstallHint', '1');
+              } catch {
+                // ohne Browser-Speicher erscheint der Hinweis eben wieder
+              }
+            }}
+          >
+            Ausblenden
+          </button>
+        </section>
+      )}
+
+      {pwa.offlineReady && (
+        <p class="small muted" onClick={pwa.dismissOfflineReady}>
+          ✓ Die App funktioniert jetzt auch ohne Internet.
+        </p>
+      )}
 
       {remind && (
         <section class="card card-warn">
