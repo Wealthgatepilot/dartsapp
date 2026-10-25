@@ -1,19 +1,17 @@
 import { useMemo, useState } from 'preact/hooks';
-import { BACKUP_REMINDER_DAYS, daysSince, exportBackup } from '../backup';
-import { lastBackupText } from './BackupCard';
+import { computeGame, gameTitle, listGames, unfinishedGame } from '../../engine/games';
+import { listProfiles } from '../../engine/profiles';
 import { isInstalled } from '../../data/persist';
+import { BACKUP_REMINDER_DAYS, daysSince, exportBackup } from '../backup';
+import { useAppData } from '../data';
+import { participantName } from '../names';
 import { usePwa } from '../pwa';
+import { href, navigate } from '../router';
+import { lastBackupText } from './BackupCard';
 
 function isIos(): boolean {
   return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes('Mac') && navigator.maxTouchPoints > 1);
 }
-import { listGames, unfinishedGame, x01SetupOf } from '../../engine/games';
-import { listProfiles } from '../../engine/profiles';
-import { gameEventsOf } from '../../engine/events';
-import { computeX01 } from '../../engine/x01';
-import { useAppData } from '../data';
-import { participantName } from '../names';
-import { href, navigate } from '../router';
 
 export function Home() {
   const { events, append, store, lastBackupAt, reload } = useAppData();
@@ -119,7 +117,7 @@ export function Home() {
         <section class="card card-accent">
           <h2>Spiel fortsetzen?</h2>
           <p>
-            {running.created.settings.startScore} ·{' '}
+            {gameTitle(running.created)} ·{' '}
             {running.created.participants.map((p) => participantName(p, profiles)).join(' gegen ')}
           </p>
           <div class="row">
@@ -138,6 +136,10 @@ export function Home() {
           <strong>X01</strong>
           <span class="muted">301, 501, 701 oder frei</span>
         </a>
+        <a class="menu-item menu-main" href={href({ name: 'cricket' })}>
+          <strong>Cricket</strong>
+          <span class="muted">Standard oder Cut-Throat</span>
+        </a>
         <a class="menu-item" href={href({ name: 'profiles' })}>
           <strong>Profile</strong>
           <span class="muted">{profiles.filter((p) => !p.archived).length} Spieler</span>
@@ -149,15 +151,16 @@ export function Home() {
           <h2 class="section-title">Letzte Spiele</h2>
           <ul class="list">
             {recent.map((g) => {
-              const st = computeX01(x01SetupOf(g), gameEventsOf(events, g.created.gameId));
-              const winner = g.created.participants.find((p) => p.slot === st.matchWinner);
+              const winners = computeGame(g, events).state.matchWinners ?? [];
+              const names = g.created.participants
+                .filter((p) => winners.includes(p.slot))
+                .map((p) => participantName(p, profiles));
               return (
                 <li key={g.created.gameId} class="list-row">
                   <span>
-                    {g.created.settings.startScore} ·{' '}
-                    {g.created.participants.map((p) => participantName(p, profiles)).join(', ')}
+                    {gameTitle(g.created)} · {g.created.participants.map((p) => participantName(p, profiles)).join(', ')}
                   </span>
-                  <span class="muted">{winner ? `🏆 ${participantName(winner, profiles)}` : ''}</span>
+                  <span class="muted">{names.length ? `🏆 ${names.join(', ')}` : ''}</span>
                 </li>
               );
             })}

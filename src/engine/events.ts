@@ -2,6 +2,7 @@
 // Der Speicher ergänzt beim Ablegen deviceId, seq und v; die Spiellogik braucht nur id, type, ts und payload.
 
 import type { AdviceLevel } from './checkout';
+import type { CricketSettings } from './cricket';
 import type { Field } from './types';
 import type { X01Settings } from './x01';
 
@@ -66,14 +67,17 @@ export interface Participant {
   startScore?: number;
 }
 
-export interface GameCreatedPayload {
+interface GameCreatedBase {
   gameId: string;
-  mode: 'x01';
-  settings: X01Settings;
-  advice: AdviceLevel;
   participants: Participant[];
   seed: number;
 }
+
+export type GameCreatedPayload =
+  | (GameCreatedBase & { mode: 'x01'; settings: X01Settings; advice: AdviceLevel })
+  | (GameCreatedBase & { mode: 'cricket'; settings: CricketSettings });
+
+export type GameMode = GameCreatedPayload['mode'];
 
 export type MatchEvent =
   | EventOf<'game.created', GameCreatedPayload>

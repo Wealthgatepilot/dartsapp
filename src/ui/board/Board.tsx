@@ -24,6 +24,8 @@ interface Props {
   disabled?: boolean;
   /** Zusätzliche CSS-Klasse, z. B. für eine andere Größe im Bearbeiten-Fenster. */
   className?: string;
+  /** Nur diese Zahlen farbig zeigen (z. B. Cricket, Shanghai), alle anderen grau. 25 = Bull. */
+  isTarget?: (n: number) => boolean;
 }
 
 interface Active {
@@ -75,7 +77,7 @@ function itemsFor(kind: 'bull' | 'number', n: number): { label: string; field: F
   }));
 }
 
-export function Board({ onDart, onPreview, stepPx = 50, disabled = false, className = '' }: Props) {
+export function Board({ onDart, onPreview, stepPx = 50, disabled = false, className = '', isTarget }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [active, setActive] = useState<Active | null>(null);
   const activeRef = useRef<Active | null>(null);
@@ -159,8 +161,9 @@ export function Board({ onDart, onPreview, stepPx = 50, disabled = false, classN
           const a0 = i * 18 - 9;
           const a1 = i * 18 + 9;
           const dark = i % 2 === 0;
-          const single = dark ? 'b-single-dark' : 'b-single-light';
-          const ring = dark ? 'b-ring-red' : 'b-ring-green';
+          const grey = isTarget ? !isTarget(n) : false;
+          const single = grey ? 'b-grey' : dark ? 'b-single-dark' : 'b-single-light';
+          const ring = grey ? 'b-grey-ring' : dark ? 'b-ring-red' : 'b-ring-green';
           return (
             <g key={n} data-n={n}>
               <path d={sector(R_BULL, R_TRIPLE_IN, a0, a1)} class={single} />
@@ -176,8 +179,8 @@ export function Board({ onDart, onPreview, stepPx = 50, disabled = false, classN
             class="b-highlight"
           />
         )}
-        <circle r={R_BULL} class="b-ring-green" />
-        <circle r={R_BULLSEYE} class="b-ring-red" />
+        <circle r={R_BULL} class={isTarget && !isTarget(BULL) ? 'b-grey-ring' : 'b-ring-green'} />
+        <circle r={R_BULLSEYE} class={isTarget && !isTarget(BULL) ? 'b-grey' : 'b-ring-red'} />
         {active?.kind === 'bull' && <circle r={R_BULL} class="b-highlight" />}
         {BOARD_ORDER.map((n, i) => {
           const [x, y] = point((R_NUMBERS + 100) / 2, i * 18).split(' ');

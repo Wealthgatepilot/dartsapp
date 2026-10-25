@@ -1,0 +1,196 @@
+// Gemeinsame Bausteine der Setup-Bildschirme: Spielerauswahl, Legs/Sets, letzte Einstellungen, Spielstart.
+
+import { useEffect, useMemo, useState } from 'preact/hooks';
+import type { Race } from '../engine/core';
+import type { GameCreatedPayload, Participant } from '../engine/events';
+import { listProfiles, type Profile } from '../engine/profiles';
+import { uuidv7 } from '../data/ids';
+import { Segmented, Stepper } from './components';
+import { useAppData } from './data';
+import { href, navigate } from './router';
+
+export type Pick = { kind: 'profile'; profileId: string } | { kind: 'guest'; guestName: string };
+
+const RACE_KIND: { value: Race['kind']; label: string }[] = [
+  { value: 'firstTo', label: 'first to' },
+  { value: 'bestOf', label: 'best of' },
+];
+
+export function useActiveProfiles(): Profile[] {
+  const { events } = useAppData();
+  return useMemo(() => listProfiles(events).filter((p) => !p.archived), [events]);
+}
+
+/**
+ * Letzte Einstellungen eines Setups laden und merken (pro Modus ein Schlüssel).
+ * Profile, die es nicht mehr gibt, fallen aus der Auswahl.
+ */
+export function useSavedSetup<T extends { picks: Pick[] }>(key: string, defaults: T, onLoad?: (saved: T) => void) {
+  const { store } = useAppData();
+  const profiles = useActiveProfiles();
+  const [setup, setSetup] = useState<T>(defaults);
+  useEffect(() => {
+    store.getMeta<T>(key).then((saved) => {
+      if (!saved) return;
+      const merged = {
+        ...defaults,
+        ...saved,
+        picks: saved.picks.filter((p) => p.kind === 'guest' || profiles.some((x) => x.profileId === p.profileId)),
+      };
+      setSetup(merged);
+      onLoad?.(merged);
+    });
+    // nur beim Öffnen des Bildschirms
+  }, []);
+  const save = (value: T) => store.setMeta(key, value);
+  return [setup, setSetup, save] as const;
+}
+
+/** onChange bekommt eine Änderungsfunktion, damit schnelle Tipps hintereinander keine Auswahl verlieren. */
+export function PlayerPicker({ picks, onChange }: { picks: Pick[]; onChange: (update: (p: Pick[]) => Pick[]) => void }) {
+  const profiles = useActiveProfiles();
+  const [guest, setGuest] = useState('');
+
+  const toggle = (profileId: string) =>
+    onChange((cur) =>
+      cur.some((p) => p.kind === 'profile' && p.profileId === profileId)
+        ? cur.filter((p) => !(p.kind === 'profile' && p.profileId === profileId))
+        : [...cur, { kind: 'profile', profileId }],
+    );
+
+  const addGuest = (e: Event) => {
+    e.preventDefault();
+    const name = guest.trim();
+    onChange((cur) => [
+      ...cur,
+      { kind: 'guest', guestName: (name || `Gast ${cur.filter((p) => p.kind === 'guest').length + 1}`).slice(0, 30) },
+    ]);
+    setGuest('');
+  };
+
+  const move = (i: number, d: -1 | 1) =>
+    onChange((cur) => {
+      const next = [...cur];
+      [next[i], next[i + d]] = [next[i + d], next[i]];
+      return next;
+    });
+
+  const pickName = (p: Pick) =>
+    p.kind === 'guest' ? `${p.guestName} (Gast)` : (profiles.find((x) => x.profileId === p.profileId)?.name ?? '?');
+
+  return (
+    <section class="card">
+      <h2>Spieler</h2>
+      <div class="chips">
+        {profiles.map((p) => {
+          const on = picks.some((x) => x.kind === 'profile' && x.profileId === p.profileId);
+          return (
+            <button key={p.profileId} class={on ? 'chip on' : 'chip'} onClick={() => toggle(p.profileId)}>
+              <span class="dot" style={{ background: p.color }} /> {p.name}
+            </button>
+          );
+        })}
+        {profiles.length === 0 && (
+          <a class="muted" href={href({ name: 'profiles' })}>
+            Noch keine Profile – hier anlegen
+          </a>
+        )}
+      </div>
+      <form class="row" onSubmit={addGuest}>
+        <input
+          class="grow"
+          value={guest}
+          maxLength={30}
+          placeholder="Gast (ohne Statistik)"
+          onInput={(e) => setGuest((e.target as HTMLInputElement).value)}
+        />
+        <button class="btn btn-small" type="submit">
+          + Gast
+        </button>
+      </form>
+      {picks.length > 0 && (
+        <ol class="order">
+          {picks.map((p, i) => (
+            <li key={i}>
+              <span class="grow">{pickName(p)}</span>
+              <button class="btn-icon" disabled={i === 0} onClick={() => move(i, -1)} aria-label="nach oben">
+                ↑
+              </button>
+              <button class="btn-icon" disabled={i === picks.length - 1} onClick={() => move(i, 1)} aria-label="nach unten">
+                ↓
+              </button>
+              <button class="btn-icon" onClick={() => onChange((cur) => cur.filter((_, j) => j !== i))} aria-label="entfernen">
+                ✕
+              </button>
+            </li>
+          ))}
+        </ol>
+      )}
+      <p class="muted small">Die Reihenfolge ist die Wurfreihenfolge im ersten Leg.</p>
+    </section>
+  );
+}
+
+/** Legs und Sets („first to“ / „best of“). */
+export function LegsSets({
+  legs,
+  sets,
+  onChange,
+}: {
+  legs: Race;
+  sets: Race | null;
+  onChange: (v: { legs: Race; sets: Race | null }) => void;
+}) {
+  return (
+    <>
+      <div class="setting">
+        <span>Legs</span>
+        <span class="row">
+          <Segmented value={legs.kind} options={RACE_KIND} onChange={(kind) => onChange({ legs: { ...legs, kind }, sets })} />
+          <Stepper label="Legs" value={legs.count} min={1} max={99} onChange={(count) => onChange({ legs: { ...legs, count }, sets })} />
+        </span>
+      </div>
+      <div class="setting">
+        <span>Sets</span>
+        <span class="row">
+          {sets ? (
+            <>
+              <Segmented value={sets.kind} options={RACE_KIND} onChange={(kind) => onChange({ legs, sets: { ...sets, kind } })} />
+              <Stepper
+                label="Sets"
+                value={sets.count}
+                min={0}
+                max={99}
+                onChange={(count) => onChange({ legs, sets: count === 0 ? null : { ...sets, count } })}
+              />
+            </>
+          ) : (
+            <button class="btn btn-small" onClick={() => onChange({ legs, sets: { count: 3, kind: 'bestOf' } })}>
+              Sets an
+            </button>
+          )}
+        </span>
+      </div>
+    </>
+  );
+}
+
+type CreatedWithoutIds = GameCreatedPayload extends infer G
+  ? G extends GameCreatedPayload
+    ? Omit<G, 'gameId' | 'participants' | 'seed'>
+    : never
+  : never;
+
+/** Legt das Spiel an (game.created + game.orderDecided) und öffnet es. */
+export function useStartGame() {
+  const { append } = useAppData();
+  return async (picks: Pick[], mode: CreatedWithoutIds) => {
+    const gameId = uuidv7();
+    const participants: Participant[] = picks.map((p, slot) => ({ slot, ...p }));
+    await append([
+      { type: 'game.created', payload: { ...mode, gameId, participants, seed: Date.now() } as GameCreatedPayload },
+      { type: 'game.orderDecided', payload: { gameId, order: participants.map((p) => p.slot), method: 'asEntered' } },
+    ]);
+    navigate({ name: 'game', gameId }, true);
+  };
+}

@@ -1,56 +1,36 @@
-// Match-Ende (SPEC 5): Ergebnis und Kennzahlen, Revanche oder fertig.
+// Spielende (SPEC 5): Ergebnis und Kennzahlen, Revanche oder fertig. Die Tabelle liefert der Modus.
 
-import { formatAverage, matchNumbers } from '../../engine/stats';
-import type { X01State } from '../../engine/x01';
+import type { ComponentChildren } from 'preact';
 
 export function MatchEnd({
-  state,
-  order,
+  winners,
   nameOf,
+  children,
   onUndo,
   onRematch,
   onDone,
 }: {
-  state: X01State;
-  order: number[];
+  winners: number[];
   nameOf: (slot: number) => string;
+  children: ComponentChildren;
   onUndo: () => void;
   onRematch: () => void;
   onDone: () => void;
 }) {
-  const sets = state.setup.settings.sets;
+  const title =
+    winners.length === 1
+      ? `🏆 ${nameOf(winners[0])} gewinnt`
+      : winners.length > 1
+        ? `🏆 Gleichstand: ${winners.map(nameOf).join(', ')}`
+        : 'Spiel beendet';
   return (
     <div class="modal-backdrop">
       <div class="modal" role="dialog" aria-label="Spielende">
         <header class="modal-head">
-          <h2>🏆 {nameOf(state.matchWinner!)} gewinnt</h2>
+          <h2>{title}</h2>
         </header>
         <div class="modal-body">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Spieler</th>
-                <th>{sets ? 'Sets' : 'Legs'}</th>
-                <th>Ø</th>
-                <th>Darts</th>
-                <th>Höchster Checkout</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.map((slot) => {
-                const n = matchNumbers(state.legs, slot);
-                return (
-                  <tr key={slot}>
-                    <td>{nameOf(slot)}</td>
-                    <td>{sets ? state.setsWon[slot] : state.legsWon[slot]}</td>
-                    <td>{formatAverage(n.average)}</td>
-                    <td>{n.darts}</td>
-                    <td>{n.highestCheckout ?? '—'}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          {children}
           <div class="row">
             <button class="btn" onClick={onUndo}>
               ↶ Rückgängig

@@ -2,6 +2,7 @@ import { BoardTest } from './BoardTest';
 import { DataProvider } from './data';
 import { PwaProvider } from './pwa';
 import { useRoute } from './router';
+import { CricketSetup } from './screens/CricketSetup';
 import { Game } from './screens/Game';
 import { Home } from './screens/Home';
 import { Profiles } from './screens/Profiles';
@@ -27,6 +28,8 @@ function Screens() {
       return <Profiles />;
     case 'setup':
       return <X01Setup />;
+    case 'cricket':
+      return <CricketSetup />;
     case 'game':
       return <Game key={route.gameId} gameId={route.gameId} />;
     case 'settings':

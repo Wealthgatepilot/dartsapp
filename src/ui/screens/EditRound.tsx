@@ -1,32 +1,39 @@
 // Runde bearbeiten (SPEC 5.2): Aufnahme im laufenden Leg wählen, Darts ersetzen, entfernen oder ergänzen.
+// Für alle Modi mit Board-Eingabe gleich; der Modus liefert planEdit und die Kurzfassung einer Aufnahme.
 
 import { useState } from 'preact/hooks';
+import type { EditPlan, TurnBase } from '../../engine/core';
 import type { GameEvent, NewEvent } from '../../engine/events';
-import { turnScore } from '../../engine/stats';
 import { fieldLabel, points, type Field } from '../../engine/types';
-import { planEdit, type Turn, type X01State } from '../../engine/x01';
 import { Board } from '../board/Board';
 import { Modal } from '../components';
 
 export function EditRound({
-  state,
+  legNo,
+  turns,
   gameEvents,
   nameOf,
+  summary,
+  planEdit,
+  isTarget,
   onClose,
   onApply,
 }: {
-  state: X01State;
+  legNo: number;
+  turns: readonly TurnBase[];
   gameEvents: GameEvent[];
   nameOf: (slot: number) => string;
+  summary: (t: TurnBase) => string;
+  planEdit: (target: TurnBase, fields: Field[]) => EditPlan;
+  isTarget?: (n: number) => boolean;
   onClose: () => void;
   onApply: (events: NewEvent[]) => void;
 }) {
-  const leg = state.legs[state.legs.length - 1];
-  const [turn, setTurn] = useState<Turn | null>(null);
+  const [turn, setTurn] = useState<TurnBase | null>(null);
   const [fields, setFields] = useState<Field[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
 
-  const open = (t: Turn) => {
+  const open = (t: TurnBase) => {
     setTurn(t);
     setFields(t.darts.map((d) => d.field));
     setSelected(null);
@@ -34,17 +41,16 @@ export function EditRound({
 
   if (!turn) {
     return (
-      <Modal title={`Runden bearbeiten · Leg ${leg.leg}`} onClose={onClose}>
+      <Modal title={`Runden bearbeiten · Leg ${legNo}`} onClose={onClose}>
         <ul class="list">
-          {[...leg.turns].reverse().map((t) => (
+          {[...turns].reverse().map((t) => (
             <li key={`${t.slot}-${t.turnIndex}`}>
               <button class="list-row list-button" onClick={() => open(t)}>
                 <span>
                   <strong>R{t.turnIndex}</strong> {nameOf(t.slot)}
                 </span>
                 <span>
-                  {t.darts.map((d) => fieldLabel(d.field)).join(' ') || '—'} ={' '}
-                  <strong>{t.bust ? 'Bust' : turnScore(t)}</strong>
+                  {t.darts.map((d) => fieldLabel(d.field)).join(' ') || '—'} = <strong>{summary(t)}</strong>
                 </span>
               </button>
             </li>
@@ -64,7 +70,7 @@ export function EditRound({
   };
 
   const apply = () => {
-    const plan = planEdit(state, gameEvents, turn, fields);
+    const plan = planEdit(turn, fields);
     if (plan.error) return alert(plan.error);
     if (plan.events.length === 0) return onClose();
     const lost = plan.discarded.filter((id) => gameEvents.some((e) => e.id === id && e.type === 'dart.thrown')).length;
@@ -107,7 +113,12 @@ export function EditRound({
             : 'Dart antippen, um ihn zu ersetzen.'}
       </p>
       <div class="board-modal-wrap">
-        <Board onDart={onDart} className="board-modal" disabled={selected === null && fields.length >= 3} />
+        <Board
+          onDart={onDart}
+          className="board-modal"
+          isTarget={isTarget}
+          disabled={selected === null && fields.length >= 3}
+        />
       </div>
       <div class="row">
         <button class="btn" onClick={() => setTurn(null)}>

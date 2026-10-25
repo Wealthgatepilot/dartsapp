@@ -751,3 +751,118 @@ button.pill-x {
 .modal-body .btn {
   min-height: 52px;
 }
+.b-grey {
+  fill: #5c636a;
+}
+.b-grey-ring {
+  fill: #474d53;
+}
+
+/* ---------- Cricket-Tafel ---------- */
+
+.tafel-wrap {
+  overflow-x: auto;
+  flex: 0 0 auto;
+}
+.tafel {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--panel);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.tafel th,
+.tafel td {
+  padding: 2px 6px;
+  text-align: center;
+  border-bottom: 1px solid #2c343c;
+}
+.tafel thead th {
+  vertical-align: top;
+  border-top: 3px solid transparent;
+  min-width: 80px;
+}
+.tafel thead th.active {
+  background: #2b3540;
+}
+.tafel tbody th {
+  width: 44px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent);
+}
+.tafel td {
+  font-size: 22px;
+  font-weight: 800;
+  height: 32px;
+}
+.tafel td.active {
+  background: #2b3540;
+}
+.tafel tr.dead th,
+.tafel tr.dead td {
+  opacity: 0.35;
+}
+.tafel-points {
+  font-size: 26px;
+  font-weight: 800;
+}
+.chip-num {
+  min-width: 48px;
+  padding: 0 8px;
+}
+
+/* Spielansicht: Panel selbst scrollt nicht, nur der Spielstand darin. */
+.screen-game .panel {
+  overflow: hidden;
+}
+.screen-game .panel > * {
+  flex: 0 0 auto;
+}
+.screen-game .panel > .panel-scroll {
+  flex: 0 1 auto;
+  min-height: 48px;
+  overflow-y: auto;
+}
+.tafel td {
+  height: 26px;
+  font-size: 19px;
+  line-height: 1;
+}
+.tafel tbody th {
+  font-size: 16px;
+}
+.tafel-points {
+  font-size: 22px;
+}
+.tafel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+}
+.tafel thead th {
+  padding: 4px 6px;
+}
+.tafel td {
+  height: 24px;
+}
+.turnbox .pill {
+  min-height: 34px;
+  padding: 4px 10px;
+  font-size: 15px;
+}
+.turnbox .pills {
+  min-height: 34px;
+}
+.tafel td {
+  height: 22px;
+}
+.tafel thead th {
+  padding: 2px 6px;
+}
+.screen-game .turnbox {
+  gap: 4px;
+  padding: 6px 10px;
+}

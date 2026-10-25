@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { x01Rules } from '../../src/engine/rules';
+import { DEFAULT_CRICKET } from '../../src/engine/cricket';
+import { cricketRules, x01Rules } from '../../src/engine/rules';
 import { formatAverage, legNumbers, matchNumbers } from '../../src/engine/stats';
 import { X01Game } from './helpers';
 
@@ -30,6 +31,20 @@ describe('X01-Kennzahlen (SPEC 11.2)', () => {
   it('ohne Darts kein Average', () => {
     const g = X01Game.create({});
     expect(formatAverage(legNumbers(g.state.legs[0], 0).average)).toBe('—');
+  });
+});
+
+describe('Regeltext Cricket (SPEC 5.4)', () => {
+  it('nennt Zielzahlen, Trefferzahl und die Regel der Variante', () => {
+    const std = cricketRules(DEFAULT_CRICKET).join(' ');
+    expect(std).toContain('20, 19, 18, 17, 16, 15 und Bull');
+    expect(std).toContain('3-mal getroffen');
+    expect(std).toContain('mindestens so viele Punkte');
+    const ct = cricketRules({ ...DEFAULT_CRICKET, variant: 'cutthroat', closeAt: 1, targets: [20] }).join(' ');
+    expect(ct).toContain('Gespielt wird auf 20.');
+    expect(ct).toContain('einmal getroffen');
+    expect(ct).toContain('höchstens so viele Punkte');
+    expect(cricketRules({ ...DEFAULT_CRICKET, legs: { count: 3, kind: 'bestOf' } }).join(' ')).toContain('Best of 3');
   });
 });
 

@@ -1,7 +1,8 @@
 // Spiele aus Ereignissen: Liste, Reihenfolge, laufendes Spiel (SPEC 5).
 
-import type { AppEvent, GameCreatedPayload } from './events';
-import type { X01Setup } from './x01';
+import { computeCricket, type CricketSetup, type CricketState } from './cricket';
+import { gameEventsOf, type AppEvent, type GameCreatedPayload } from './events';
+import { computeX01, type X01Setup, type X01State } from './x01';
 
 export interface GameInfo {
   created: GameCreatedPayload;
@@ -44,12 +45,47 @@ export function unfinishedGame(events: readonly AppEvent[]): GameInfo | null {
 }
 
 export function x01SetupOf(game: GameInfo): X01Setup {
+  const c = game.created;
+  if (c.mode !== 'x01') throw new Error('Kein X01-Spiel');
   const startScores: Record<number, number> = {};
-  for (const p of game.created.participants) if (p.startScore) startScores[p.slot] = p.startScore;
+  for (const p of c.participants) if (p.startScore) startScores[p.slot] = p.startScore;
   return {
-    gameId: game.created.gameId,
-    settings: game.created.settings,
+    gameId: c.gameId,
+    settings: c.settings,
     order: game.order,
     ...(Object.keys(startScores).length ? { startScores } : {}),
   };
+}
+
+export function cricketSetupOf(game: GameInfo): CricketSetup {
+  const c = game.created;
+  if (c.mode !== 'cricket') throw new Error('Kein Cricket-Spiel');
+  return { gameId: c.gameId, settings: c.settings, order: game.order };
+}
+
+export type AnyGameState =
+  | { mode: 'x01'; state: X01State }
+  | { mode: 'cricket'; state: CricketState };
+
+/** Spielstand eines beliebigen Spiels. */
+export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGameState {
+  const evs = gameEventsOf(events, game.created.gameId);
+  switch (game.created.mode) {
+    case 'x01':
+      return { mode: 'x01', state: computeX01(x01SetupOf(game), evs) };
+    case 'cricket':
+      return { mode: 'cricket', state: computeCricket(cricketSetupOf(game), evs) };
+  }
+}
+
+/** Kurzer Titel, z. B. „501 · Double-Out“ oder „Cricket · Cut-Throat“. */
+export function gameTitle(c: GameCreatedPayload): string {
+  switch (c.mode) {
+    case 'x01': {
+      const out = { double: 'Double-Out', master: 'Master-Out', single: 'Single-Out' }[c.settings.outMode];
+      return `${c.settings.startScore} · ${out}`;
+    }
+    case 'cricket':
+      return c.settings.variant === 'cutthroat' ? 'Cricket · Cut-Throat' : 'Cricket';
+  }
 }
