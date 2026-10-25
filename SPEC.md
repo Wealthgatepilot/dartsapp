@@ -127,7 +127,7 @@ Statt „Spielstand 351“ speichert die App nur, **was passiert ist**: „Dart 
 | `profile.created` | `profileId`, `name`, `color` | Person angelegt |
 | `profile.renamed` | `profileId`, `name` | Name geändert |
 | `profile.archived` / `profile.restored` | `profileId` | Ausblenden statt löschen |
-| `game.created` | `gameId`, `mode`, `settings`, `advice` (Checkout-Hilfe), `participants[]`, `seed`, `tournamentMatchId?` | Spiel gestartet |
+| `game.created` | `gameId`, `mode`, `settings`, `advice` (Checkout-Hilfe, nur X01), `participants[]`, `seed`, `start` (`bull` / `coin` / `asEntered`, fehlt bei älteren Spielen = `asEntered`), `tournamentMatchId?` | Spiel gestartet. Bei `bull`/`coin` folgt erst der Bildschirm „Wer wirft zuerst?“, dann `game.orderDecided`. Eine Revanche lost dann neu aus. |
 | `game.orderDecided` | `gameId`, `order[]`, `method` (`bull` / `coin` / `asEntered`) | Reihenfolge feststeht |
 | `bulloff.throw` | `gameId`, `slot`, `attempt`, `xMm`, `yMm`, `distanceMm` | Ein Ausbullen-Dart |
 | `dart.thrown` | siehe 3.4 | Jeder Dart |

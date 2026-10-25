@@ -6,12 +6,14 @@ import { x01Rules } from '../../engine/rules';
 import { validateSettings, type InOut, type X01Settings } from '../../engine/x01';
 import { Modal, Segmented, TopBar } from '../components';
 import { href } from '../router';
-import { LegsSets, PlayerPicker, useSavedSetup, useStartGame, type Pick } from '../setup';
+import { LegsSets, PlayerPicker, StartMethodSetting, useSavedSetup, useStartGame, type Pick } from '../setup';
+import type { StartMethod } from '../../engine/events';
 
 interface SavedSetup {
   settings: X01Settings;
   advice: AdviceLevel;
   picks: Pick[];
+  start?: StartMethod;
 }
 
 const DEFAULT: SavedSetup = {
@@ -42,7 +44,7 @@ export function X01Setup() {
   const go = async () => {
     if (errors.length) return;
     await save(setup);
-    await start(setup.picks, { mode: 'x01', settings: s, advice: setup.advice });
+    await start(setup.picks, { mode: 'x01', settings: s, advice: setup.advice }, setup.start);
   };
 
   return (
@@ -61,6 +63,11 @@ export function X01Setup() {
 
       <section class="card">
         <h2>Einstellungen</h2>
+        <StartMethodSetting
+          value={setup.start ?? 'asEntered'}
+          players={setup.picks.length}
+          onChange={(start) => setSetup((x) => ({ ...x, start }))}
+        />
         <div class="setting">
           <span>Startpunkte</span>
           <Segmented<number | 'frei'>

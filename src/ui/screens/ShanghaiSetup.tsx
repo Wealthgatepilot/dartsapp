@@ -5,12 +5,14 @@ import { shanghaiRules } from '../../engine/rules';
 import { DEFAULT_SHANGHAI, maxRounds, validateShanghai, type ShanghaiSettings } from '../../engine/shanghai';
 import { Modal, Segmented, Stepper, TopBar } from '../components';
 import { href } from '../router';
-import { PlayerPicker, useSavedSetup, useStartGame, type Pick } from '../setup';
+import { PlayerPicker, StartMethodSetting, useSavedSetup, useStartGame, type Pick } from '../setup';
+import type { StartMethod } from '../../engine/events';
 import { StartButton } from './X01Setup';
 
 interface SavedSetup {
   settings: ShanghaiSettings;
   picks: Pick[];
+  start?: StartMethod;
 }
 
 export function ShanghaiSetup() {
@@ -30,7 +32,7 @@ export function ShanghaiSetup() {
   const go = async () => {
     if (errors.length) return;
     await save(setup);
-    await start(setup.picks, { mode: 'shanghai', settings: s });
+    await start(setup.picks, { mode: 'shanghai', settings: s }, setup.start);
   };
 
   return (
@@ -49,6 +51,11 @@ export function ShanghaiSetup() {
 
       <section class="card">
         <h2>Einstellungen</h2>
+        <StartMethodSetting
+          value={setup.start ?? 'asEntered'}
+          players={setup.picks.length}
+          onChange={(start) => setSetup((x) => ({ ...x, start }))}
+        />
         <div class="setting">
           <span>Startzahl</span>
           <Stepper label="Startzahl" value={s.startNumber} min={1} max={20} onChange={(startNumber) => set({ startNumber })} />

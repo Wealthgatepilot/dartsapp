@@ -5,7 +5,8 @@ import { DEFAULT_DOUBLES, validateDoubles, type DoublesSettings } from '../../en
 import { doublesRules } from '../../engine/rules';
 import { Modal, Segmented, Stepper, TopBar } from '../components';
 import { href } from '../router';
-import { PlayerPicker, useSavedSetup, useStartGame, type Pick } from '../setup';
+import { PlayerPicker, StartMethodSetting, useSavedSetup, useStartGame, type Pick } from '../setup';
+import type { StartMethod } from '../../engine/events';
 import { StartButton } from './X01Setup';
 
 const ALL = DEFAULT_DOUBLES.targets!;
@@ -13,6 +14,7 @@ const ALL = DEFAULT_DOUBLES.targets!;
 interface SavedSetup {
   settings: DoublesSettings;
   picks: Pick[];
+  start?: StartMethod;
 }
 
 export function DoublesSetup() {
@@ -32,7 +34,7 @@ export function DoublesSetup() {
   const go = async () => {
     if (errors.length) return;
     await save(setup);
-    await start(setup.picks, { mode: 'doubles', settings: s });
+    await start(setup.picks, { mode: 'doubles', settings: s }, setup.start);
   };
 
   return (
@@ -51,6 +53,11 @@ export function DoublesSetup() {
 
       <section class="card">
         <h2>Einstellungen</h2>
+        <StartMethodSetting
+          value={setup.start ?? 'asEntered'}
+          players={setup.picks.length}
+          onChange={(start) => setSetup((x) => ({ ...x, start }))}
+        />
         <div class="setting">
           <span>Zielfolge</span>
           <Segmented

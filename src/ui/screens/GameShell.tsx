@@ -105,10 +105,12 @@ export function GameShell(p: ShellProps) {
     const evs: NewAppEvent[] = [{ type: 'game.ended', payload: { gameId, reason: 'finished' } }];
     const newId = uuidv7();
     if (rematch) {
-      evs.push(
-        { type: 'game.created', payload: { ...game.created, gameId: newId, seed: Date.now() } },
-        { type: 'game.orderDecided', payload: { gameId: newId, order: game.order, method: 'asEntered' } },
-      );
+      // Revanche mit Ausbullen oder Münzwurf lost die Reihenfolge neu aus; sonst gleiche Reihenfolge.
+      const redecide = game.created.start === 'bull' || game.created.start === 'coin';
+      evs.push({ type: 'game.created', payload: { ...game.created, gameId: newId, seed: Date.now() } });
+      if (!redecide) {
+        evs.push({ type: 'game.orderDecided', payload: { gameId: newId, order: game.order, method: 'asEntered' } });
+      }
     }
     await append(evs);
     navigate(rematch ? { name: 'game', gameId: newId } : { name: 'home' }, true);

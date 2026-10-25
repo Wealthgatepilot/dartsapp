@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { Race } from '../engine/core';
-import type { GameCreatedPayload, Participant } from '../engine/events';
+import type { GameCreatedPayload, Participant, StartMethod } from '../engine/events';
 import { listProfiles, type Profile } from '../engine/profiles';
 import { uuidv7 } from '../data/ids';
 import { Segmented, Stepper } from './components';
@@ -181,15 +181,53 @@ type CreatedWithoutIds = GameCreatedPayload extends infer G
     : never
   : never;
 
-/** Legt das Spiel an (game.created + game.orderDecided) und öffnet es. */
+/** Wer beginnt (SPEC 6.3). Bei einem Spieler gibt es nichts zu wählen. */
+export function StartMethodSetting({
+  value,
+  players,
+  onChange,
+}: {
+  value: StartMethod;
+  players: number;
+  onChange: (v: StartMethod) => void;
+}) {
+  if (players < 2) return null;
+  return (
+    <div class="setting">
+      <span>Wer beginnt</span>
+      <Segmented<StartMethod>
+        value={value}
+        options={[
+          { value: 'bull', label: 'Ausbullen' },
+          { value: 'coin', label: 'Münzwurf' },
+          { value: 'asEntered', label: 'wie eingetragen' },
+        ]}
+        onChange={onChange}
+      />
+    </div>
+  );
+}
+
+/**
+ * Legt das Spiel an und öffnet es. Bei „wie eingetragen“ (oder nur einem Spieler) steht die Reihenfolge sofort fest,
+ * sonst legt der Ausbullen- bzw. Münzwurf-Bildschirm sie fest (game.orderDecided).
+ */
 export function useStartGame() {
   const { append } = useAppData();
-  return async (picks: Pick[], mode: CreatedWithoutIds) => {
+  return async (picks: Pick[], mode: CreatedWithoutIds, start: StartMethod = 'asEntered') => {
     const gameId = uuidv7();
     const participants: Participant[] = picks.map((p, slot) => ({ slot, ...p }));
+    const method: StartMethod = picks.length < 2 ? 'asEntered' : start;
     await append([
-      { type: 'game.created', payload: { ...mode, gameId, participants, seed: Date.now() } as GameCreatedPayload },
-      { type: 'game.orderDecided', payload: { gameId, order: participants.map((p) => p.slot), method: 'asEntered' } },
+      { type: 'game.created', payload: { ...mode, gameId, participants, seed: Date.now(), start: method } as GameCreatedPayload },
+      ...(method === 'asEntered'
+        ? [
+            {
+              type: 'game.orderDecided' as const,
+              payload: { gameId, order: participants.map((p) => p.slot), method: 'asEntered' as const },
+            },
+          ]
+        : []),
     ]);
     navigate({ name: 'game', gameId }, true);
   };

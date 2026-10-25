@@ -6,12 +6,14 @@ import { cricketRules } from '../../engine/rules';
 import { BULL } from '../../engine/types';
 import { Modal, Segmented, Stepper, TopBar } from '../components';
 import { href } from '../router';
-import { LegsSets, PlayerPicker, useSavedSetup, useStartGame, type Pick } from '../setup';
+import { LegsSets, PlayerPicker, StartMethodSetting, useSavedSetup, useStartGame, type Pick } from '../setup';
+import type { StartMethod } from '../../engine/events';
 import { StartButton } from './X01Setup';
 
 interface SavedSetup {
   settings: CricketSettings;
   picks: Pick[];
+  start?: StartMethod;
 }
 
 const ALL_TARGETS = [...Array.from({ length: 20 }, (_, i) => 20 - i), BULL];
@@ -34,7 +36,7 @@ export function CricketSetup() {
   const go = async () => {
     if (errors.length) return;
     await save(setup);
-    await start(setup.picks, { mode: 'cricket', settings: s });
+    await start(setup.picks, { mode: 'cricket', settings: s }, setup.start);
   };
 
   return (
@@ -53,6 +55,11 @@ export function CricketSetup() {
 
       <section class="card">
         <h2>Einstellungen</h2>
+        <StartMethodSetting
+          value={setup.start ?? 'asEntered'}
+          players={setup.picks.length}
+          onChange={(start) => setSetup((x) => ({ ...x, start }))}
+        />
         <div class="setting">
           <span>Variante</span>
           <Segmented

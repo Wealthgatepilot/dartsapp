@@ -62,6 +62,7 @@ const KNOWN_TYPES = new Set<string>([
   'turn.confirmed',
   'event.voided',
   'game.decision',
+  'bulloff.throw',
 ]);
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null && !Array.isArray(x);
@@ -103,6 +104,10 @@ export function checkEvent(e: unknown): string | null {
       return isStr(p.gameId) && [p.slot, p.leg, p.turnIndex].every(isNum) ? null : 'Weiter unvollständig';
     case 'event.voided':
       return isStr(p.gameId) && isStr(p.targetId) ? null : 'Widerruf unvollständig';
+    case 'bulloff.throw':
+      return isStr(p.gameId) && [p.slot, p.attempt, p.xMm, p.yMm, p.distanceMm].every(isNum)
+        ? null
+        : 'Ausbullen-Wurf unvollständig';
     case 'game.decision':
       return isStr(p.gameId) && isNum(p.slot) && isNum(p.turnIndex) && typeof p.end === 'boolean'
         ? null

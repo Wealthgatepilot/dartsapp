@@ -11,6 +11,7 @@ import { href } from '../router';
 import { CricketGame } from './CricketGame';
 import { DoublesGame } from './DoublesGame';
 import { ShanghaiGame } from './ShanghaiGame';
+import { StartOrder } from './StartOrder';
 import { X01Game } from './X01Game';
 
 export interface ModeViewProps {
@@ -42,6 +43,8 @@ export function Game({ gameId }: { gameId: string }) {
     nameOf: (slot) => participantName(participant(slot), profiles),
     colorOf: (slot) => participantColor(participant(slot), profiles),
   };
+  // Erst festlegen, wer beginnt (Ausbullen oder Münzwurf), dann spielen.
+  if (!game.orderDecided) return <StartOrder {...props} />;
   switch (game.created.mode) {
     case 'x01':
       return <X01Game {...props} />;

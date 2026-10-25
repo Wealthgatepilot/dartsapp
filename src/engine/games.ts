@@ -12,6 +12,8 @@ export interface GameInfo {
   order: number[];
   ended: 'finished' | 'abandoned' | null;
   hidden: boolean;
+  /** Reihenfolge steht fest (game.orderDecided). Bis dahin läuft Ausbullen bzw. Münzwurf. */
+  orderDecided: boolean;
 }
 
 export function listGames(events: readonly AppEvent[]): GameInfo[] {
@@ -25,6 +27,7 @@ export function listGames(events: readonly AppEvent[]): GameInfo[] {
           order: e.payload.participants.map((p) => p.slot),
           ended: null,
           hidden: false,
+          orderDecided: false,
         });
       }
       continue;
@@ -34,7 +37,10 @@ export function listGames(events: readonly AppEvent[]): GameInfo[] {
         ? games.get(e.payload.gameId)
         : undefined;
     if (!g) continue;
-    if (e.type === 'game.orderDecided') g.order = e.payload.order;
+    if (e.type === 'game.orderDecided') {
+      g.order = e.payload.order;
+      g.orderDecided = true;
+    }
     if (e.type === 'game.ended' && !g.ended) g.ended = e.payload.reason;
     if (e.type === 'game.hidden') g.hidden = true;
   }

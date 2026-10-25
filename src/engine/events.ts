@@ -53,11 +53,22 @@ export interface DecisionPayload {
   end: boolean;
 }
 
+/** Ein Ausbullen-Dart: angetippte Stelle in mm vom Mittelpunkt (x nach rechts, y nach unten), SPEC 6.4. */
+export interface BullThrowPayload {
+  gameId: string;
+  slot: number;
+  attempt: number;
+  xMm: number;
+  yMm: number;
+  distanceMm: number;
+}
+
 export type GameEvent =
   | EventOf<'dart.thrown', DartPayload>
   | EventOf<'turn.confirmed', ConfirmPayload>
   | EventOf<'event.voided', VoidPayload>
-  | EventOf<'game.decision', DecisionPayload>;
+  | EventOf<'game.decision', DecisionPayload>
+  | EventOf<'bulloff.throw', BullThrowPayload>;
 
 export type NewEvent = NewOf<GameEvent>;
 
@@ -81,10 +92,14 @@ export interface Participant {
   startScore?: number;
 }
 
+/** Wie die Reihenfolge festgelegt wird (SPEC 6.3). Fehlt die Angabe (ältere Spiele): wie eingetragen. */
+export type StartMethod = 'bull' | 'coin' | 'asEntered';
+
 interface GameCreatedBase {
   gameId: string;
   participants: Participant[];
   seed: number;
+  start?: StartMethod;
 }
 
 export type GameCreatedPayload =
@@ -119,7 +134,8 @@ export function gameEventsOf(events: readonly AppEvent[], gameId: string): GameE
       (e.type === 'dart.thrown' ||
         e.type === 'turn.confirmed' ||
         e.type === 'event.voided' ||
-        e.type === 'game.decision') &&
+        e.type === 'game.decision' ||
+        e.type === 'bulloff.throw') &&
       e.payload.gameId === gameId,
   );
 }
