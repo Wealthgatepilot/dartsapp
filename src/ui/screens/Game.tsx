@@ -9,6 +9,7 @@ import { useAppData } from '../data';
 import { participantColor, participantName } from '../names';
 import { href } from '../router';
 import { CricketGame } from './CricketGame';
+import { ShanghaiGame } from './ShanghaiGame';
 import { X01Game } from './X01Game';
 
 export interface ModeViewProps {
@@ -45,5 +46,7 @@ export function Game({ gameId }: { gameId: string }) {
       return <X01Game {...props} />;
     case 'cricket':
       return <CricketGame {...props} />;
+    case 'shanghai':
+      return <ShanghaiGame {...props} />;
   }
 }

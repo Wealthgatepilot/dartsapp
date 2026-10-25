@@ -140,6 +140,10 @@ export function Home() {
           <strong>Cricket</strong>
           <span class="muted">Standard oder Cut-Throat</span>
         </a>
+        <a class="menu-item menu-main" href={href({ name: 'shanghai' })}>
+          <strong>Shanghai</strong>
+          <span class="muted">Runde für Runde auf ein Ziel</span>
+        </a>
         <a class="menu-item" href={href({ name: 'profiles' })}>
           <strong>Profile</strong>
           <span class="muted">{profiles.filter((p) => !p.archived).length} Spieler</span>

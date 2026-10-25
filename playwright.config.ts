@@ -5,6 +5,8 @@ import { defineConfig, devices } from '@playwright/test';
 // der Offline-Test gegen die gebaute App (nur dort gibt es den Service Worker).
 export default defineConfig({
   testDir: 'tests/e2e',
+  // Auf GitHub ein zweiter Versuch bei seltenen Zeitproblemen; der Bericht weist solche Tests als „flaky“ aus.
+  retries: process.env.CI ? 1 : 0,
   use: {
     baseURL: 'http://localhost:5174/dartsapp/',
   },

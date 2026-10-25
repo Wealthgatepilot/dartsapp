@@ -8,6 +8,7 @@ export type Route =
   | { name: 'profiles' }
   | { name: 'setup' }
   | { name: 'cricket' }
+  | { name: 'shanghai' }
   | { name: 'game'; gameId: string }
   | { name: 'settings' }
   | { name: 'boardtest' };
@@ -21,6 +22,8 @@ export function parseRoute(hash: string): Route {
       return { name: 'setup' };
     case 'cricket':
       return { name: 'cricket' };
+    case 'shanghai':
+      return { name: 'shanghai' };
     case 'spiel':
       return parts[1] ? { name: 'game', gameId: decodeURIComponent(parts[1]) } : { name: 'home' };
     case 'einstellungen':
@@ -42,6 +45,8 @@ export function href(r: Route): string {
       return '#/x01';
     case 'cricket':
       return '#/cricket';
+    case 'shanghai':
+      return '#/shanghai';
     case 'game':
       return `#/spiel/${encodeURIComponent(r.gameId)}`;
     case 'settings':

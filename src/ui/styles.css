@@ -866,3 +866,11 @@ button.pill-x {
   gap: 4px;
   padding: 6px 10px;
 }
+.round-head {
+  font-size: 17px;
+  padding: 2px 4px 6px;
+}
+.round-head strong {
+  color: var(--accent);
+  font-size: 22px;
+}

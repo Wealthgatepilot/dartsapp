@@ -3,6 +3,7 @@
 
 import type { AdviceLevel } from './checkout';
 import type { CricketSettings } from './cricket';
+import type { ShanghaiSettings } from './shanghai';
 import type { Field } from './types';
 import type { X01Settings } from './x01';
 
@@ -75,7 +76,8 @@ interface GameCreatedBase {
 
 export type GameCreatedPayload =
   | (GameCreatedBase & { mode: 'x01'; settings: X01Settings; advice: AdviceLevel })
-  | (GameCreatedBase & { mode: 'cricket'; settings: CricketSettings });
+  | (GameCreatedBase & { mode: 'cricket'; settings: CricketSettings })
+  | (GameCreatedBase & { mode: 'shanghai'; settings: ShanghaiSettings });
 
 export type GameMode = GameCreatedPayload['mode'];
 

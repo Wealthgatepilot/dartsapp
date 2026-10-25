@@ -1,6 +1,7 @@
 // Regeltexte aus Bausteinen, passend zu den gewählten Einstellungen (SPEC 5.4).
 
 import type { CricketSettings } from './cricket';
+import { targetOfRound, type ShanghaiSettings } from './shanghai';
 import { winsNeeded, type InOut, type Race, type X01Settings } from './x01';
 
 const IN_TEXT: Record<InOut, string> = {
@@ -63,6 +64,23 @@ export function cricketRules(s: CricketSettings): string[] {
     );
   }
   return [...out, ...matchText(s.legs, s.sets)];
+}
+
+export function shanghaiRules(s: ShanghaiSettings): string[] {
+  const first = targetName(targetOfRound(s, 1));
+  const last = targetName(targetOfRound(s, s.rounds));
+  const withBull = targetOfRound(s, s.rounds) === 25;
+  const out = [
+    s.rounds === 1
+      ? `Gespielt wird 1 Runde mit dem Ziel ${first}.`
+      : `Gespielt werden ${s.rounds} Runden. Runde 1 hat das Ziel ${first}, danach geht es aufwärts bis ${last}.`,
+    'Pro Runde wirft jeder 3 Darts auf das Ziel. Es zählt die Zahl mal Ring (Double doppelt, Triple dreifach), beim Bull 25 bzw. 50. Andere Felder zählen nichts.',
+    `Shanghai heißt: Single, Double und Triple des Ziels in einer Aufnahme. ${
+      s.endOnShanghai ? 'Wer ein Shanghai wirft, gewinnt sofort.' : 'Ein Shanghai wird vermerkt, das Spiel läuft weiter.'
+    }${withBull ? ' Beim Bull ist kein Shanghai möglich.' : ''}`,
+    'Nach der letzten Runde gewinnt, wer die meisten Punkte hat. Bei Gleichstand teilen sich die Spieler den Sieg.',
+  ];
+  return out;
 }
 
 export function x01Rules(s: X01Settings): string[] {

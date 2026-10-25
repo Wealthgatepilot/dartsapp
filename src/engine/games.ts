@@ -1,6 +1,7 @@
 // Spiele aus Ereignissen: Liste, Reihenfolge, laufendes Spiel (SPEC 5).
 
 import { computeCricket, type CricketSetup, type CricketState } from './cricket';
+import { computeShanghai, type ShanghaiSetup, type ShanghaiState } from './shanghai';
 import { gameEventsOf, type AppEvent, type GameCreatedPayload } from './events';
 import { computeX01, type X01Setup, type X01State } from './x01';
 
@@ -63,9 +64,16 @@ export function cricketSetupOf(game: GameInfo): CricketSetup {
   return { gameId: c.gameId, settings: c.settings, order: game.order };
 }
 
+export function shanghaiSetupOf(game: GameInfo): ShanghaiSetup {
+  const c = game.created;
+  if (c.mode !== 'shanghai') throw new Error('Kein Shanghai-Spiel');
+  return { gameId: c.gameId, settings: c.settings, order: game.order };
+}
+
 export type AnyGameState =
   | { mode: 'x01'; state: X01State }
-  | { mode: 'cricket'; state: CricketState };
+  | { mode: 'cricket'; state: CricketState }
+  | { mode: 'shanghai'; state: ShanghaiState };
 
 /** Spielstand eines beliebigen Spiels. */
 export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGameState {
@@ -75,6 +83,8 @@ export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGam
       return { mode: 'x01', state: computeX01(x01SetupOf(game), evs) };
     case 'cricket':
       return { mode: 'cricket', state: computeCricket(cricketSetupOf(game), evs) };
+    case 'shanghai':
+      return { mode: 'shanghai', state: computeShanghai(shanghaiSetupOf(game), evs) };
   }
 }
 
@@ -87,5 +97,7 @@ export function gameTitle(c: GameCreatedPayload): string {
     }
     case 'cricket':
       return c.settings.variant === 'cutthroat' ? 'Cricket · Cut-Throat' : 'Cricket';
+    case 'shanghai':
+      return 'Shanghai';
   }
 }
