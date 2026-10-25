@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+*.log
+.DS_Store
+
+# Referenzbilder bleiben lokal: Sie zeigen fremde Apps (Marken) und deine Wohnung,
+# das Repository ist aber öffentlich.
+referenz/
