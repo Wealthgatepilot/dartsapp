@@ -32,6 +32,18 @@ export function isValidField(f: Field): boolean {
   return Number.isInteger(f.n) && f.n >= 1 && f.n <= 20;
 }
 
+/** Liest die Kurzschreibweise (S20, D16, T19, SB, DB, 0). Wirft bei ungültiger Eingabe. */
+export function parseField(text: string): Field {
+  const t = text.trim().toUpperCase();
+  if (t === '0') return MISS;
+  if (t === 'SB') return { n: BULL, m: 1 };
+  if (t === 'DB') return { n: BULL, m: 2 };
+  const match = /^([SDT])(\d{1,2})$/.exec(t);
+  const f: Field | null = match ? { n: Number(match[2]), m: ('SDT'.indexOf(match[1]) + 1) as Multiplier } : null;
+  if (!f || !isValidField(f)) throw new Error(`Ungültiges Feld: ${text}`);
+  return f;
+}
+
 /** Kurzschreibweise: S20, D16, T19, SB, DB, 0. */
 export function fieldLabel(f: Field): string {
   if (f.m === 0) return '0';

@@ -131,7 +131,7 @@ Statt „Spielstand 351“ speichert die App nur, **was passiert ist**: „Dart 
 | `game.orderDecided` | `gameId`, `order[]`, `method` (`bull` / `coin` / `asEntered`) | Reihenfolge feststeht |
 | `bulloff.throw` | `gameId`, `slot`, `attempt`, `xMm`, `yMm`, `distanceMm` | Ein Ausbullen-Dart |
 | `dart.thrown` | siehe 3.4 | Jeder Dart |
-| `turn.confirmed` | `gameId`, `slot`, `turnIndex` | „Weiter“ getippt |
+| `turn.confirmed` | `gameId`, `leg`, `slot`, `turnIndex` | „Weiter“ getippt |
 | `event.voided` | `targetId`, `reason` (`undo` / `edit`) | Rückgängig oder Runde bearbeiten |
 | `game.ended` | `gameId`, `reason` (`finished` / `abandoned`) | Spielende (Ergebnis wird berechnet, nicht gespeichert) |
 | `game.hidden` | `gameId` | Spiel aus Listen und Statistik ausblenden (nur mit Freigabe, nie echtes Löschen) |
@@ -146,15 +146,19 @@ Statt „Spielstand 351“ speichert die App nur, **was passiert ist**: „Dart 
 dart.thrown
   gameId        Spiel
   slot          Spielerplatz im Spiel
-  leg, set      Nummer des Legs und Sets (ab 1)
+  leg           Nummer des Legs, fortlaufend über das ganze Match (ab 1)
+  set           Nummer des Sets (ab 1, nur zur Information)
   turnIndex     Aufnahme-Nummer im Leg für diesen Spieler (ab 1)
   dartIndex     1, 2 oder 3
   field         { n: 1–20 | 25, m: 0 | 1 | 2 | 3 }  oder  null
   target        bei Trainings: Zielfeld, z. B. { n: 16, m: 2 }
   hit           bei Trainings: true / false
-  input         "board" | "hitmiss" | "bot"
+  input         "board" | "hitmiss" | "bot" | "auto"
   replaces      ID des Darts, den dieser ersetzt (nur bei Runde bearbeiten)
 ```
+
+- **Die Position (`leg`, `slot`, `turnIndex`, `dartIndex`) ist maßgeblich.** Die Spiellogik ordnet Darts nach Position, nicht nach Uhrzeit. Ein bearbeiteter Dart bleibt so an seiner Stelle, und spätere Darts verrutschen nicht in eine andere Aufnahme.
+- `input = "auto"`: Tippt ein Spieler „Weiter“ nach weniger als 3 Darts (ohne Bust oder Checkout), füllt die App die fehlenden Darts als „daneben“ auf. So zählt jede Aufnahme 3 Darts, wie am Board geworfen. Rückgängig nimmt „Weiter“ und diese aufgefüllten Darts zusammen zurück.
 
 - `field.m = 0` heißt „daneben“ (0 Punkte, Feld bekannt als Fehlwurf).
 - `field = null` heißt „Feld unbekannt“: kommt nur aus der Treffer/Falsch-Eingabe, wenn „Falsch“ getippt wird. Solche Darts zählen für Quoten, aber nicht für die Heatmap.
@@ -164,7 +168,7 @@ dart.thrown
 
 ### 3.5 Reihenfolge und Gültigkeit
 
-- Ereignisse eines Spiels werden nach (`ts`, `deviceId`, `seq`) sortiert und der Reihe nach angewendet.
+- Ereignisse werden nach (`ts`, `deviceId`, `seq`) gespeichert und gelesen. Darts eines Spiels wendet die Spiellogik nach ihrer Position an (3.4). Stehen zwei gültige Darts auf derselben Position, gilt der spätere; der andere wird im Fehlerprotokoll vermerkt.
 - Ein Ereignis, auf das ein `event.voided` zeigt, wird übersprungen.
 - Ein Spiel entsteht immer auf genau einem Gerät. Darum gibt es innerhalb eines Spiels keine Konflikte zwischen Geräten.
 - Ein Dart, der nach der Spiellogik nicht mehr möglich ist (z. B. vierter Dart einer Aufnahme), wird bei der Berechnung ignoriert und im Fehlerprotokoll vermerkt, nie gelöscht.
