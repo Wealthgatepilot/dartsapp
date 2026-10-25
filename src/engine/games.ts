@@ -1,6 +1,7 @@
 // Spiele aus Ereignissen: Liste, Reihenfolge, laufendes Spiel (SPEC 5).
 
 import { computeCricket, type CricketSetup, type CricketState } from './cricket';
+import { computeDoubles, type DoublesSetup, type DoublesState } from './doubles';
 import { computeShanghai, type ShanghaiSetup, type ShanghaiState } from './shanghai';
 import { gameEventsOf, type AppEvent, type GameCreatedPayload } from './events';
 import { computeX01, type X01Setup, type X01State } from './x01';
@@ -70,10 +71,17 @@ export function shanghaiSetupOf(game: GameInfo): ShanghaiSetup {
   return { gameId: c.gameId, settings: c.settings, order: game.order };
 }
 
+export function doublesSetupOf(game: GameInfo): DoublesSetup {
+  const c = game.created;
+  if (c.mode !== 'doubles') throw new Error('Kein Doppelfeld-Training');
+  return { gameId: c.gameId, settings: c.settings, order: game.order, seed: c.seed };
+}
+
 export type AnyGameState =
   | { mode: 'x01'; state: X01State }
   | { mode: 'cricket'; state: CricketState }
-  | { mode: 'shanghai'; state: ShanghaiState };
+  | { mode: 'shanghai'; state: ShanghaiState }
+  | { mode: 'doubles'; state: DoublesState };
 
 /** Spielstand eines beliebigen Spiels. */
 export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGameState {
@@ -85,6 +93,8 @@ export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGam
       return { mode: 'cricket', state: computeCricket(cricketSetupOf(game), evs) };
     case 'shanghai':
       return { mode: 'shanghai', state: computeShanghai(shanghaiSetupOf(game), evs) };
+    case 'doubles':
+      return { mode: 'doubles', state: computeDoubles(doublesSetupOf(game), evs) };
   }
 }
 
@@ -99,5 +109,7 @@ export function gameTitle(c: GameCreatedPayload): string {
       return c.settings.variant === 'cutthroat' ? 'Cricket · Cut-Throat' : 'Cricket';
     case 'shanghai':
       return 'Shanghai';
+    case 'doubles':
+      return 'Doppelfeld-Training';
   }
 }

@@ -31,12 +31,14 @@ export interface ShellProps {
   /** Unter den Pills: Rechenzeile, Checkout-Vorschlag, Hinweise. */
   turnDetails: ComponentChildren;
   pillText: (d: DartView) => string;
-  throwDart: (f: Field) => NewEvent | null;
+  /** Board-Eingabe. Fehlt sie, gibt es stattdessen die Treffer/Falsch-Flächen (hitMiss). */
+  throwDart?: (f: Field) => NewEvent | null;
   confirm: () => NewEvent[];
   undo: () => NewEvent[];
-  planEdit: (target: TurnBase, fields: Field[]) => EditPlan;
+  /** Runde bearbeiten und Pills entfernen; fehlt es, gibt es beides nicht (Training: Rückgängig genügt). */
+  planEdit?: (target: TurnBase, fields: Field[]) => EditPlan;
   /** Kurzfassung einer Aufnahme in „Runde bearbeiten“, z. B. „60“ oder „Bust“. */
-  summary: (t: TurnBase) => string;
+  summary?: (t: TurnBase) => string;
   /** Nur diese Zahlen sind auf dem Board farbig. */
   isTarget?: (n: number) => boolean;
   /** Tabelle am Spielende. */
@@ -47,6 +49,8 @@ export interface ShellProps {
   overlay?: (act: (evs: readonly NewAppEvent[]) => Promise<void>) => ComponentChildren;
   /** „Weiter“ sperren, z. B. solange eine Frage offen ist. */
   blockConfirm?: boolean;
+  /** Treffer/Falsch-Eingabe statt Board (SPEC 4.5). */
+  hitMiss?: { targetLabel: string; onHit: () => NewEvent | null; onMiss: () => NewEvent | null };
 }
 
 export function GameShell(p: ShellProps) {
@@ -75,11 +79,12 @@ export function GameShell(p: ShellProps) {
   };
 
   const onDart = (f: Field) => {
-    const ev = p.throwDart(f);
+    const ev = p.throwDart?.(f);
     if (ev) act([ev]);
   };
 
   const removeDart = (turn: TurnBase, index: number) => {
+    if (!p.planEdit) return;
     const plan = p.planEdit(
       turn,
       turn.darts.filter((_, i) => i !== index).map((d) => d.field),
@@ -114,7 +119,7 @@ export function GameShell(p: ShellProps) {
   const leg = state.legs[state.legs.length - 1];
 
   return (
-    <div class="screen screen-game" style={p.reserve ? { '--reserve': `${p.reserve}px` } : undefined}>
+    <div class={p.hitMiss ? "screen screen-game screen-hitmiss" : "screen screen-game"} style={p.reserve ? { '--reserve': `${p.reserve}px` } : undefined}>
       <section class="panel">
         <TopBar
           title={gameTitle(game.created)}
@@ -142,11 +147,11 @@ export function GameShell(p: ShellProps) {
               <button
                 key={d.id}
                 class={`pill m${d.field.m}`}
-                disabled={busy}
+                disabled={busy || !p.planEdit}
                 onClick={() => removeDart(turn, i)}
                 aria-label={`${p.pillText(d)} entfernen`}
               >
-                {p.pillText(d)} <span class="pill-x">×</span>
+                {p.pillText(d)} {p.planEdit && <span class="pill-x">×</span>}
               </button>
             ))}
             {!turn?.darts.length && <span class="muted">Noch kein Dart</span>}
@@ -155,15 +160,21 @@ export function GameShell(p: ShellProps) {
         </section>
 
         <div class="actions">
-          <button class="btn" disabled={busy || state.actions.length === 0} onClick={() => act(p.undo())} aria-label="Rückgängig">
-            ↶
-          </button>
-          <button class="btn" disabled={busy || leg.turns.length === 0} onClick={() => setEditing(true)}>
-            ✎ Runden
-          </button>
-          <button class="btn" disabled={busy || !state.next} onClick={() => onDart(MISS)}>
-            Daneben
-          </button>
+          {!p.hitMiss && (
+            <button class="btn" disabled={busy || state.actions.length === 0} onClick={() => act(p.undo())} aria-label="Rückgängig">
+              ↶
+            </button>
+          )}
+          {p.planEdit && (
+            <button class="btn" disabled={busy || leg.turns.length === 0} onClick={() => setEditing(true)}>
+              ✎ Runden
+            </button>
+          )}
+          {p.throwDart && (
+            <button class="btn" disabled={busy || !state.next} onClick={() => onDart(MISS)}>
+              Daneben
+            </button>
+          )}
           <button
             class={state.awaitingConfirm ? 'btn btn-primary grow' : 'btn grow'}
             disabled={busy || !turn || turn.confirmed || state.finished || p.blockConfirm}
@@ -174,11 +185,25 @@ export function GameShell(p: ShellProps) {
         </div>
       </section>
 
-      <section class="board-wrap">
-        <Board onDart={onDart} disabled={busy || !state.next} isTarget={p.isTarget} />
-      </section>
+      {p.hitMiss ? (
+        <section class="hitmiss">
+          <button class="hm-undo" disabled={busy || state.actions.length === 0} onClick={() => act(p.undo())} aria-label="Rückgängig">
+            ↶
+          </button>
+          <button class="hm-miss" disabled={busy || !state.next} onClick={() => act([p.hitMiss!.onMiss()].filter((e): e is NewEvent => !!e))}>
+            Falsch
+          </button>
+          <button class="hm-hit" disabled={busy || !state.next} onClick={() => act([p.hitMiss!.onHit()].filter((e): e is NewEvent => !!e))}>
+            {p.hitMiss.targetLabel}
+          </button>
+        </section>
+      ) : (
+        <section class="board-wrap">
+          <Board onDart={onDart} disabled={busy || !state.next} isTarget={p.isTarget} />
+        </section>
+      )}
 
-      {editing && (
+      {editing && p.planEdit && p.summary && (
         <EditRound
           legNo={leg.leg}
           turns={leg.turns}

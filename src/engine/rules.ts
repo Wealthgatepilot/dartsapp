@@ -1,6 +1,7 @@
 // Regeltexte aus Bausteinen, passend zu den gewählten Einstellungen (SPEC 5.4).
 
 import type { CricketSettings } from './cricket';
+import type { DoublesSettings } from './doubles';
 import { targetOfRound, type ShanghaiSettings } from './shanghai';
 import { winsNeeded, type InOut, type Race, type X01Settings } from './x01';
 
@@ -80,6 +81,28 @@ export function shanghaiRules(s: ShanghaiSettings): string[] {
     }“.${withBull ? ' Beim Bull ist kein Shanghai möglich.' : ''}`,
     'Nach der letzten Runde gewinnt, wer die meisten Punkte hat. Bei Gleichstand teilen sich die Spieler den Sieg.',
   ];
+  return out;
+}
+
+export function doublesRules(s: DoublesSettings): string[] {
+  const out = [
+    'Ziele sind D1 bis D20 und das Bullseye, in zufälliger Reihenfolge. Beim Bull zählt nur das Bullseye.',
+    s.sequence === 'shared' ? 'Alle spielen dieselbe Zielfolge.' : 'Jeder bekommt seine eigene Zielfolge.',
+    'Nach jedem Dart tippst du „Treffer“ oder „Falsch“.',
+  ];
+  if (s.mode.kind === 'untilHit') {
+    out.push(
+      'Ein Ziel bleibt, bis du es triffst. Dann kommt sofort das nächste, auch mitten in der Aufnahme.',
+      'Fertig ist, wer alle 21 Ziele getroffen hat. Es gewinnt, wer dafür die wenigsten Darts braucht.',
+    );
+  } else {
+    const n = s.mode.darts;
+    out.push(
+      `Auf jedes Ziel wirfst du genau ${n === 1 ? 'einen Dart' : `${n} Darts`}, egal ob getroffen. Danach kommt das nächste Ziel, auch mitten in der Aufnahme.`,
+      `Nach 21 × ${n} Darts ist Schluss. Es gewinnt, wer die meisten Treffer hat.`,
+    );
+  }
+  out.push('Am Ende siehst du für jedes Feld Würfe, Treffer und Trefferquote.');
   return out;
 }
 

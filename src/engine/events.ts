@@ -3,6 +3,7 @@
 
 import type { AdviceLevel } from './checkout';
 import type { CricketSettings } from './cricket';
+import type { DoublesSettings } from './doubles';
 import type { ShanghaiSettings } from './shanghai';
 import type { Field } from './types';
 import type { X01Settings } from './x01';
@@ -24,6 +25,8 @@ export interface DartPayload {
   field: Field | null;
   /** Bei Trainings mit Treffer/Falsch-Eingabe: Ziel getroffen? */
   hit?: boolean;
+  /** Bei Trainings: Zielfeld zum Zeitpunkt des Wurfs (zur Information; maßgeblich ist die berechnete Folge). */
+  target?: Field;
   input: 'board' | 'hitmiss' | 'bot' | 'auto';
   replaces?: string;
 }
@@ -87,7 +90,8 @@ interface GameCreatedBase {
 export type GameCreatedPayload =
   | (GameCreatedBase & { mode: 'x01'; settings: X01Settings; advice: AdviceLevel })
   | (GameCreatedBase & { mode: 'cricket'; settings: CricketSettings })
-  | (GameCreatedBase & { mode: 'shanghai'; settings: ShanghaiSettings });
+  | (GameCreatedBase & { mode: 'shanghai'; settings: ShanghaiSettings })
+  | (GameCreatedBase & { mode: 'doubles'; settings: DoublesSettings });
 
 export type GameMode = GameCreatedPayload['mode'];
 

@@ -890,3 +890,54 @@ button.pill-x {
 .screen-game .board-wrap {
   touch-action: none;
 }
+
+/* ---------- Treffer/Falsch-Eingabe (SPEC 4.5) ---------- */
+
+.hitmiss {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr;
+  gap: 8px;
+  height: var(--board);
+  min-height: 160px;
+}
+.hitmiss button {
+  border: 0;
+  border-radius: 14px;
+  font-size: 28px;
+  font-weight: 800;
+  touch-action: manipulation;
+}
+.hitmiss button:disabled {
+  opacity: 0.4;
+}
+.hm-undo {
+  background: #313a43;
+}
+.hm-miss {
+  background: #5a2a2a;
+}
+.hm-hit {
+  background: var(--green);
+  font-size: 40px !important;
+}
+@media (orientation: landscape) {
+  .hitmiss {
+    width: var(--board);
+  }
+}
+.history-line {
+  text-align: right;
+}
+.results-scroll {
+  max-height: 55vh;
+  overflow: auto;
+}
+/* Training: Panel nur so hoch wie nötig, die drei Flächen füllen den Rest */
+.screen-hitmiss .panel {
+  flex: 0 1 auto;
+}
+.screen-hitmiss .hitmiss {
+  flex: 1 1 auto;
+  height: auto;
+}

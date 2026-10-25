@@ -3,6 +3,7 @@ import { DataProvider } from './data';
 import { PwaProvider } from './pwa';
 import { useRoute } from './router';
 import { CricketSetup } from './screens/CricketSetup';
+import { DoublesSetup } from './screens/DoublesSetup';
 import { Game } from './screens/Game';
 import { Home } from './screens/Home';
 import { Profiles } from './screens/Profiles';
@@ -33,6 +34,8 @@ function Screens() {
       return <CricketSetup />;
     case 'shanghai':
       return <ShanghaiSetup />;
+    case 'doubles':
+      return <DoublesSetup />;
     case 'game':
       return <Game key={route.gameId} gameId={route.gameId} />;
     case 'settings':
