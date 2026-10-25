@@ -9,6 +9,7 @@ import { Home } from './screens/Home';
 import { Profiles } from './screens/Profiles';
 import { Settings } from './screens/Settings';
 import { ShanghaiSetup } from './screens/ShanghaiSetup';
+import { Stats } from './screens/Stats';
 import { X01Setup } from './screens/X01Setup';
 
 export function App() {
@@ -36,6 +37,8 @@ function Screens() {
       return <ShanghaiSetup />;
     case 'doubles':
       return <DoublesSetup />;
+    case 'stats':
+      return <Stats />;
     case 'game':
       return <Game key={route.gameId} gameId={route.gameId} />;
     case 'settings':

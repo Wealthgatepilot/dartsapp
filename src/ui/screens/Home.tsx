@@ -148,6 +148,10 @@ export function Home() {
           <strong>Doppelfeld-Training</strong>
           <span class="muted">D1–D20 und Bullseye in zufälliger Folge</span>
         </a>
+        <a class="menu-item" href={href({ name: 'stats' })}>
+          <strong>Statistik</strong>
+          <span class="muted">Verlauf, Heatmap, Doppelquote</span>
+        </a>
         <a class="menu-item" href={href({ name: 'profiles' })}>
           <strong>Profile</strong>
           <span class="muted">{profiles.filter((p) => !p.archived).length} Spieler</span>

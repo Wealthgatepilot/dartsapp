@@ -1021,3 +1021,115 @@ button.pill-x {
   font-size: 20px;
   background: rgba(20, 24, 28, 0.85);
 }
+
+/* ---------- Statistik (Diagramm-Richtlinien: Flächenfarbe, Textfarben, dünne Marken) ---------- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.select {
+  font: inherit;
+  color: inherit;
+  min-height: 44px;
+  border-radius: 8px;
+  border: 1px solid #3a434c;
+  background: #12161a;
+  padding: 0 10px;
+  max-width: 100%;
+}
+.chip-small {
+  min-height: 36px;
+  padding: 0 10px;
+  font-size: 14px;
+}
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.chart-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 24px;
+}
+.chart-svg,
+.heat-svg {
+  width: 100%;
+  display: block;
+  touch-action: pan-y;
+}
+.heat-svg {
+  max-width: 360px;
+  margin: 0 auto;
+}
+.chart-grid {
+  stroke: #2c2c2a;
+  stroke-width: 1;
+}
+.chart-cross {
+  stroke: #383835;
+  stroke-width: 1;
+}
+.chart-tick {
+  fill: #898781;
+  font-size: 11px;
+}
+.chart-dot {
+  fill: #3987e5;
+  stroke: var(--panel);
+  stroke-width: 2;
+}
+.chart-line {
+  fill: none;
+  stroke: #d95926;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  color: #c3c2b7;
+  font-size: 13px;
+}
+.chart-legend .btn-small {
+  margin-left: auto;
+}
+.key-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3987e5;
+  vertical-align: middle;
+}
+.key-line {
+  display: inline-block;
+  width: 16px;
+  height: 2px;
+  background: #d95926;
+  vertical-align: middle;
+}
+.heat-sel {
+  stroke: #fff !important;
+  stroke-width: 1.5 !important;
+}
+.heat-scale {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  font-size: 13px;
+}
+.heat-ramp {
+  width: 160px;
+  height: 10px;
+  border-radius: 5px;
+}
