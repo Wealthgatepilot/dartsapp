@@ -127,12 +127,12 @@ Statt „Spielstand 351“ speichert die App nur, **was passiert ist**: „Dart 
 | `profile.created` | `profileId`, `name`, `color` | Person angelegt |
 | `profile.renamed` | `profileId`, `name` | Name geändert |
 | `profile.archived` / `profile.restored` | `profileId` | Ausblenden statt löschen |
-| `game.created` | `gameId`, `mode`, `settings`, `participants[]`, `seed`, `tournamentMatchId?` | Spiel gestartet |
+| `game.created` | `gameId`, `mode`, `settings`, `advice` (Checkout-Hilfe), `participants[]`, `seed`, `tournamentMatchId?` | Spiel gestartet |
 | `game.orderDecided` | `gameId`, `order[]`, `method` (`bull` / `coin` / `asEntered`) | Reihenfolge feststeht |
 | `bulloff.throw` | `gameId`, `slot`, `attempt`, `xMm`, `yMm`, `distanceMm` | Ein Ausbullen-Dart |
 | `dart.thrown` | siehe 3.4 | Jeder Dart |
 | `turn.confirmed` | `gameId`, `leg`, `slot`, `turnIndex` | „Weiter“ getippt |
-| `event.voided` | `targetId`, `reason` (`undo` / `edit`) | Rückgängig oder Runde bearbeiten |
+| `event.voided` | `gameId`, `targetId`, `reason` (`undo` / `edit`) | Rückgängig oder Runde bearbeiten |
 | `game.ended` | `gameId`, `reason` (`finished` / `abandoned`) | Spielende (Ergebnis wird berechnet, nicht gespeichert) |
 | `game.hidden` | `gameId` | Spiel aus Listen und Statistik ausblenden (nur mit Freigabe, nie echtes Löschen) |
 | `tournament.created`, `tournament.matchAssigned` | siehe Kapitel 8 | Turnier (Phase 4) |

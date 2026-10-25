@@ -418,7 +418,7 @@ export function undo(state: X01State): NewEvent[] {
   if (last.kind === 'confirm') {
     for (const d of last.turn.darts) if (d.input === 'auto') ids.push(d.id);
   }
-  return ids.map((targetId) => ({ type: 'event.voided', payload: { targetId, reason: 'undo' } }));
+  return ids.map((targetId) => ({ type: 'event.voided', payload: { gameId: state.setup.gameId, targetId, reason: 'undo' } }));
 }
 
 export interface EditPlan {
@@ -451,7 +451,7 @@ export function planEdit(
   fields.forEach((field, i) => {
     const old = turn.darts[i];
     if (old && old.dartIndex === i + 1 && old.field.n === field.n && old.field.m === field.m) return;
-    if (old) out.push({ type: 'event.voided', payload: { targetId: old.id, reason: 'edit' } });
+    if (old) out.push({ type: 'event.voided', payload: { gameId: state.setup.gameId, targetId: old.id, reason: 'edit' } });
     out.push({
       type: 'dart.thrown',
       payload: {
@@ -468,7 +468,7 @@ export function planEdit(
     });
   });
   for (const old of turn.darts.slice(fields.length)) {
-    out.push({ type: 'event.voided', payload: { targetId: old.id, reason: 'edit' } });
+    out.push({ type: 'event.voided', payload: { gameId: state.setup.gameId, targetId: old.id, reason: 'edit' } });
   }
 
   // Simulieren: Wie sieht das Spiel danach aus?
@@ -495,7 +495,7 @@ export function planEdit(
 
   const before = new Set(state.ignored.map((i) => i.id));
   const discarded = simulated.ignored.map((i) => i.id).filter((id) => !before.has(id) && !id.startsWith(TMP));
-  for (const id of discarded) out.push({ type: 'event.voided', payload: { targetId: id, reason: 'edit' } });
+  for (const id of discarded) out.push({ type: 'event.voided', payload: { gameId: state.setup.gameId, targetId: id, reason: 'edit' } });
 
   const after = findTurn(simulate(state.setup, events, out), turn);
   const outcomeChanged =

@@ -1,7 +1,16 @@
 // Ereignisse, wie die Spiellogik sie sieht (SPEC Kapitel 3).
-// Der Speicher ergänzt beim Ablegen deviceId, seq und v; die Spiellogik braucht nur id, type und payload.
+// Der Speicher ergänzt beim Ablegen deviceId, seq und v; die Spiellogik braucht nur id, type, ts und payload.
 
+import type { AdviceLevel } from './checkout';
 import type { Field } from './types';
+import type { X01Settings } from './x01';
+
+type EventOf<T extends string, P> = { id: string; type: T; ts: number; payload: P };
+
+/** Ein Ereignis ohne ID und Zeitstempel. Befehle der Spiellogik erzeugen nur solche. */
+type NewOf<E> = E extends { type: infer T; payload: infer P } ? { type: T; payload: P } : never;
+
+// ---------- Darts und Aufnahmen ----------
 
 export interface DartPayload {
   gameId: string;
@@ -23,24 +32,69 @@ export interface ConfirmPayload {
 }
 
 export interface VoidPayload {
+  gameId: string;
   targetId: string;
   reason: 'undo' | 'edit';
 }
 
 export type GameEvent =
-  | { id: string; type: 'dart.thrown'; ts: number; payload: DartPayload }
-  | { id: string; type: 'turn.confirmed'; ts: number; payload: ConfirmPayload }
-  | { id: string; type: 'event.voided'; ts: number; payload: VoidPayload };
+  | EventOf<'dart.thrown', DartPayload>
+  | EventOf<'turn.confirmed', ConfirmPayload>
+  | EventOf<'event.voided', VoidPayload>;
 
-/** Ein Ereignis, das noch keine ID und keinen Zeitstempel hat. Die Spiellogik erzeugt nur solche. */
-export type NewEvent =
-  | { type: 'dart.thrown'; payload: DartPayload }
-  | { type: 'turn.confirmed'; payload: ConfirmPayload }
-  | { type: 'event.voided'; payload: VoidPayload };
+export type NewEvent = NewOf<GameEvent>;
+
+// ---------- Profile ----------
+
+export type ProfileEvent =
+  | EventOf<'profile.created', { profileId: string; name: string; color: string }>
+  | EventOf<'profile.renamed', { profileId: string; name: string }>
+  | EventOf<'profile.archived', { profileId: string }>
+  | EventOf<'profile.restored', { profileId: string }>;
+
+// ---------- Spiele ----------
+
+export interface Participant {
+  slot: number;
+  kind: 'profile' | 'guest' | 'bot';
+  profileId?: string;
+  guestName?: string;
+  botLevel?: number;
+  /** Handicap (Phase 3). */
+  startScore?: number;
+}
+
+export interface GameCreatedPayload {
+  gameId: string;
+  mode: 'x01';
+  settings: X01Settings;
+  advice: AdviceLevel;
+  participants: Participant[];
+  seed: number;
+}
+
+export type MatchEvent =
+  | EventOf<'game.created', GameCreatedPayload>
+  | EventOf<'game.orderDecided', { gameId: string; order: number[]; method: 'bull' | 'coin' | 'asEntered' }>
+  | EventOf<'game.ended', { gameId: string; reason: 'finished' | 'abandoned' }>
+  | EventOf<'game.hidden', { gameId: string }>;
+
+/** Alle Ereignisse der App. */
+export type AppEvent = GameEvent | ProfileEvent | MatchEvent;
+export type NewAppEvent = NewOf<AppEvent>;
 
 /** IDs aller widerrufenen Ereignisse. */
-export function voidedIds(events: readonly GameEvent[]): Set<string> {
+export function voidedIds(events: readonly { id: string; type: string; payload: unknown }[]): Set<string> {
   const ids = new Set<string>();
-  for (const e of events) if (e.type === 'event.voided') ids.add(e.payload.targetId);
+  for (const e of events) if (e.type === 'event.voided') ids.add((e.payload as VoidPayload).targetId);
   return ids;
+}
+
+/** Nur die Ereignisse, die die Spiellogik eines Spiels braucht. */
+export function gameEventsOf(events: readonly AppEvent[], gameId: string): GameEvent[] {
+  return events.filter(
+    (e): e is GameEvent =>
+      (e.type === 'dart.thrown' || e.type === 'turn.confirmed' || e.type === 'event.voided') &&
+      e.payload.gameId === gameId,
+  );
 }

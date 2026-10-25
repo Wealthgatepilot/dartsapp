@@ -41,7 +41,7 @@ const rows = [
   '',
   'Double-Out, 3 Darts. Erzeugt von `src/engine/checkout.ts`. Spalte „Hinweis“ markiert Zeilen, die einen zweiten Blick verdienen.',
   '„oder …“ ist der zweite Weg ohne Bull zur Vorbereitung (SPEC 7.1).',
-  'Nach Gianlucas Freigabe ist diese Liste die Golden-Liste: Jede Zeile wird automatisch getestet.',
+  'Von Gianluca freigegeben am 25.10.2026. Diese Liste ist die Golden-Liste: Jede Zeile wird automatisch getestet.',
   '',
   '| Rest | Experte | Einsteiger | Hinweis (Experte) |',
   '|---:|---|---|---|',
