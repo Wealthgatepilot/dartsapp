@@ -303,7 +303,7 @@ Weitere Legs: Der Anwurf wechselt reihum. Leg k (über das ganze Match gezählt,
 ### 6.4 Ausbullen
 
 1. Anzeige „Wirf auf das Bull und markiere es!“, oben eine Kachel je Spieler.
-2. Gezeigt wird ein **vergrößerter Ausschnitt** um das Bull (etwa ±45 mm), eigene neutrale Grafik ohne Beschriftung.
+2. Gezeigt wird zu Beginn ein **vergrößerter Ausschnitt** um das Bull (etwa ±45 mm). Die Grafik ist ein ganzes Board in echten Maßen (eigene, neutrale Grafik, nur die Zahlen 1–20). **Zoom durch die App selbst**, hinein und heraus (der Browser-Zoom ist in der App aus, 4.3 Punkt 7): zwei Finger auseinander/zusammen (verschiebt auch den Ausschnitt), Doppeltipp vergrößert an der Stelle, Knöpfe −, + und „Bull“ (zurück zur Startansicht). Von ±6 mm bis zum ganzen Board (±190 mm). Ein Finger setzt den Punkt (Wunsch Gianluca, 25.10.2026).
 3. Spieler tippt die Stelle an, an der sein Dart steckt. Ein Punkt in Spielerfarbe erscheint und lässt sich mit dem Finger verschieben. Eine Lupe über dem Finger zeigt die Stelle vergrößert.
 4. **„Wurf bestätigen“** → Kachel zeigt:
    - Abstand ≤ 6,35 mm: „Bullseye“ und den Abstand

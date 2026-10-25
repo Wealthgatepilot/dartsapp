@@ -56,6 +56,31 @@ test('Ausbullen: Rückgängig und „Erneut werfen“', async ({ page }) => {
   await expect(page.locator('.bull-tile', { hasText: 'Gian' })).toContainText('wirft');
 });
 
+test('Ausbullen: hinein- und herauszoomen (SPEC 6.4, Punkt 2)', async ({ page }) => {
+  await setupX01(page, 'Ausbullen');
+  const view = page.locator('.bull-view');
+  await expect(view).toHaveAttribute('viewBox', '-45 -45 90 90');
+
+  // Herauszoomen bis zum ganzen Board
+  const minus = page.getByRole('button', { name: 'Verkleinern' });
+  while (await minus.isEnabled()) await minus.click();
+  await expect(view).toHaveAttribute('viewBox', '-190 -190 380 380');
+
+  // Ein Dart weit außen: Triple-Ring der 20 (etwa 103 mm über der Mitte)
+  const box = (await view.boundingBox())!;
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2 - (103 / 380) * box.height);
+  await expect(page.getByRole('button', { name: /^Wurf bestätigen/ })).toContainText(/10\d,\d mm vom Bull/);
+
+  // Doppeltipp vergrößert, „Bull“ springt zurück
+  await page.mouse.dblclick(box.x + box.width / 2, box.y + box.height / 2);
+  const width = Number((await view.getAttribute('viewBox'))!.split(' ')[2]);
+  expect(width).toBeLessThan(380);
+  await page.getByRole('button', { name: 'Bull', exact: true }).click();
+  await expect(view).toHaveAttribute('viewBox', '-45 -45 90 90');
+  await page.getByRole('button', { name: 'Vergrößern' }).click();
+  expect(Number((await view.getAttribute('viewBox'))!.split(' ')[2])).toBeLessThan(90);
+});
+
 test('Münzwurf legt fest, wer beginnt', async ({ page }) => {
   await setupX01(page, 'Münzwurf');
   await page.getByRole('button', { name: /Münze werfen/ }).click();
