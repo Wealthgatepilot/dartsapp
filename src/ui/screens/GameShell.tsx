@@ -43,6 +43,10 @@ export interface ShellProps {
   endTable: ComponentChildren;
   /** Platz über dem Board im Hochformat in Pixeln (größer = kleineres Board, z. B. für die Cricket-Tafel). */
   reserve?: number;
+  /** Zusätzliches Fenster über dem Spiel, z. B. eine Frage nach einem Shanghai. Bekommt `act` zum Speichern. */
+  overlay?: (act: (evs: readonly NewAppEvent[]) => Promise<void>) => ComponentChildren;
+  /** „Weiter“ sperren, z. B. solange eine Frage offen ist. */
+  blockConfirm?: boolean;
 }
 
 export function GameShell(p: ShellProps) {
@@ -161,7 +165,7 @@ export function GameShell(p: ShellProps) {
           </button>
           <button
             class={state.awaitingConfirm ? 'btn btn-primary grow' : 'btn grow'}
-            disabled={busy || !turn || turn.confirmed || state.finished}
+            disabled={busy || !turn || turn.confirmed || state.finished || p.blockConfirm}
             onClick={() => act(p.confirm())}
           >
             Weiter →
@@ -189,6 +193,8 @@ export function GameShell(p: ShellProps) {
           }}
         />
       )}
+
+      {p.overlay?.(act)}
 
       {state.finished && (
         <MatchEnd

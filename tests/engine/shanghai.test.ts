@@ -6,7 +6,9 @@ import {
   DEFAULT_SHANGHAI,
   computeShanghai,
   confirmShanghaiTurn,
+  decideShanghai,
   targetOfRound,
+  undoShanghai,
   throwShanghaiDart,
   validateShanghai,
   type ShanghaiSettings,
@@ -67,16 +69,51 @@ describe('Zielfolge', () => {
 });
 
 describe('Punkte und Shanghai', () => {
-  it('G31: Runde mit Ziel 7, S7 D7 T7 → Shanghai, bei „beendet“ sofort Sieg', () => {
+  it('G31: Runde mit Ziel 7, S7 D7 T7 → Shanghai; „Spiel beenden“ → sofort Sieg', () => {
     const g = Shanghai.create({ startNumber: 7 }).throw('S7', 'D7', 'T7');
     expect(g.state.currentTurn!.shanghai).toBe(true);
-    expect(g.state.matchWinner).toBe(A);
     expect(g.state.points[A]).toBe(42);
+    // Die App fragt zuerst (SPEC 7.3, Regel 5)
+    expect(g.state.pendingDecision).toBe(true);
+    expect(g.state.finished).toBe(false);
+    expect(confirmShanghaiTurn(g.state)).toEqual([]); // Weiter gesperrt
+    g.add(decideShanghai(g.state, true));
+    expect(g.state.matchWinner).toBe(A);
+    expect(g.state.pendingDecision).toBe(false);
   });
 
   it('Shanghai in beliebiger Reihenfolge', () => {
     const g = Shanghai.create({ startNumber: 7 }).throw('T7', 'S7', 'D7');
-    expect(g.state.matchWinner).toBe(A);
+    expect(g.state.pendingDecision).toBe(true);
+  });
+
+  it('„Weiterspielen“ vermerkt das Shanghai und bestätigt die Aufnahme', () => {
+    const g = Shanghai.create({ startNumber: 7, endOnShanghai: true }).throw('S7', 'D7', 'T7');
+    g.add(decideShanghai(g.state, false));
+    expect(g.state.finished).toBe(false);
+    expect(g.state.legs[0].state.shanghaiBy).toEqual([A]);
+    expect(g.state.next).toMatchObject({ slot: B, turnIndex: 1 });
+  });
+
+  it('Rückgängig: erst Weiter, dann die Antwort (Frage kommt wieder), dann den Dart', () => {
+    const g = Shanghai.create({ startNumber: 7 }).throw('S7', 'D7', 'T7');
+    g.add(decideShanghai(g.state, false));
+    g.add(undoShanghai(g.state)); // Weiter
+    expect(g.state.pendingDecision).toBe(false);
+    expect(g.state.awaitingConfirm).toBe(true);
+    g.add(undoShanghai(g.state)); // Antwort
+    expect(g.state.pendingDecision).toBe(true);
+    g.add(undoShanghai(g.state)); // Dart T7
+    expect(g.state.currentTurn!.shanghai).toBe(false);
+    expect(g.state.next).toMatchObject({ slot: A, dartIndex: 3 });
+  });
+
+  it('Rückgängig nach „Spiel beenden“ öffnet die Frage wieder', () => {
+    const g = Shanghai.create({ startNumber: 7 }).throw('S7', 'D7', 'T7');
+    g.add(decideShanghai(g.state, true));
+    g.add(undoShanghai(g.state));
+    expect(g.state.finished).toBe(false);
+    expect(g.state.pendingDecision).toBe(true);
   });
 
   it('G32: T7 T7 D7 → kein Shanghai, 21 + 21 + 14 = 56 Punkte', () => {
@@ -98,8 +135,10 @@ describe('Punkte und Shanghai', () => {
     expect(g.state.points[A]).toBe(0);
   });
 
-  it('„Shanghai beendet“ aus: wird vermerkt, Spiel läuft weiter', () => {
-    const g = Shanghai.create({ startNumber: 7, endOnShanghai: false }).turn('S7', 'D7', 'T7');
+  it('„Shanghai beendet“ aus: Frage kommt trotzdem, „Weiterspielen“ vermerkt es nur', () => {
+    const g = Shanghai.create({ startNumber: 7, endOnShanghai: false }).throw('S7', 'D7', 'T7');
+    expect(g.state.pendingDecision).toBe(true);
+    g.add(decideShanghai(g.state, false));
     expect(g.state.finished).toBe(false);
     expect(g.state.legs[0].state.shanghaiBy).toEqual([A]);
     expect(g.state.next).toMatchObject({ slot: B, turnIndex: 1 });

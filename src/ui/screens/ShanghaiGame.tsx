@@ -5,6 +5,7 @@ import { shanghaiSetupOf } from '../../engine/games';
 import {
   computeShanghai,
   confirmShanghaiTurn,
+  decideShanghai,
   planShanghaiEdit,
   throwShanghaiDart,
   undoShanghai,
@@ -24,6 +25,43 @@ function mpr(state: ShanghaiState, slot: number): string {
 }
 
 const targetLabel = (n: number) => (n === BULL ? 'Bull' : String(n));
+
+/** Frage nach einem Shanghai (SPEC 7.3, Regel 5). Hervorgehoben ist die Wahl aus den Einstellungen. */
+function ShanghaiQuestion({
+  name,
+  preferEnd,
+  onEnd,
+  onContinue,
+  onUndo,
+}: {
+  name: string;
+  preferEnd: boolean;
+  onEnd: () => void;
+  onContinue: () => void;
+  onUndo: () => void;
+}) {
+  return (
+    <div class="modal-backdrop">
+      <div class="modal" role="dialog" aria-label="Shanghai">
+        <header class="modal-head">
+          <h2>🎯 Shanghai!</h2>
+        </header>
+        <div class="modal-body">
+          <p>{name} hat ein Shanghai geworfen. Spiel beenden oder weiterspielen?</p>
+          <button class={preferEnd ? 'btn btn-primary' : 'btn'} onClick={onEnd}>
+            Spiel beenden – {name} gewinnt
+          </button>
+          <button class={preferEnd ? 'btn' : 'btn btn-primary'} onClick={onContinue}>
+            Weiterspielen
+          </button>
+          <button class="btn" onClick={onUndo}>
+            ↶ Rückgängig (Dart falsch eingegeben)
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function ShanghaiGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps) {
   const state = useMemo(() => computeShanghai(shanghaiSetupOf(game), gameEvents), [game, gameEvents]);
@@ -72,6 +110,18 @@ export function ShanghaiGame({ game, gameEvents, nameOf, colorOf }: ModeViewProp
           <div class="calc">{turn && turn.darts.length ? `+${turn.points} · ${turn.marks} Marks` : ''}</div>
           {turn?.shanghai && <p class="banner">Shanghai!</p>}
         </>
+      }
+      blockConfirm={state.pendingDecision}
+      overlay={(act) =>
+        state.pendingDecision && turn ? (
+          <ShanghaiQuestion
+            name={nameOf(turn.slot)}
+            preferEnd={s.endOnShanghai}
+            onEnd={() => act(decideShanghai(state, true))}
+            onContinue={() => act(decideShanghai(state, false))}
+            onUndo={() => act(undoShanghai(state))}
+          />
+        ) : null
       }
       pillText={(d) => `${fieldLabel(d.field)} · ${d.scored}`}
       throwDart={(f) => throwShanghaiDart(state, f)}

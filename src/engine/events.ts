@@ -41,10 +41,20 @@ export interface VoidPayload {
   reason: 'undo' | 'edit';
 }
 
+/** Antwort auf eine Frage im Spiel, z. B. „Spiel beenden?“ nach einem Shanghai (SPEC 7.3). */
+export interface DecisionPayload {
+  gameId: string;
+  slot: number;
+  turnIndex: number;
+  kind: 'shanghai';
+  end: boolean;
+}
+
 export type GameEvent =
   | EventOf<'dart.thrown', DartPayload>
   | EventOf<'turn.confirmed', ConfirmPayload>
-  | EventOf<'event.voided', VoidPayload>;
+  | EventOf<'event.voided', VoidPayload>
+  | EventOf<'game.decision', DecisionPayload>;
 
 export type NewEvent = NewOf<GameEvent>;
 
@@ -102,7 +112,10 @@ export function voidedIds(events: readonly { id: string; type: string; payload: 
 export function gameEventsOf(events: readonly AppEvent[], gameId: string): GameEvent[] {
   return events.filter(
     (e): e is GameEvent =>
-      (e.type === 'dart.thrown' || e.type === 'turn.confirmed' || e.type === 'event.voided') &&
+      (e.type === 'dart.thrown' ||
+        e.type === 'turn.confirmed' ||
+        e.type === 'event.voided' ||
+        e.type === 'game.decision') &&
       e.payload.gameId === gameId,
   );
 }

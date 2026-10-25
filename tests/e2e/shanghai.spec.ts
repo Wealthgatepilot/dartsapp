@@ -17,7 +17,7 @@ test('ganzes Shanghai-Spiel über 2 Runden', async ({ page }) => {
   await page.getByRole('radio', { name: 'nein' }).click();
   await page.getByRole('button', { name: 'Regeln' }).click();
   await expect(page.getByRole('dialog')).toContainText('Runde 1 hat das Ziel 19, danach geht es aufwärts bis 20');
-  await expect(page.getByRole('dialog')).toContainText('das Spiel läuft weiter');
+  await expect(page.getByRole('dialog')).toContainText('Vorausgewählt ist „Weiterspielen“');
   await page.getByRole('button', { name: 'Schließen' }).click();
   await page.getByRole('button', { name: 'Spiel starten' }).click();
 
@@ -35,9 +35,16 @@ test('ganzes Shanghai-Spiel über 2 Runden', async ({ page }) => {
   await expect(page.locator('.round-head')).toContainText('Runde 2 / 2 · Ziel 20');
   await dart(page, 'S20');
   await dart(page, 'D20');
-  await dart(page, 'T20'); // Shanghai, Spiel läuft weiter
-  await expect(page.locator('.turnbox .banner')).toHaveText('Shanghai!');
-  await page.getByRole('button', { name: 'Weiter →' }).click();
+  await dart(page, 'T20'); // Shanghai → Frage
+  const question = page.getByRole('dialog', { name: 'Shanghai' });
+  await expect(question).toContainText('Gian hat ein Shanghai geworfen');
+  await expect(page.getByRole('button', { name: 'Weiter →' })).toBeDisabled();
+  // Rückgängig in der Frage nimmt den Dart zurück; dann nochmal werfen
+  await question.getByRole('button', { name: /Rückgängig/ }).click();
+  await expect(question).toHaveCount(0);
+  await dart(page, 'T20');
+  await expect(question.getByRole('button', { name: 'Weiterspielen' })).toHaveClass(/btn-primary/);
+  await question.getByRole('button', { name: 'Weiterspielen' }).click();
   await expect(page.locator('.turnbox')).toContainText('Noch kein Dart');
   await expect(points('Gian')).toHaveText('196');
 

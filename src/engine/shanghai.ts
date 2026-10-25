@@ -11,7 +11,7 @@ import {
   type Rules,
   type Turn as CoreTurn,
 } from './core';
-import type { DartPayload, GameEvent, NewEvent } from './events';
+import { voidedIds, type DartPayload, type GameEvent, type NewEvent } from './events';
 import { BULL, isValidField, points, type Field } from './types';
 
 export interface ShanghaiSettings {
@@ -60,11 +60,14 @@ export interface ShanghaiTurnData {
   shanghai: boolean;
   /** Getroffene Ringe des Ziels in dieser Aufnahme (1, 2, 3). */
   rings: number[];
+  /** Antwort auf „Spiel beenden?“ nach einem Shanghai: true = beenden, false = weiter, null = offen. */
+  decided: boolean | null;
+  decisionId?: string;
 }
 
 export interface ShanghaiLegState {
   points: Record<number, number>;
-  /** Wer ein Shanghai geworfen hat (bei „beendet das Spiel“ der Sieger). */
+  /** Wer ein Shanghai geworfen hat. */
   shanghaiBy: number[];
   winner: number | null;
 }
@@ -73,16 +76,39 @@ export type ShanghaiTurn = CoreTurn<ShanghaiTurnData>;
 export type ShanghaiState = CoreState<ShanghaiLegState, ShanghaiTurnData> & {
   setup: ShanghaiSetup;
   points: Record<number, number>;
+  /** Ein Shanghai wartet auf die Antwort „Spiel beenden“ oder „Weiterspielen“ (SPEC 7.3, Regel 5). */
+  pendingDecision: boolean;
 };
 
-function shanghaiRules(setup: ShanghaiSetup): Rules<ShanghaiLegState, ShanghaiTurnData> {
+type Decisions = Map<string, { id: string; end: boolean }>;
+const decisionKey = (slot: number, turnIndex: number) => `${slot}|${turnIndex}`;
+
+/** Die letzten gültigen Antworten je Aufnahme. */
+function collectDecisions(gameId: string, events: readonly GameEvent[]): Decisions {
+  const voided = voidedIds(events);
+  const map: Decisions = new Map();
+  for (const e of events) {
+    if (e.type !== 'game.decision' || voided.has(e.id) || e.payload.gameId !== gameId) continue;
+    map.set(decisionKey(e.payload.slot, e.payload.turnIndex), { id: e.id, end: e.payload.end });
+  }
+  return map;
+}
+
+function shanghaiRules(setup: ShanghaiSetup, decisions: Decisions): Rules<ShanghaiLegState, ShanghaiTurnData> {
   const { settings: s, order } = setup;
   return {
     gameId: setup.gameId,
     order,
     format: null,
     newLeg: () => ({ points: Object.fromEntries(order.map((p) => [p, 0])), shanghaiBy: [], winner: null }),
-    newTurn: (_ls, _slot, round) => ({ target: targetOfRound(s, round), points: 0, marks: 0, shanghai: false, rings: [] }),
+    newTurn: (_ls, _slot, round) => ({
+      target: targetOfRound(s, round),
+      points: 0,
+      marks: 0,
+      shanghai: false,
+      rings: [],
+      decided: null,
+    }),
     applyDart: (ls, turn, d) => {
       const f = d.field!;
       if (f.m === 0 || f.n !== turn.target) return { scored: 0, endsTurn: false };
@@ -94,7 +120,13 @@ function shanghaiRules(setup: ShanghaiSetup): Rules<ShanghaiLegState, ShanghaiTu
       if (!turn.shanghai && [1, 2, 3].every((m) => turn.rings.includes(m))) {
         turn.shanghai = true;
         ls.shanghaiBy.push(turn.slot);
-        if (s.endOnShanghai) {
+        // Ob das Spiel endet, entscheidet die Antwort auf die Frage (SPEC 7.3, Regel 5).
+        const d = decisions.get(decisionKey(turn.slot, turn.turnIndex));
+        if (d) {
+          turn.decided = d.end;
+          turn.decisionId = d.id;
+        }
+        if (d?.end) {
           ls.winner = turn.slot;
           return { scored: pts, endsTurn: true };
         }
@@ -114,19 +146,41 @@ function shanghaiRules(setup: ShanghaiSetup): Rules<ShanghaiLegState, ShanghaiTu
 }
 
 export function computeShanghai(setup: ShanghaiSetup, events: readonly GameEvent[]): ShanghaiState {
-  const core = computeCore(shanghaiRules(setup), events);
-  return { ...core, setup, points: core.legs[0].state.points };
+  const core = computeCore(shanghaiRules(setup, collectDecisions(setup.gameId, events)), events);
+  const t = core.currentTurn;
+  const pendingDecision = !!t && t.shanghai && t.decided === null && !t.confirmed && !core.finished;
+  return { ...core, setup, points: core.legs[0].state.points, pendingDecision };
 }
 
 export function throwShanghaiDart(state: ShanghaiState, field: Field, input: DartPayload['input'] = 'board'): NewEvent | null {
+  if (state.pendingDecision) return null;
   return throwDartCore(state, {}, { field }, input);
 }
 
+/** „Weiter“ ist gesperrt, solange die Frage nach dem Shanghai offen ist. */
 export function confirmShanghaiTurn(state: ShanghaiState): NewEvent[] {
+  if (state.pendingDecision) return [];
   return confirmTurnCore(state, {});
 }
 
+/** Antwort auf „Spiel beenden?“. Bei „Weiterspielen“ wird die Aufnahme gleich bestätigt. */
+export function decideShanghai(state: ShanghaiState, end: boolean): NewEvent[] {
+  const t = state.currentTurn;
+  if (!state.pendingDecision || !t) return [];
+  const decision: NewEvent = {
+    type: 'game.decision',
+    payload: { gameId: state.gameId, slot: t.slot, turnIndex: t.turnIndex, kind: 'shanghai', end },
+  };
+  return end ? [decision] : [decision, ...confirmTurnCore(state, {})];
+}
+
+/** Rückgängig nimmt nach einem Shanghai zuerst die Antwort zurück, dann den Dart. */
 export function undoShanghai(state: ShanghaiState): NewEvent[] {
+  const last = state.actions[state.actions.length - 1];
+  const t = last?.turn as ShanghaiTurn | undefined;
+  if (last?.kind === 'dart' && t?.shanghai && t.decisionId && t.darts[t.darts.length - 1]?.id === last.id) {
+    return [{ type: 'event.voided', payload: { gameId: state.gameId, targetId: t.decisionId, reason: 'undo' } }];
+  }
   return undoCore(state);
 }
 

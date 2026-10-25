@@ -132,6 +132,7 @@ Statt „Spielstand 351“ speichert die App nur, **was passiert ist**: „Dart 
 | `bulloff.throw` | `gameId`, `slot`, `attempt`, `xMm`, `yMm`, `distanceMm` | Ein Ausbullen-Dart |
 | `dart.thrown` | siehe 3.4 | Jeder Dart |
 | `turn.confirmed` | `gameId`, `leg`, `slot`, `turnIndex` | „Weiter“ getippt |
+| `game.decision` | `gameId`, `slot`, `turnIndex`, `kind`, `end` | Antwort auf eine Frage im Spiel (z. B. nach einem Shanghai) |
 | `event.voided` | `gameId`, `targetId`, `reason` (`undo` / `edit`) | Rückgängig oder Runde bearbeiten |
 | `game.ended` | `gameId`, `reason` (`finished` / `abandoned`) | Spielende (Ergebnis wird berechnet, nicht gespeichert) |
 | `game.hidden` | `gameId` | Spiel aus Listen und Statistik ausblenden (nur mit Freigabe, nie echtes Löschen) |
@@ -416,7 +417,7 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 |---|---|
 | Startzahl | 1–20, **1** |
 | Rundenzahl | 1 bis (22 − Startzahl), **20** |
-| Shanghai beendet das Spiel | **ja**, nein |
+| Shanghai beendet das Spiel (Vorauswahl der Frage) | **ja**, nein |
 
 (Die Einstellung Double-/Triple-Out entfällt auf Gianlucas Wunsch, siehe 15.)
 
@@ -426,7 +427,7 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 2. Pro Runde wirft jeder Spieler eine Aufnahme (3 Darts) auf das Ziel.
 3. Punkte nur für Treffer auf das Ziel: Zahl × Multiplikator (Bull: 25 bzw. 50). Andere Felder 0.
 4. **Shanghai** = in einer Aufnahme Single, Double **und** Triple des Ziels (Reihenfolge egal). Im Bull-Rundenziel ist kein Shanghai möglich (kein Triple).
-5. „Shanghai beendet das Spiel = ja“: Wer ein Shanghai wirft, gewinnt sofort. „nein“: Das Shanghai wird vermerkt, das Spiel läuft normal weiter.
+5. Nach jedem Shanghai fragt die App: **„Spiel beenden“** oder **„Weiterspielen“** (Wunsch Gianluca, 25.10.2026). Die Einstellung „Shanghai beendet das Spiel“ bestimmt nur, welcher Knopf hervorgehoben ist. „Spiel beenden“: Der Werfer gewinnt sofort. „Weiterspielen“: Das Shanghai wird vermerkt, das Spiel läuft normal weiter. Die Antwort ist ein eigenes Ereignis `game.decision` (`gameId`, `slot`, `turnIndex`, `kind = shanghai`, `end`). Bis zur Antwort ist „Weiter“ gesperrt. Rückgängig nimmt zuerst die Antwort zurück, dann den Dart.
 6. Nach der letzten Runde gewinnt, wer die meisten Punkte hat. Bei Punktgleichheit teilen sich die Spieler den Platz.
 7. Auf dem Board ist nur das aktuelle Ziel farbig.
 

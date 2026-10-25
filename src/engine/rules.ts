@@ -75,9 +75,9 @@ export function shanghaiRules(s: ShanghaiSettings): string[] {
       ? `Gespielt wird 1 Runde mit dem Ziel ${first}.`
       : `Gespielt werden ${s.rounds} Runden. Runde 1 hat das Ziel ${first}, danach geht es aufwärts bis ${last}.`,
     'Pro Runde wirft jeder 3 Darts auf das Ziel. Es zählt die Zahl mal Ring (Double doppelt, Triple dreifach), beim Bull 25 bzw. 50. Andere Felder zählen nichts.',
-    `Shanghai heißt: Single, Double und Triple des Ziels in einer Aufnahme. ${
-      s.endOnShanghai ? 'Wer ein Shanghai wirft, gewinnt sofort.' : 'Ein Shanghai wird vermerkt, das Spiel läuft weiter.'
-    }${withBull ? ' Beim Bull ist kein Shanghai möglich.' : ''}`,
+    `Shanghai heißt: Single, Double und Triple des Ziels in einer Aufnahme. Nach einem Shanghai fragt die App, ob das Spiel endet (dann gewinnt der Werfer sofort) oder weitergespielt wird. Vorausgewählt ist „${
+      s.endOnShanghai ? 'Spiel beenden' : 'Weiterspielen'
+    }“.${withBull ? ' Beim Bull ist kein Shanghai möglich.' : ''}`,
     'Nach der letzten Runde gewinnt, wer die meisten Punkte hat. Bei Gleichstand teilen sich die Spieler den Sieg.',
   ];
   return out;
