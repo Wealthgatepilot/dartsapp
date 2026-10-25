@@ -201,7 +201,7 @@ Am Handy ist das Board etwa 350 Punkte breit. Ein Double-Ring wäre dann nur 8 P
 2. **Ring-Leiste**: drei Felder untereinander, unten **S**, darüber **D**, oben **T** (beim Bull nur **25** und **50**). Sie erscheint **oberhalb** des Fingers mit mindestens 24 Punkten Abstand, so dass das S-Feld direkt über der Fingerkuppe liegt.
    - Ist oben zu wenig Platz (z. B. Segment 20 im Querformat), erscheint die Leiste **seitlich** (links oder rechts, wo mehr Platz ist), waagerecht mit S am nächsten zum Finger.
    - Die Leiste liegt nie unter dem Finger.
-3. **Auswahl durch Ziehen**: Gemessen wird nur, **wie weit** der Finger in Richtung der Leiste gezogen wird, nicht wo genau er steht. Stufen alle 40 Punkte: 0–39 → S, 40–79 → D, ab 80 → T. Die aktuell gewählte Stufe ist hervorgehoben, das Handy vibriert kurz bei jedem Stufenwechsel (nur Android; das iPhone erlaubt Web-Apps kein Vibrieren).
+3. **Auswahl durch Ziehen**: Gemessen wird nur, **wie weit** der Finger in Richtung der Leiste gezogen wird, nicht wo genau er steht. Stufen alle 50 Punkte: 0–49 → S, 50–99 → D, ab 100 → T (am Board auf iPhone und Android getestet, 25.10.2026). Die aktuell gewählte Stufe ist hervorgehoben, das Handy vibriert kurz bei jedem Stufenwechsel (nur Android; das iPhone erlaubt Web-Apps kein Vibrieren).
 4. **Loslassen** übernimmt den Dart. Ohne Ziehen loslassen = **Single** (schnellster Weg für den häufigsten Fall).
 5. **Abbrechen**: Zieht man den Finger aus dem Board heraus in die Gegenrichtung der Leiste (mehr als 60 Punkte), wird nichts eingetragen.
 6. Mehrfinger-Berührungen werden ignoriert. Wischen zum Scrollen ist auf dem Board abgeschaltet.
@@ -758,6 +758,7 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | Ausrichtung | Hoch- und Querformat gleichwertig |
 | Spielerwechsel | erst nach „Weiter“ |
 | Ausbullen-Gleichstand | immer Abstand zum Mittelpunkt, nur bei exakt gleichem Wert neu werfen |
+| Zugweite der Ring-Leiste | 50 Punkte pro Stufe (nach Test am Board, statt 40) |
 
 ### 15.2 Annahmen ohne Rückfrage
 

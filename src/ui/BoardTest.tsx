@@ -5,12 +5,9 @@ import { useState } from 'preact/hooks';
 import { MISS, fieldLabel, points, type Field } from '../engine/types';
 import { Board, type Preview } from './board/Board';
 
-const STEP_CHOICES = [30, 40, 50];
-
 export function BoardTest() {
   const [darts, setDarts] = useState<Field[]>([]);
   const [preview, setPreview] = useState<Preview>(null);
-  const [stepPx, setStepPx] = useState(40);
 
   const add = (f: Field) => setDarts((d) => [...d, f].slice(-30));
   const removeAt = (i: number) => setDarts((d) => d.filter((_, j) => j !== i));
@@ -56,17 +53,6 @@ export function BoardTest() {
           </button>
         </div>
 
-        <div class="setting">
-          <span>Zugweite pro Stufe</span>
-          <div class="segmented">
-            {STEP_CHOICES.map((s) => (
-              <button key={s} class={s === stepPx ? 'on' : ''} onClick={() => setStepPx(s)}>
-                {s} px
-              </button>
-            ))}
-          </div>
-        </div>
-
         <details class="history">
           <summary>Alle Eingaben ({darts.length})</summary>
           <p>{darts.map(fieldLabel).join(', ') || '—'}</p>
@@ -74,7 +60,7 @@ export function BoardTest() {
       </section>
 
       <section class="board-wrap">
-        <Board onDart={add} onPreview={setPreview} stepPx={stepPx} />
+        <Board onDart={add} onPreview={setPreview} />
       </section>
     </div>
   );

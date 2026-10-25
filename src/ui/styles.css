@@ -44,7 +44,7 @@ button {
 .screen {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: var(--vh);
   padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
     max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
   gap: 8px;
@@ -65,10 +65,29 @@ button {
   justify-content: center;
 }
 
+/* Die Board-Größe wird direkt aus dem Bildschirm berechnet, nicht aus „100 % des Kastens“:
+   Safari auf dem iPhone hat im Querformat daraus 0 gemacht. svh = sichtbare Höhe ohne Adressleiste. */
+.screen {
+  --vh: 100vh;
+  --inset-x: calc(env(safe-area-inset-left, 0px) + env(safe-area-inset-right, 0px));
+  --inset-y: calc(env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
+  --board: min(100vw - 16px - var(--inset-x), var(--vh) - 280px);
+  min-width: 0;
+}
+@supports (height: 100svh) {
+  .screen {
+    --vh: 100svh;
+  }
+}
+.panel {
+  min-width: 0;
+}
+
 .board {
   display: block;
-  width: min(100%, 100dvh - 280px);
-  aspect-ratio: 1;
+  flex: 0 0 auto;
+  width: var(--board);
+  height: var(--board);
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
@@ -78,13 +97,10 @@ button {
 @media (orientation: landscape) {
   .screen {
     flex-direction: row;
+    --board: min(var(--vh) - 16px - var(--inset-y), 100vw - 320px - var(--inset-x));
   }
   .board-wrap {
     align-items: center;
-  }
-  .board {
-    width: auto;
-    height: min(100%, 100vw - 300px);
   }
 }
 

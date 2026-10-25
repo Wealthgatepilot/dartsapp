@@ -86,21 +86,21 @@ describe('Stufenwahl durch Ziehen', () => {
     expect(dragTowardsBar('right', 50, 0)).toBe(50);
   });
 
-  it('S, D, T alle 40 Pixel', () => {
-    expect(stepFromDrag(0, 3, 40)).toBe(0);
-    expect(stepFromDrag(39, 3, 40)).toBe(0);
-    expect(stepFromDrag(40, 3, 40)).toBe(1);
-    expect(stepFromDrag(79, 3, 40)).toBe(1);
-    expect(stepFromDrag(80, 3, 40)).toBe(2);
-    expect(stepFromDrag(400, 3, 40)).toBe(2);
+  it('S, D, T alle 50 Pixel (SPEC 4.3)', () => {
+    expect(stepFromDrag(0, 3, 50)).toBe(0);
+    expect(stepFromDrag(49, 3, 50)).toBe(0);
+    expect(stepFromDrag(50, 3, 50)).toBe(1);
+    expect(stepFromDrag(99, 3, 50)).toBe(1);
+    expect(stepFromDrag(100, 3, 50)).toBe(2);
+    expect(stepFromDrag(400, 3, 50)).toBe(2);
   });
 
   it('Bull hat nur zwei Stufen', () => {
-    expect(stepFromDrag(200, 2, 40)).toBe(1);
+    expect(stepFromDrag(200, 2, 50)).toBe(1);
   });
 
   it('kleine Bewegung in Gegenrichtung bleibt Single, große bricht ab', () => {
-    expect(stepFromDrag(-30, 3, 40)).toBe(0);
-    expect(stepFromDrag(-61, 3, 40)).toBe(-1);
+    expect(stepFromDrag(-30, 3, 50)).toBe(0);
+    expect(stepFromDrag(-61, 3, 50)).toBe(-1);
   });
 });

@@ -18,7 +18,7 @@ export type Preview = { field: Field } | { cancel: true } | null;
 interface Props {
   onDart: (field: Field) => void;
   onPreview?: (preview: Preview) => void;
-  /** Zugweite pro Stufe in Pixeln (SPEC: 40). */
+  /** Zugweite pro Stufe in Pixeln (SPEC 4.3: 50). */
   stepPx?: number;
 }
 
@@ -71,7 +71,7 @@ function itemsFor(kind: 'bull' | 'number', n: number): { label: string; field: F
   }));
 }
 
-export function Board({ onDart, onPreview, stepPx = 40 }: Props) {
+export function Board({ onDart, onPreview, stepPx = 50 }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [active, setActive] = useState<Active | null>(null);
   const activeRef = useRef<Active | null>(null);
