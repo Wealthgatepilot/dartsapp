@@ -111,11 +111,42 @@ const planKey = (p: Plan) => p.map(fieldLabel).join(' ');
  * null, wenn kein Checkout möglich ist oder die Hilfe aus ist.
  */
 export function suggestCheckout(rest: number, dartsLeft: number, out: InOut, level: AdviceLevel): Field[] | null {
+  return bestPlan(rest, dartsLeft, out, level, () => true);
+}
+
+/** Nutzt der Weg das Bull (25 oder 50) als Vorbereitungs-Dart? */
+export function usesBullSetup(plan: Field[]): boolean {
+  return plan.slice(0, -1).some((f) => f.n === BULL);
+}
+
+/**
+ * Zweiter Weg (SPEC 7.1): nur wenn der Hauptweg das Bull zur Vorbereitung nutzt,
+ * dann der beste Weg ohne Bull zur Vorbereitung. Sonst null.
+ */
+export function alternativeCheckout(
+  rest: number,
+  dartsLeft: number,
+  out: InOut,
+  level: AdviceLevel,
+): Field[] | null {
+  const main = suggestCheckout(rest, dartsLeft, out, level);
+  if (!main || !usesBullSetup(main)) return null;
+  return bestPlan(rest, dartsLeft, out, level, (p) => !usesBullSetup(p));
+}
+
+function bestPlan(
+  rest: number,
+  dartsLeft: number,
+  out: InOut,
+  level: AdviceLevel,
+  allowed: (p: Plan) => boolean,
+): Plan | null {
   if (level === 'off' || dartsLeft < 1 || rest < 1 || rest > 180) return null;
   let best: Plan | null = null;
   let bestCost = Infinity;
   for (let d = 1; d <= Math.min(3, dartsLeft); d++) {
     for (const plan of allPlans(rest, d, out)) {
+      if (!allowed(plan)) continue;
       const cost = level === 'expert' ? expertCost(plan, rest, out) : noviceCost(plan, rest, out);
       // Bei gleichen Kosten entscheidet die Schreibweise, damit das Ergebnis immer gleich ist.
       if (cost < bestCost || (cost === bestCost && best && planKey(plan) < planKey(best))) {

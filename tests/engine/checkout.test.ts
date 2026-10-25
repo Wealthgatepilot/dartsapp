@@ -2,7 +2,13 @@
 
 import { describe, expect, it } from 'vitest';
 import golden from './golden/checkouts-double-out.json';
-import { formatCheckout, suggestCheckout, type AdviceLevel } from '../../src/engine/checkout';
+import {
+  alternativeCheckout,
+  formatCheckout,
+  suggestCheckout,
+  usesBullSetup,
+  type AdviceLevel,
+} from '../../src/engine/checkout';
 import { BULL, points, type Field, type Multiplier } from '../../src/engine/types';
 import type { InOut } from '../../src/engine/x01';
 
@@ -54,14 +60,60 @@ describe('Gegenprüfung', () => {
 });
 
 describe('Golden-Liste (von Gianluca gegengelesen)', () => {
+  const tables = golden as Record<string, Record<string, string>>;
   for (const level of ['expert', 'novice'] as const) {
     it(`${level}: jeder Rest 2–170 wie in der Liste`, () => {
-      const table = (golden as Record<string, Record<string, string>>)[level];
       const actual: Record<string, string> = {};
       for (let rest = 2; rest <= 170; rest++) actual[rest] = show(rest, 3, 'double', level);
-      expect(actual).toEqual(table);
+      expect(actual).toEqual(tables[level]);
+    });
+
+    it(`${level}: zweite Wege wie in der Liste`, () => {
+      const actual: Record<string, string> = {};
+      for (let rest = 2; rest <= 170; rest++) {
+        const alt = alternativeCheckout(rest, 3, 'double', level);
+        if (alt) actual[rest] = formatCheckout(alt);
+      }
+      expect(actual).toEqual(tables[`${level}Alt`]);
     });
   }
+
+  it('Experte: zweiter Weg genau bei 142, 123, 82, 66 (Entscheidung Gianluca)', () => {
+    expect(Object.keys(tables.expertAlt).map(Number).sort((a, b) => b - a)).toEqual([142, 123, 82, 66]);
+  });
+});
+
+describe('Zweiter Weg (SPEC 7.1)', () => {
+  it('nur wenn der Hauptweg das Bull zur Vorbereitung nutzt, und dann ohne Bull zur Vorbereitung', () => {
+    for (const out of ['single', 'double', 'master'] as const) {
+      for (const darts of [1, 2, 3]) {
+        for (let rest = 1; rest <= 181; rest++) {
+          for (const level of ['expert', 'novice'] as const) {
+            const main = suggestCheckout(rest, darts, out, level);
+            const alt = alternativeCheckout(rest, darts, out, level);
+            if (!main || !usesBullSetup(main)) {
+              expect(alt, `${out} ${darts} ${rest} ${level}`).toBeNull();
+              continue;
+            }
+            if (!alt) continue; // kein Weg ohne Bull möglich
+            expect(usesBullSetup(alt)).toBe(false);
+            expect(alt.reduce((s, f) => s + points(f), 0)).toBe(rest);
+            expect(outOk(out, alt[alt.length - 1])).toBe(true);
+            expect(alt.length).toBeLessThanOrEqual(darts);
+          }
+        }
+      }
+    }
+  });
+
+  it('Bull als letzter Dart zählt nicht als Vorbereitung: 110 → T20 DB ohne zweiten Weg', () => {
+    expect(show(110)).toBe('T20 DB');
+    expect(alternativeCheckout(110, 3, 'double', 'expert')).toBeNull();
+  });
+
+  it('Hilfe „Aus“ zeigt auch keinen zweiten Weg', () => {
+    expect(alternativeCheckout(142, 3, 'double', 'off')).toBeNull();
+  });
 });
 
 describe('Bekannte Profi-Wege (Experte)', () => {

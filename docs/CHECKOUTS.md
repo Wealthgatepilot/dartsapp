@@ -1,6 +1,7 @@
 # Checkout-Tabelle zum Gegenlesen
 
 Double-Out, 3 Darts. Erzeugt von `src/engine/checkout.ts`. Spalte „Hinweis“ markiert Zeilen, die einen zweiten Blick verdienen.
+„oder …“ ist der zweite Weg ohne Bull zur Vorbereitung (SPEC 7.1).
 Nach Gianlucas Freigabe ist diese Liste die Golden-Liste: Jede Zeile wird automatisch getestet.
 
 | Rest | Experte | Einsteiger | Hinweis (Experte) |
@@ -33,7 +34,7 @@ Nach Gianlucas Freigabe ist diese Liste die Golden-Liste: Jede Zeile wird automa
 | 145 | T20 T15 D20 | T20 T15 D20 |  |
 | 144 | T20 T20 D12 | T20 T20 D12 |  |
 | 143 | T20 T17 D16 | T20 T17 D16 |  |
-| 142 | T20 DB D16 | T19 T15 D20 | Bull zur Vorbereitung |
+| 142 | T20 DB D16<br>oder T19 T15 D20 | T19 T15 D20 | Bull zur Vorbereitung |
 | 141 | T20 T19 D12 | T20 T19 D12 |  |
 | 140 | T20 T20 D10 | T20 T20 D10 |  |
 | 139 | T20 T13 D20 | T20 T13 D20 | kleines Triple zur Vorbereitung |
@@ -50,11 +51,11 @@ Nach Gianlucas Freigabe ist diese Liste die Golden-Liste: Jede Zeile wird automa
 | 128 | T20 T20 D4 | T20 T20 D4 | endet auf D4 |
 | 127 | T20 T17 D8 | T20 T17 D8 |  |
 | 126 | T19 T19 D6 | T19 T19 D6 |  |
-| 125 | T20 T19 D4 | T20 SB D20 | endet auf D4 |
+| 125 | T20 T19 D4 | T20 SB D20<br>oder T20 T19 D4 | endet auf D4 |
 | 124 | T20 T16 D8 | T20 T16 D8 |  |
-| 123 | T19 DB D8 | T20 SB D19 | Bull zur Vorbereitung |
-| 122 | T18 T20 D4 | T19 SB D20 | endet auf D4 |
-| 121 | T20 T15 D8 | T20 SB D18 |  |
+| 123 | T19 DB D8<br>oder T19 T18 D6 | T20 SB D19<br>oder T19 T18 D6 | Bull zur Vorbereitung |
+| 122 | T18 T20 D4 | T19 SB D20<br>oder T18 T20 D4 | endet auf D4 |
+| 121 | T20 T15 D8 | T20 SB D18<br>oder T20 T15 D8 |  |
 | 120 | T20 S20 D20 | T20 S20 D20 |  |
 | 119 | T20 S19 D20 | T20 S19 D20 |  |
 | 118 | T20 S18 D20 | T20 S18 D20 |  |
@@ -93,7 +94,7 @@ Nach Gianlucas Freigabe ist diese Liste die Golden-Liste: Jede Zeile wird automa
 | 85 | T15 D20 | T15 D20 |  |
 | 84 | T20 D12 | T20 D12 |  |
 | 83 | T17 D16 | T17 D16 |  |
-| 82 | DB D16 | T14 D20 | Bull zur Vorbereitung |
+| 82 | DB D16<br>oder T14 D20 | T14 D20 | Bull zur Vorbereitung |
 | 81 | T19 D12 | T19 D12 |  |
 | 80 | T20 D10 | S20 S20 D20 |  |
 | 79 | T13 D20 | S19 S20 D20 | kleines Triple zur Vorbereitung |
@@ -109,7 +110,7 @@ Nach Gianlucas Freigabe ist diese Liste die Golden-Liste: Jede Zeile wird automa
 | 69 | T19 D6 | S10 S19 D20 |  |
 | 68 | T20 D4 | S10 S18 D20 | endet auf D4 |
 | 67 | T17 D8 | S10 S17 D20 |  |
-| 66 | DB D8 | S10 S16 D20 | Bull zur Vorbereitung |
+| 66 | DB D8<br>oder T18 D6 | S10 S16 D20 | Bull zur Vorbereitung |
 | 65 | T19 D4 | S10 S15 D20 | endet auf D4 |
 | 64 | T16 D8 | S10 S14 D20 |  |
 | 63 | T13 D12 | S10 S13 D20 | kleines Triple zur Vorbereitung |

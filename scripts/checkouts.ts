@@ -3,18 +3,21 @@
 //         npm run checkouts -- --write → Dateien neu schreiben (nur nach Gianlucas Freigabe, die Liste ist geprüft!)
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { suggestCheckout, formatCheckout, type AdviceLevel } from '../src/engine/checkout';
+import { alternativeCheckout, suggestCheckout, formatCheckout } from '../src/engine/checkout';
 import { BULL, type Field } from '../src/engine/types';
 
 const GOLDEN = 'tests/engine/golden/checkouts-double-out.json';
 const REVIEW = 'docs/CHECKOUTS.md';
 
-type Golden = Record<'expert' | 'novice', Record<string, string>>;
+const LEVELS = ['expert', 'novice'] as const;
+type Golden = Record<'expert' | 'novice' | 'expertAlt' | 'noviceAlt', Record<string, string>>;
 
-const golden: Golden = { expert: {}, novice: {} };
+const golden: Golden = { expert: {}, novice: {}, expertAlt: {}, noviceAlt: {} };
 for (let rest = 2; rest <= 170; rest++) {
-  for (const level of ['expert', 'novice'] as AdviceLevel[]) {
-    golden[level as 'expert' | 'novice'][rest] = formatCheckout(suggestCheckout(rest, 3, 'double', level));
+  for (const level of LEVELS) {
+    golden[level][rest] = formatCheckout(suggestCheckout(rest, 3, 'double', level));
+    const alt = alternativeCheckout(rest, 3, 'double', level);
+    if (alt) golden[`${level}Alt`][rest] = formatCheckout(alt);
   }
 }
 
@@ -31,10 +34,13 @@ function notes(plan: Field[] | null, rest: number): string[] {
   return n;
 }
 
+const cell = (main: string, alt: string | undefined) => (main ? (alt ? `${main}<br>oder ${alt}` : main) : '—');
+
 const rows = [
   '# Checkout-Tabelle zum Gegenlesen',
   '',
   'Double-Out, 3 Darts. Erzeugt von `src/engine/checkout.ts`. Spalte „Hinweis“ markiert Zeilen, die einen zweiten Blick verdienen.',
+  '„oder …“ ist der zweite Weg ohne Bull zur Vorbereitung (SPEC 7.1).',
   'Nach Gianlucas Freigabe ist diese Liste die Golden-Liste: Jede Zeile wird automatisch getestet.',
   '',
   '| Rest | Experte | Einsteiger | Hinweis (Experte) |',
@@ -43,7 +49,7 @@ const rows = [
 for (let rest = 170; rest >= 2; rest--) {
   const plan = suggestCheckout(rest, 3, 'double', 'expert');
   rows.push(
-    `| ${rest} | ${golden.expert[rest] || '—'} | ${golden.novice[rest] || '—'} | ${notes(plan, rest).join(', ')} |`,
+    `| ${rest} | ${cell(golden.expert[rest], golden.expertAlt[rest])} | ${cell(golden.novice[rest], golden.noviceAlt[rest])} | ${notes(plan, rest).join(', ')} |`,
   );
 }
 const review = rows.join('\n') + '\n';
@@ -54,6 +60,6 @@ if (process.argv.includes('--write')) {
   writeFileSync(REVIEW, review);
   console.log(`geschrieben: ${GOLDEN}, ${REVIEW}`);
 } else {
-  const same = existsSync(GOLDEN) && readFileSync(GOLDEN, 'utf8') === json;
+  const same = existsSync(GOLDEN) && readFileSync(GOLDEN, 'utf8').replace(/\r\n/g, '\n') === json;
   console.log(same ? 'Golden-Liste unverändert.' : 'Golden-Liste weicht ab (oder fehlt). Mit --write neu schreiben.');
 }

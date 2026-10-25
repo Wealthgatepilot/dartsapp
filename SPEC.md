@@ -375,7 +375,8 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
   2. dann wenigste Darts;
   3. dann wie Experte.
 
-- Die erzeugte Tabelle für alle Reste 2–170 (Double-Out, 3 Darts) wird als Datei im Projekt abgelegt („Golden-Liste“) und von Gianluca einmal gegengelesen. Danach prüft ein Test jede Zeile.
+- **Zweiter Weg:** Nutzt der Hauptweg das Bull (25 oder 50) als Vorbereitungs-Dart, zeigt die App darunter klein „oder …“ mit dem besten Weg ohne Bull zur Vorbereitung (gleiche Stufe, gleiche Kosten-Regeln). Sonst gibt es keinen zweiten Weg. Gibt es keinen Weg ohne Bull, entfällt er ebenfalls. Bei Double-Out mit 3 Darts betrifft das beim Experten die Reste 142, 123, 82 und 66 (Entscheidung Gianluca, 25.10.2026).
+- Die erzeugte Tabelle für alle Reste 2–170 (Double-Out, 3 Darts) samt zweiter Wege wird als Datei im Projekt abgelegt („Golden-Liste“) und von Gianluca einmal gegengelesen. Danach prüft ein Test jede Zeile.
 
 **Regeltext** (Bausteine): Startwert; In-Regel; Out-Regel mit Erklärung Bust; Bull als Double; Legs/Sets mit Beispiel.
 
