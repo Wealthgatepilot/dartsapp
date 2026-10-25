@@ -20,6 +20,8 @@ export interface DartPayload {
   turnIndex: number;
   dartIndex: number;
   field: Field | null;
+  /** Bei Trainings mit Treffer/Falsch-Eingabe: Ziel getroffen? */
+  hit?: boolean;
   input: 'board' | 'hitmiss' | 'bot' | 'auto';
   replaces?: string;
 }
