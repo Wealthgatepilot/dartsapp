@@ -361,18 +361,19 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 - Bei Double-Out ist der höchste Checkout **170** (T20 T20 Bull). Über 170 gibt es nie einen Vorschlag.
 - Bis 170 **nicht** checkbar mit 3 Darts (Double-Out): **169, 168, 166, 165, 163, 162, 159.** Für diese Werte kein Vorschlag.
 - Single-Out und Master-Out: höchster Checkout **180** (T20 T20 T20). Eigene Tabellen.
-- Erzeugt wird die Tabelle durch ein Programm, das alle Kombinationen aus 1–3 Darts durchprobiert und die beste nach folgender Rangfolge wählt:
+- Erzeugt wird die Tabelle durch ein Programm, das alle Kombinationen aus 1–3 Darts durchprobiert (ohne Bust unterwegs) und den Weg mit den niedrigsten **Kosten** wählt. Kosten statt einer starren Rangfolge, weil Profis abwägen: Ein etwas schlechteres Triple ist besser als ein schlechtes Double am Ende (64 → T16 D8 statt T20 D2).
 
-  **Experte** (wie Profis rechnen):
-  1. möglichst wenige Darts;
-  2. letzter Dart auf das beliebteste Double, Reihenfolge: D20, D16, D8, D18, D12, D10, D4, D14, D6, D2, D19, D17, D15, D13, D11, D9, D7, D5, D3, D1, Bullseye;
-  3. Vorbereitungs-Darts bevorzugt T20, T19, T18, T17, T16, T15, dann Singles, Bull zuletzt;
-  4. bei Gleichstand: Weg, bei dem ein versehentliches Single statt Triple noch einen Checkout übrig lässt.
+  **Experte** (wie Profis rechnen), Kosten eines Wegs = Summe aus:
+  1. 100 je Dart (wenigste Darts gehen immer vor);
+  2. letzter Dart: Platz in der Double-Reihenfolge × 0,6, Reihenfolge D20, D16, D8, D18, D12, D10, D4, D14, D6, D2, D19, D17, D15, D13, D11, D9, D7, D5, D3, D1; Bullseye 7;
+  3. je Vorbereitungs-Dart: T20 0, T19 1, T18 2, T17 3, T16 4, T15 5, kleinere Triples 6 bis 7,4; Single 2; Bull (25 oder 50) 6; Double 12;
+  4. +1 je Triple-Vorbereitungs-Dart, nach dessen Single-Treffer kein Checkout mehr möglich wäre (Robustheit);
+  5. bei gleichen Feldern zuerst der bessere Dart (T20 T19 statt T19 T20); danach entscheidet die Schreibweise, damit das Ergebnis immer gleich ist.
 
   **Einsteiger** (leichte Felder vor wenigen Darts):
-  1. kleinste Summe der „Schwierigkeit“: Single 1, Double 3, Single-Bull 3, Triple 4, Bullseye 5;
+  1. kleinste Summe der „Schwierigkeit“: Single 1, Double 3 (als Vorbereitung 4,5), Single-Bull 3, Triple 4, Bullseye 6;
   2. dann wenigste Darts;
-  3. dann Double-Reihenfolge wie Experte.
+  3. dann wie Experte.
 
 - Die erzeugte Tabelle für alle Reste 2–170 (Double-Out, 3 Darts) wird als Datei im Projekt abgelegt („Golden-Liste“) und von Gianluca einmal gegengelesen. Danach prüft ein Test jede Zeile.
 
