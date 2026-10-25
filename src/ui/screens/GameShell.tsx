@@ -59,6 +59,7 @@ export function GameShell(p: ShellProps) {
   const [editing, setEditing] = useState(false);
 
   useWakeLock();
+  useNoPinchZoom();
 
   /** Ereignisse anhängen; während des Schreibens sind weitere Eingaben gesperrt (kein Doppel-Tipp). */
   const act = async (evs: readonly NewAppEvent[]) => {
@@ -209,6 +210,27 @@ export function GameShell(p: ShellProps) {
       )}
     </div>
   );
+}
+
+/**
+ * Kein Zoom mit zwei Fingern in der Spielansicht (SPEC 4.3, Punkt 7). Safari auf iPhone und iPad
+ * hält sich dabei nicht immer an die Angaben im Viewport, deshalb wird die Geste hier direkt abgefangen.
+ */
+function useNoPinchZoom() {
+  useEffect(() => {
+    const stop = (e: Event) => e.preventDefault();
+    const twoFingers = (e: TouchEvent) => {
+      if (e.touches.length > 1) e.preventDefault();
+    };
+    document.addEventListener('gesturestart', stop, { passive: false });
+    document.addEventListener('gesturechange', stop, { passive: false });
+    document.addEventListener('touchmove', twoFingers, { passive: false });
+    return () => {
+      document.removeEventListener('gesturestart', stop);
+      document.removeEventListener('gesturechange', stop);
+      document.removeEventListener('touchmove', twoFingers);
+    };
+  }, []);
 }
 
 /** Bildschirm bleibt an, solange ein Spiel offen ist (SPEC 5.3), wo der Browser das kann. */

@@ -17,6 +17,11 @@
   box-sizing: border-box;
 }
 
+/* Kein Doppeltipp-Zoom (SPEC 4.3, Punkt 7). „manipulation“ erlaubt Scrollen, verbietet aber Doppeltipp-Zoom. */
+html {
+  touch-action: manipulation;
+}
+
 html,
 body {
   margin: 0;
@@ -873,4 +878,15 @@ button.pill-x {
 .round-head strong {
   color: var(--accent);
   font-size: 22px;
+}
+
+/* Spielansicht: kein Markieren von Text bei schnellen Tipps, kein Zoom auf Board und Knöpfen */
+.screen-game,
+.screen-game * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.screen-game .board-wrap {
+  touch-action: none;
 }

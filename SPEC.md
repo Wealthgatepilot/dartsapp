@@ -210,6 +210,7 @@ Am Handy ist das Board etwa 350 Punkte breit. Ein Double-Ring wäre dann nur 8 P
 4. **Loslassen** übernimmt den Dart. Ohne Ziehen loslassen = **Single** (schnellster Weg für den häufigsten Fall).
 5. **Abbrechen**: Zieht man den Finger aus dem Board heraus in die Gegenrichtung der Leiste (mehr als 60 Punkte), wird nichts eingetragen.
 6. Mehrfinger-Berührungen werden ignoriert. Wischen zum Scrollen ist auf dem Board abgeschaltet.
+7. **Kein Browser-Zoom:** Doppeltipp-Zoom ist in der ganzen App abgeschaltet, in der Spielansicht auch Zoom mit zwei Fingern. Sonst vergrößert Safari (iPhone, iPad) bei zwei schnellen Tipps auf dasselbe Feld die Seite (gefunden von Gianluca am iPad, 25.10.2026). Vergrößert wird nur beim Ausbullen, und zwar durch die App selbst (6.4).
 
 ### 4.4 Anzeige der Aufnahme
 
