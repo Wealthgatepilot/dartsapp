@@ -290,6 +290,7 @@ describe('Runde bearbeiten', () => {
     const plan = planEdit(g.state, g.events, { leg: 1, slot: A, turnIndex: 1 }, ['S20', 'T20', 'S20'].map(parseField));
     expect(plan.error).toBeUndefined();
     expect(plan.discarded).toEqual([]);
+    expect(plan.outcomeChanged).toBe(false); // nur andere Punktzahl, kein Bust oder Checkout
     g.add(plan.events);
     expect(g.state.remaining[A]).toBe(501 - 100 - 5);
     expect(g.state.next).toMatchObject({ slot: A, turnIndex: 2, dartIndex: 2 });

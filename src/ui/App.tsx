@@ -1,0 +1,34 @@
+import { BoardTest } from './BoardTest';
+import { DataProvider } from './data';
+import { useRoute } from './router';
+import { Game } from './screens/Game';
+import { Home } from './screens/Home';
+import { Profiles } from './screens/Profiles';
+import { Settings } from './screens/Settings';
+import { X01Setup } from './screens/X01Setup';
+
+export function App() {
+  return (
+    <DataProvider>
+      <Screens />
+    </DataProvider>
+  );
+}
+
+function Screens() {
+  const route = useRoute();
+  switch (route.name) {
+    case 'home':
+      return <Home />;
+    case 'profiles':
+      return <Profiles />;
+    case 'setup':
+      return <X01Setup />;
+    case 'game':
+      return <Game key={route.gameId} gameId={route.gameId} />;
+    case 'settings':
+      return <Settings />;
+    case 'boardtest':
+      return <BoardTest />;
+  }
+}

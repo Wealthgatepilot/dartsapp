@@ -1,5 +1,5 @@
 import { render } from 'preact';
-import { BoardTest } from './ui/BoardTest';
+import { App } from './ui/App';
 import './ui/styles.css';
 
-render(<BoardTest />, document.getElementById('app')!);
+render(<App />, document.getElementById('app')!);

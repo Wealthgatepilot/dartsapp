@@ -4,6 +4,8 @@
 import { useState } from 'preact/hooks';
 import { MISS, fieldLabel, points, type Field } from '../engine/types';
 import { Board, type Preview } from './board/Board';
+import { TopBar } from './components';
+import { href } from './router';
 
 export function BoardTest() {
   const [darts, setDarts] = useState<Field[]>([]);
@@ -17,10 +19,7 @@ export function BoardTest() {
   return (
     <div class="screen">
       <section class="panel">
-        <header class="panel-head">
-          <h1>Board-Test</h1>
-          <span class="muted">Prototyp · Phase 1</span>
-        </header>
+        <TopBar title="Board ausprobieren" back={href({ name: 'settings' })} />
 
         <div class={preview ? 'preview preview-on' : 'preview'} aria-live="polite">
           {preview === null && <span class="muted">Segment antippen, für D/T zur Leiste ziehen</span>}

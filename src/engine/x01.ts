@@ -425,7 +425,7 @@ export interface EditPlan {
   events: NewEvent[];
   /** Darts, die durch die Änderung keinen Platz mehr haben und verworfen werden (SPEC 5.2). */
   discarded: string[];
-  /** Ändert sich der Ausgang (Bust, Checkout, Leg-Gewinner) der bearbeiteten Aufnahme? */
+  /** Wird die bearbeitete Aufnahme dadurch zum Bust oder Checkout bzw. hört auf, einer zu sein? */
   outcomeChanged: boolean;
   error?: string;
 }
@@ -498,11 +498,8 @@ export function planEdit(
   for (const id of discarded) out.push({ type: 'event.voided', payload: { gameId: state.setup.gameId, targetId: id, reason: 'edit' } });
 
   const after = findTurn(simulate(state.setup, events, out), turn);
-  const outcomeChanged =
-    !after ||
-    after.bust !== turn.bust ||
-    after.checkout !== turn.checkout ||
-    after.endRemaining !== turn.endRemaining;
+  // „Ausgang“ heißt Bust oder Checkout (SPEC 5.2), nicht jede Punktänderung.
+  const outcomeChanged = !after || after.bust !== turn.bust || after.checkout !== turn.checkout;
   return { events: out, discarded, outcomeChanged };
 }
 

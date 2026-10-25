@@ -20,6 +20,10 @@ interface Props {
   onPreview?: (preview: Preview) => void;
   /** Zugweite pro Stufe in Pixeln (SPEC 4.3: 50). */
   stepPx?: number;
+  /** Gesperrt, z. B. wenn erst „Weiter“ getippt werden muss. */
+  disabled?: boolean;
+  /** Zusätzliche CSS-Klasse, z. B. für eine andere Größe im Bearbeiten-Fenster. */
+  className?: string;
 }
 
 interface Active {
@@ -71,7 +75,7 @@ function itemsFor(kind: 'bull' | 'number', n: number): { label: string; field: F
   }));
 }
 
-export function Board({ onDart, onPreview, stepPx = 50 }: Props) {
+export function Board({ onDart, onPreview, stepPx = 50, disabled = false, className = '' }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [active, setActive] = useState<Active | null>(null);
   const activeRef = useRef<Active | null>(null);
@@ -87,7 +91,7 @@ export function Board({ onDart, onPreview, stepPx = 50 }: Props) {
   };
 
   const onPointerDown = (e: PointerEvent) => {
-    if (activeRef.current) return; // zweiter Finger wird ignoriert
+    if (activeRef.current || disabled) return; // zweiter Finger wird ignoriert
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
@@ -139,8 +143,9 @@ export function Board({ onDart, onPreview, stepPx = 50 }: Props) {
     <>
       <svg
         ref={svgRef}
-        class="board"
+        class={`board ${disabled ? 'board-disabled' : ''} ${className}`}
         viewBox="-100 -100 200 200"
+        aria-disabled={disabled}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

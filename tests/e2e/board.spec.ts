@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('Board ist sichtbar und groß genug', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./#/board-test');
   const box = await page.locator('svg.board').boundingBox();
   const vp = page.viewportSize()!;
   expect(box, 'Board wird gezeichnet').not.toBeNull();
@@ -19,7 +19,7 @@ for (const [distance, expected] of [
   [110, 'T20 = 60'],
 ] as const) {
   test(`${distance} px Ziehen auf der 20 ergibt ${expected}`, async ({ page }) => {
-    await page.goto('./');
+    await page.goto('./#/board-test');
     const box = (await page.locator('svg.board').boundingBox())!;
     const cx = box.x + box.width / 2;
     const startY = box.y + box.height / 2 - 0.6 * (box.width / 2);
@@ -34,7 +34,7 @@ for (const [distance, expected] of [
 }
 
 test('Ziehen auf der 20 trägt T20 ein', async ({ page }) => {
-  await page.goto('./');
+  await page.goto('./#/board-test');
   const box = (await page.locator('svg.board').boundingBox())!;
   const cx = box.x + box.width / 2;
   const cy = box.y + box.height / 2;
