@@ -1,4 +1,6 @@
-import { useMemo } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
+import { BACKUP_REMINDER_DAYS, daysSince, exportBackup } from '../backup';
+import { lastBackupText } from './BackupCard';
 import { listGames, unfinishedGame, x01SetupOf } from '../../engine/games';
 import { listProfiles } from '../../engine/profiles';
 import { gameEventsOf } from '../../engine/events';
@@ -8,10 +10,15 @@ import { participantName } from '../names';
 import { href, navigate } from '../router';
 
 export function Home() {
-  const { events, append } = useAppData();
+  const { events, append, store, lastBackupAt, reload } = useAppData();
+  const [snoozed, setSnoozed] = useState(false);
   const profiles = useMemo(() => listProfiles(events), [events]);
   const running = useMemo(() => unfinishedGame(events), [events]);
   const recent = useMemo(() => listGames(events).filter((g) => g.ended === 'finished' && !g.hidden).slice(0, 5), [events]);
+
+  // Erinnerung nach beendeten Spielen, wenn die letzte Sicherung 7 Tage oder länger her ist (SPEC 13.3).
+  const age = daysSince(lastBackupAt);
+  const remind = !snoozed && recent.length > 0 && (age === null || age >= BACKUP_REMINDER_DAYS);
 
   const abandon = async () => {
     if (!running) return;
@@ -27,6 +34,28 @@ export function Home() {
           ⚙
         </a>
       </header>
+
+      {remind && (
+        <section class="card card-warn">
+          <p>
+            Letzte Sicherung: <strong>{lastBackupText(lastBackupAt)}</strong>. Jetzt sichern?
+          </p>
+          <div class="row">
+            <button
+              class="btn btn-primary"
+              onClick={async () => {
+                await exportBackup(store);
+                await reload();
+              }}
+            >
+              Jetzt sichern
+            </button>
+            <button class="btn" onClick={() => setSnoozed(true)}>
+              Später
+            </button>
+          </div>
+        </section>
+      )}
 
       {running && (
         <section class="card card-accent">

@@ -12,6 +12,10 @@ export interface AppData {
   events: StoredEvent[];
   append: (events: readonly NewAppEvent[]) => Promise<StoredEvent[]>;
   persist: PersistStatus | null;
+  /** Zeitpunkt der letzten Sicherung (ms), undefined = noch nie. */
+  lastBackupAt: number | undefined;
+  /** Ereignisse und Zusatzdaten neu aus dem Speicher lesen, z. B. nach einem Import. */
+  reload: () => Promise<void>;
 }
 
 const Ctx = createContext<AppData | null>(null);
@@ -26,6 +30,7 @@ export function DataProvider({ children }: { children: ComponentChildren }) {
   const [store, setStore] = useState<EventStore | null>(null);
   const [events, setEvents] = useState<StoredEvent[]>([]);
   const [persist, setPersist] = useState<PersistStatus | null>(null);
+  const [lastBackupAt, setLastBackupAt] = useState<number | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   // Schreibvorgänge nacheinander ausführen, damit die Reihenfolge stimmt.
   const queue = useRef<Promise<unknown>>(Promise.resolve());
@@ -36,9 +41,11 @@ export function DataProvider({ children }: { children: ComponentChildren }) {
       try {
         const s = await EventStore.open();
         const all = await s.all();
+        const backupAt = await s.getMeta<number>('lastBackupAt');
         if (cancelled) return;
         setStore(s);
         setEvents(all);
+        setLastBackupAt(backupAt);
         setPersist(await requestPersistence(s));
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
@@ -63,6 +70,13 @@ export function DataProvider({ children }: { children: ComponentChildren }) {
     [store],
   );
 
+  const reload = useCallback(async () => {
+    if (!store) return;
+    await queue.current;
+    setEvents(await store.all());
+    setLastBackupAt(await store.getMeta<number>('lastBackupAt'));
+  }, [store]);
+
   if (error) {
     return (
       <div class="page">
@@ -73,5 +87,7 @@ export function DataProvider({ children }: { children: ComponentChildren }) {
     );
   }
   if (!store) return <div class="page muted">Lade …</div>;
-  return <Ctx.Provider value={{ store, events, append, persist }}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={{ store, events, append, persist, lastBackupAt, reload }}>{children}</Ctx.Provider>
+  );
 }

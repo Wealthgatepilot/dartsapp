@@ -745,3 +745,9 @@ button.pill-x {
   min-height: 40px;
   font-size: 18px;
 }
+.card-warn {
+  border: 2px solid #e8590c;
+}
+.modal-body .btn {
+  min-height: 52px;
+}

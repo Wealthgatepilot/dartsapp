@@ -2,6 +2,7 @@ import { isInstalled } from '../../data/persist';
 import { TopBar } from '../components';
 import { useAppData } from '../data';
 import { href } from '../router';
+import { BackupCard } from './BackupCard';
 
 const PERSIST_TEXT = {
   granted: 'gewährt – der Browser räumt die Daten nicht von selbst.',
@@ -30,8 +31,9 @@ export function Settings() {
         <p class="muted small">
           {events.length} gespeicherte Ereignisse · Gerät {store.deviceId.slice(0, 8)}
         </p>
-        <p class="muted small">Daten sichern und laden kommt im nächsten Schritt.</p>
       </section>
+
+      <BackupCard />
 
       <section class="card">
         <h2>Board</h2>

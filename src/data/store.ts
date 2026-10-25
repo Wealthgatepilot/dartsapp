@@ -83,6 +83,28 @@ export class EventStore {
     });
   }
 
+  /**
+   * Import (SPEC 13.4): fügt fremde, bereits vollständige Ereignisse unverändert an
+   * (ID, Zeit, Gerät und Nummer bleiben wie in der Sicherung). Vorhandene IDs werden übersprungen,
+   * nichts wird überschrieben. Liefert die Anzahl der neu angefügten Ereignisse.
+   */
+  async importEvents(events: readonly StoredEvent[]): Promise<number> {
+    if (!events.length) return 0;
+    return this.db.transaction('rw', this.db.events, this.db.meta, async () => {
+      const existing = await this.db.events.bulkGet(events.map((e) => e.id));
+      const fresh = events.filter((_, i) => !existing[i]);
+      await this.db.events.bulkAdd(fresh);
+      // Stammen Ereignisse von diesem Gerät, darf die eigene Nummer sie nie wieder vergeben.
+      const own = fresh.filter((e) => e.deviceId === this.deviceId).map((e) => e.seq);
+      if (own.length) {
+        const row = await this.db.meta.get('seq');
+        const seq = Math.max((row?.value as number | undefined) ?? 0, ...own);
+        await this.db.meta.put({ key: 'seq', value: seq });
+      }
+      return fresh.length;
+    });
+  }
+
   /** Alle Ereignisse in Speicherreihenfolge. */
   async all(): Promise<StoredEvent[]> {
     return (await this.db.events.toArray()).sort(compareEvents);
