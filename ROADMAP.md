@@ -40,7 +40,9 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 - [x] Haltepunkt 3: Checkout-Tabelle freigegeben (inkl. zweitem Weg ohne Bull)
 - [x] Speicher, Bildschirme, Export/Import, Installierbarkeit, Offline
 - [x] Playwright spielt ein ganzes Leg in 5 Handy-Varianten; Offline-Start geprüft (Chromium)
-- [ ] **Haltepunkt 4: Test am Board auf iPhone und Android** (`docs/PRUEFLISTE-PHASE1.md`)
+- [x] **Haltepunkt 4: Test am Board auf iPhone und Android** (`docs/PRUEFLISTE-PHASE1.md`) – laut Gianluca alles in Ordnung (25.10.2026)
+
+**Phase 1 abgeschlossen am 25.10.2026.**
 
 **Annahmen ohne Rückfrage (Phase 1)**
 
