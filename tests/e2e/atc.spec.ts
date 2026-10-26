@@ -11,7 +11,7 @@ test('Around the Clock mit Sprüngen bis zum Sieg', async ({ page }) => {
   await page.getByRole('link', { name: /Around the Clock/ }).click();
   await page.getByRole('button', { name: 'Gian' }).click();
   await page.getByRole('button', { name: 'Jörn' }).click();
-  await page.getByRole('radio', { name: 'an' }).click(); // Sprünge
+  await page.getByRole('radiogroup', { name: 'Sprünge' }).getByRole('radio', { name: 'an' }).click();
   await page.getByRole('button', { name: 'Regeln' }).click();
   const rules = page.getByRole('dialog', { name: 'Regeln: Around the Clock' });
   await expect(rules).toContainText('Ein Double bringt dich 2 Ziele weiter');

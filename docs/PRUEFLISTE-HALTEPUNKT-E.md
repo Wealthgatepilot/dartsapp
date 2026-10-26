@@ -4,22 +4,22 @@ Vorher: In der App auf der Startseite „Jetzt neu laden“ tippen.
 
 ## Die Stufen
 
-So stark ist der Computer bei 501 Double-Out (Simulation von 10 000 Legs je Stufe):
+So stark ist der Computer bei 501 Double-Out (Simulation: je 2 500 Spiele „first to 3“ zweier gleich starker Computer, mit Schwankungen):
 
-| Stufe | Ziel-Average | erreicht | Streuung |
+| Stufe | Ziel-Average | erreicht | Double-Out-Quote |
 |---:|---:|---:|---:|
-| 1 | 25 | 25,0 | 34,7 mm |
-| 2 | 35 | 34,7 | 24,0 mm |
-| 3 | 45 | 45,2 | 18,1 mm |
-| 4 | 52 | 51,7 | 15,6 mm |
-| 5 | 60 | 60,2 | 13,2 mm |
-| 6 | 67 | 66,7 | 11,6 mm |
-| 7 | 75 | 74,8 | 10,0 mm |
-| 8 | 83 | 83,2 | 8,5 mm |
-| 9 | 92 | 92,5 | 7,1 mm |
-| 10 | 100 | 100,3 | 6,1 mm |
+| 1 | 25 | 24,9 | 2,8 % |
+| 2 | 35 | 35,0 | 5,8 % |
+| 3 | 45 | 44,7 | 9,7 % |
+| 4 | 52 | 52,1 | 13,6 % |
+| 5 | 60 | 59,8 | 16,9 % |
+| 6 | 67 | 66,8 | 20,8 % |
+| 7 | 75 | 74,9 | 25,2 % |
+| 8 | 83 | 83,3 | 30,7 % |
+| 9 | 92 | 92,1 | 36,1 % |
+| 10 | 100 | 100,0 | 41,6 % |
 
-„Streuung“ heißt: So weit liegen etwa zwei Drittel seiner Darts höchstens vom Zielpunkt entfernt (je Richtung).
+Mit Schwankungen spielt der Computer mal besser, mal schlechter (Tagesform, gute und schlechte Phasen) und wird unter Druck auf dem Double unsicherer – im Schnitt bleibt er bei seiner Stufe. „Schwankungen: aus“ spielt gleichmäßig wie eine Maschine.
 
 ## Ausprobieren
 
@@ -27,6 +27,7 @@ So stark ist der Computer bei 501 Double-Out (Simulation von 10 000 Legs je Stuf
 - [ ] Einmal eine deutlich schwächere und eine deutlich stärkere Stufe: Ist der Unterschied spürbar?
 - [ ] Der Computer wirft Dart für Dart mit kurzer Pause; du tippst „Weiter“. Während er wirft, ist das Board gesperrt.
 - [ ] Steckt ein Dart knapp unter dem T20, wechselt er auf T19 (bzw. T18); steckt er im T20, zielt er etwas daneben.
+- [ ] Mit Schwankungen: Gibt es spürbar bessere und schlechtere Phasen? Wird er beim Matchdart oder nach mehreren verpassten Doubles unsicherer?
 - [ ] Seine Fehlwürfe wirken echt (z. B. 1 oder 5 neben der 20, Bust bei falschem Double).
 - [ ] Ausbullen gegen den Computer: Er setzt seinen Punkt selbst.
 - [ ] Einmal Cricket und ein Training (z. B. Bob's 27) mit Computer.

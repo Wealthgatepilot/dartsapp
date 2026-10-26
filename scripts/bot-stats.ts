@@ -4,6 +4,6 @@ import { BOT_SIGMA, seededRandom } from '../src/engine/bot';
 import { simulateStats } from '../src/engine/botsim';
 
 for (let level = 1; level <= 10; level++) {
-  const s = simulateStats(BOT_SIGMA[level], 10_000, seededRandom(500 + level));
+  const s = simulateStats(BOT_SIGMA[level], 2_500, seededRandom(500 + level));
   console.log(`${level}\t${s.average.toFixed(1)}\t${s.doubleRate.toFixed(1)} %\t${s.dartsPerLeg.toFixed(1)}`);
 }

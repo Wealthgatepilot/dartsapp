@@ -4,8 +4,8 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { CoreState, DartView, EditPlan, TurnBase } from '../../engine/core';
-import { BOT_DELAY_MS, BOT_SIGMA, planAim, throwAtPoint, type Point } from '../../engine/bot';
-import { botAim, sameField } from '../../engine/botaim';
+import { BOT_DELAY_MS, planAim, throwAtPoint, type Point } from '../../engine/bot';
+import { botAim, botSigma, sameField } from '../../engine/botaim';
 import type { DartPayload, GameEvent, NewAppEvent, NewEvent } from '../../engine/events';
 import type { AnyGameState, GameInfo } from '../../engine/games';
 import { gameTitle } from '../../engine/games';
@@ -90,7 +90,8 @@ export function GameShell(p: ShellProps) {
   useEffect(() => {
     if (!bot || state.finished || editing || p.blockConfirm || !state.next || busy) return;
     const timer = setTimeout(() => {
-      const wanted = botAim({ mode: game.created.mode, state } as AnyGameState);
+      const g = { mode: game.created.mode, state } as AnyGameState;
+      const wanted = botAim(g);
       if (!wanted || !state.next) return;
       // Stellen der Darts, die in dieser Aufnahme schon stecken: Verdecken sie das Ziel, weicht er aus.
       const turnKey = `${state.next.leg}|${state.next.slot}|${state.next.turnIndex}`;
@@ -98,7 +99,8 @@ export function GameShell(p: ShellProps) {
       // Nach Rückgängig stecken nur noch die Darts vor dieser Position
       botStuck.current.points = botStuck.current.points.slice(0, state.next.dartIndex - 1);
       const plan = planAim(wanted, botStuck.current.points);
-      const thrown = throwAtPoint(plan.point, BOT_SIGMA[bot.botLevel ?? 5], Math.random);
+      // Streuung je nach Stufe, Tagesform, Streak und Druck
+      const thrown = throwAtPoint(plan.point, botSigma(g, game.created.seed, bot, plan.target), Math.random);
       botStuck.current.points.push(thrown.point);
       const aim = plan.target;
       const landed = thrown.field;

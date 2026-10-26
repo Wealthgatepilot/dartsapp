@@ -94,6 +94,8 @@ export interface Participant {
   profileId?: string;
   guestName?: string;
   botLevel?: number;
+  /** Computer mit menschlichen Schwankungen (Tagesform, Streaks, Druck); fehlt = an. */
+  botHuman?: boolean;
   /** Handicap (Phase 3). */
   startScore?: number;
 }

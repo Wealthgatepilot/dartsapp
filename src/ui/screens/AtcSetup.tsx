@@ -79,6 +79,7 @@ export function AtcSetup() {
           <div class="setting">
             <span>Sprünge</span>
             <Segmented
+              label="Sprünge"
               value={s.jumps ? 'an' : 'aus'}
               options={[
                 { value: 'aus', label: 'aus' },

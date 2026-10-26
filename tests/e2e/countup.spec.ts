@@ -44,7 +44,7 @@ test('Handicap: eigener Startwert je Spieler', async ({ page }) => {
   await page.goto('./#/x01');
   await page.getByRole('button', { name: 'Gian' }).click();
   await page.getByRole('button', { name: 'Jörn' }).click();
-  await page.getByRole('radio', { name: 'an' }).click();
+  await page.getByRole('radiogroup', { name: 'Handicap' }).getByRole('radio', { name: 'an' }).click();
   await page.getByLabel('Startwert Jörn').fill('301');
   await page.getByRole('button', { name: 'Regeln' }).click();
   const rules = page.getByRole('dialog', { name: 'Regeln: 501' });

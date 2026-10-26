@@ -3,7 +3,11 @@
 
 import type { AtcState } from './atc';
 import type { BobsState } from './bobs';
-import { x01Aim } from './bot';
+import { BOT_SIGMA, BOT_SIGMA_HUMAN, x01Aim } from './bot';
+import { effectiveSigma, formFactor, onFinish, type PressureSituation } from './botform';
+import { winsNeeded } from './core';
+import type { Participant } from './events';
+import { x01LegMetrics } from './metrics';
 import type { CricketState } from './cricket';
 import { currentTarget, type DoublesState } from './doubles';
 import type { AnyGameState } from './games';
@@ -11,7 +15,7 @@ import type { HalveItState } from './halveit';
 import type { KillerState } from './killer';
 import type { One21Turn } from './one21';
 import type { ShanghaiState } from './shanghai';
-import { BULL, type Field } from './types';
+import { BULL, points, type Field } from './types';
 import type { X01State } from './x01';
 
 const T = (n: number): Field => (n === BULL ? { n: BULL, m: 2 } : { n, m: 3 });
@@ -101,4 +105,48 @@ function aimKiller(state: KillerState, slot: number): Field {
 /** Gleiches Feld? (für Treffer/Falsch-Modi: Der Computer trifft, wenn sein Dart genau im Ziel landet.) */
 export function sameField(a: Field, b: Field): boolean {
   return a.n === b.n && a.m === b.m;
+}
+
+// ---------- Streuung mit menschlichen Schwankungen (Wunsch Gianluca) ----------
+
+/** Wievielte Aufnahme (ab 1) des Spielers im ganzen Spiel die laufende ist. */
+function turnNumber(g: AnyGameState, slot: number): number {
+  const pos = g.state.next!;
+  let n = 0;
+  for (const leg of g.state.legs) {
+    for (const t of leg.turns) {
+      if (t.slot !== slot) continue;
+      if (leg.leg === pos.leg && t.turnIndex >= pos.turnIndex) continue;
+      n++;
+    }
+  }
+  return n + 1;
+}
+
+/** Druck-Lage für den nächsten Dart bei X01 (andere Modi: kein Druck). */
+function x01Situation(state: X01State, slot: number, target: Field): PressureSituation {
+  const turn = state.currentTurn;
+  const mine = turn && turn.slot === slot && !turn.confirmed;
+  const rest = mine ? turn.endRemaining : state.remaining[slot];
+  const s = state.setup.settings;
+  const lastLegOfSet = state.legsWonInSet[slot] + 1 >= winsNeeded(s.legs);
+  const matchDart = s.sets ? lastLegOfSet && state.setsWon[slot] + 1 >= winsNeeded(s.sets) : lastLegOfSet;
+  const leg = state.legs[state.legs.length - 1];
+  const m = x01LegMetrics(leg, slot, s.outMode);
+  return {
+    checkoutDart: (target.m === 2 || (s.outMode === 'master' && target.m === 3)) && points(target) === rest,
+    matchDart,
+    opponentOnFinish: state.order.some((p) => p !== slot && state.isIn[p] && onFinish(state.remaining[p])),
+    missedDoubles: m.doubleAttempts - m.checkouts,
+  };
+}
+
+/** Streuung des Computers für den nächsten Dart: Stufe, Tagesform, Streak und Druck (wenn Schwankungen an). */
+export function botSigma(g: AnyGameState, seed: number, bot: Participant, target: Field): number {
+  const level = bot.botLevel ?? 5;
+  if (bot.botHuman === false) return BOT_SIGMA[level];
+  const slot = g.state.next!.slot;
+  const form = formFactor(seed, slot, turnNumber(g, slot));
+  const situation = g.mode === 'x01' ? x01Situation(g.state, slot, target) : null;
+  return effectiveSigma(BOT_SIGMA_HUMAN[level], level, form, situation);
 }

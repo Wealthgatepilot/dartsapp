@@ -11,7 +11,7 @@ import {
   distanceLabel,
   distanceMm,
 } from '../../engine/bulloff';
-import { BOT_DELAY_MS, BOT_SIGMA, aimPoint, gaussian } from '../../engine/bot';
+import { BOT_DELAY_MS, BOT_SIGMA, BOT_SIGMA_HUMAN, aimPoint, gaussian } from '../../engine/bot';
 import type { GameEvent, NewAppEvent } from '../../engine/events';
 import type { GameInfo } from '../../engine/games';
 import { BULL } from '../../engine/types';
@@ -243,7 +243,7 @@ function Bulloff({ game, gameEvents, nameOf, colorOf }: Props) {
     if (!bot || !state.next || busy) return;
     const next = state.next;
     const timer = setTimeout(() => {
-      const sigma = BOT_SIGMA[bot.botLevel ?? 5];
+      const sigma = (bot.botHuman === false ? BOT_SIGMA : BOT_SIGMA_HUMAN)[bot.botLevel ?? 5];
       const p = aimPoint({ n: BULL, m: 2 });
       const x = Math.round((p.x + gaussian(Math.random) * sigma) * 10) / 10;
       const y = Math.round((p.y + gaussian(Math.random) * sigma) * 10) / 10;

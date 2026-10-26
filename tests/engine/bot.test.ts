@@ -1,7 +1,7 @@
 // Computergegner nach SPEC 9: Board-Geometrie, Zielwahl, Stärkestufen.
 
 import { describe, expect, it } from 'vitest';
-import { BOT_SIGMA, BOT_TARGET_AVERAGE, aimPoint, fieldAt, planAim, seededRandom, throwAt, x01Aim } from '../../src/engine/bot';
+import { BOT_SIGMA, BOT_SIGMA_HUMAN, BOT_TARGET_AVERAGE, aimPoint, fieldAt, planAim, seededRandom, throwAt, x01Aim } from '../../src/engine/bot';
 import { simulateAverage } from '../../src/engine/botsim';
 import { fieldLabel, parseField } from '../../src/engine/types';
 
@@ -58,13 +58,19 @@ describe('Zielwahl X01', () => {
 
 describe('Stärkestufen (SPEC 9)', () => {
   it('stärkere Stufe = kleinere Streuung', () => {
-    for (let l = 2; l <= 10; l++) expect(BOT_SIGMA[l]).toBeLessThan(BOT_SIGMA[l - 1]);
+    for (let l = 2; l <= 10; l++) {
+      expect(BOT_SIGMA[l]).toBeLessThan(BOT_SIGMA[l - 1]);
+      expect(BOT_SIGMA_HUMAN[l]).toBeLessThan(BOT_SIGMA_HUMAN[l - 1]);
+    }
   });
 
-  it('Average je Stufe im Rahmen ±2 (2 000 Legs, fester Zufall)', () => {
+  it('Average je Stufe im Rahmen ±2 (600 Spiele, fester Zufall), mit und ohne Schwankungen', () => {
     for (const level of [1, 5, 10]) {
-      const avg = simulateAverage(BOT_SIGMA[level], 2000, seededRandom(42 + level));
-      expect(Math.abs(avg - BOT_TARGET_AVERAGE[level])).toBeLessThanOrEqual(2);
+      for (const human of [false, true]) {
+        const sigma = (human ? BOT_SIGMA_HUMAN : BOT_SIGMA)[level];
+        const avg = simulateAverage(sigma, 600, seededRandom(42 + level), { level, human });
+        expect(Math.abs(avg - BOT_TARGET_AVERAGE[level])).toBeLessThanOrEqual(2);
+      }
     }
   });
 });

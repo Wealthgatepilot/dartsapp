@@ -21,16 +21,31 @@ export const R = {
  * 501 Double-Out im Schnitt diese 3-Dart-Averages ergibt: 25, 35, 45, 52, 60, 67, 75, 83, 92, 100 (SPEC 9).
  */
 export const BOT_SIGMA: Record<number, number> = {
-  1: 34.7, // Kontrolle (10 000 Legs, anderer Zufall): 24,96
-  2: 24, // 34,74
-  3: 18.1, // 45,16
-  4: 15.6, // 51,74
-  5: 13.2, // 60,24
-  6: 11.6, // 66,73
-  7: 10, // 74,77
-  8: 8.5, // 83,16
-  9: 7.1, // 92,54
-  10: 6.1, // 100,34
+  // Kontrolle (2 500 Spiele „first to 3“, anderer Zufall): Average, Double-Out-Quote
+  1: 43.9, // 24,80 · 3,2 %
+  2: 28.2, // 35,04 · 7,3 %
+  3: 20.4, // 44,96 · 12,2 %
+  4: 17.2, // 51,99 · 15,8 %
+  5: 14.5, // 60,35 · 20,2 %
+  6: 12.8, // 66,64 · 22,9 %
+  7: 11, // 74,83 · 27,1 %
+  8: 9.5, // 82,95 · 32,1 %
+  9: 8, // 92,11 · 37,7 %
+  10: 6.9, // 99,74 · 42,7 %
+};
+
+/** Streuung je Stufe mit menschlichen Schwankungen (botform.ts: Tagesform, Streaks, Druck), eingestellt wie BOT_SIGMA. */
+export const BOT_SIGMA_HUMAN: Record<number, number> = {
+  1: 37.5, // 24,87 · 2,8 %
+  2: 25.7, // 34,95 · 5,8 %
+  3: 19.5, // 44,67 · 9,7 %
+  4: 16.6, // 52,05 · 13,6 %
+  5: 14.2, // 59,76 · 16,9 %
+  6: 12.5, // 66,79 · 20,8 %
+  7: 10.8, // 74,85 · 25,2 %
+  8: 9.3, // 83,30 · 30,7 %
+  9: 7.9, // 92,09 · 36,1 %
+  10: 6.8, // 99,95 · 41,6 %
 };
 
 export const BOT_TARGET_AVERAGE: Record<number, number> = { 1: 25, 2: 35, 3: 45, 4: 52, 5: 60, 6: 67, 7: 75, 8: 83, 9: 92, 10: 100 };

@@ -116,6 +116,7 @@ export function X01Setup() {
           <div class="setting">
             <span>Handicap</span>
             <Segmented
+              label="Handicap"
               value={setup.handicap ? 'an' : 'aus'}
               options={[
                 { value: 'aus', label: 'aus' },

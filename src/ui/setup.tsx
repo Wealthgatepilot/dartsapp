@@ -13,7 +13,7 @@ export type Pick =
   | { kind: 'profile'; profileId: string }
   | { kind: 'guest'; guestName: string }
   /** Computergegner (SPEC 9); botId unterscheidet mehrere Computer gleicher Stufe. */
-  | { kind: 'bot'; botLevel: number; botId: string };
+  | { kind: 'bot'; botLevel: number; botId: string; human?: boolean };
 
 /** Eindeutiger Schlüssel eines ausgewählten Spielers, z. B. für sein Handicap. */
 export const pickKey = (p: Pick) =>
@@ -26,7 +26,7 @@ export function usePickName(): (p: Pick) => string {
     p.kind === 'guest'
       ? `${p.guestName} (Gast)`
       : p.kind === 'bot'
-        ? `Computer ${p.botLevel}`
+        ? `Computer ${p.botLevel}${p.human === false ? ' · gleichmäßig' : ''}`
         : (profiles.find((x) => x.profileId === p.profileId)?.name ?? '?');
 }
 
@@ -70,6 +70,7 @@ export function PlayerPicker({ picks, onChange }: { picks: Pick[]; onChange: (up
   const profiles = useActiveProfiles();
   const [guest, setGuest] = useState('');
   const [botLevel, setBotLevel] = useState(5);
+  const [botHuman, setBotHuman] = useState(true);
 
   const toggle = (profileId: string) =>
     onChange((cur) =>
@@ -132,10 +133,22 @@ export function PlayerPicker({ picks, onChange }: { picks: Pick[]; onChange: (up
         <Stepper label="Stufe" value={botLevel} min={1} max={10} onChange={setBotLevel} />
         <button
           class="btn btn-small"
-          onClick={() => onChange((cur) => [...cur, { kind: 'bot', botLevel, botId: uuidv7() }])}
+          onClick={() => onChange((cur) => [...cur, { kind: 'bot', botLevel, botId: uuidv7(), human: botHuman }])}
         >
           + Computer
         </button>
+      </div>
+      <div class="setting">
+        <span>Schwankungen (Form, Streaks, Druck)</span>
+        <Segmented
+          label="Schwankungen"
+          value={botHuman ? 'an' : 'aus'}
+          options={[
+            { value: 'an', label: 'an' },
+            { value: 'aus', label: 'aus' },
+          ]}
+          onChange={(v) => setBotHuman(v === 'an')}
+        />
       </div>
       {picks.length > 0 && (
         <ol class="order">
@@ -249,7 +262,7 @@ export function useStartGame() {
     const participants: Participant[] = picks.map((p, slot) => {
       const own = startScores?.[pickKey(p)];
       const who: Omit<Participant, 'slot'> =
-        p.kind === 'bot' ? { kind: 'bot', botLevel: p.botLevel } : p;
+        p.kind === 'bot' ? { kind: 'bot', botLevel: p.botLevel, botHuman: p.human !== false } : p;
       return { slot, ...who, ...(own ? { startScore: own } : {}) };
     });
     const method: StartMethod = picks.length < 2 ? 'asEntered' : start;
