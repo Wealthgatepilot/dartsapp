@@ -467,7 +467,9 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 | Ring | **beliebig** (S/D/T zählt), nur Doubles, nur Triples |
 | Sprünge | **aus**; an: Double springt 2 Ziele weiter, Triple 3 (nur bei Ring „beliebig“) |
 
-Regeln: Ziele der Reihe nach treffen. Wer das letzte Ziel trifft, gewinnt sofort. Mit Sprüngen über das letzte Ziel hinaus = Ziel erreicht. Kennzahlen: Darts bis Ende, Trefferquote.
+Regeln: Ziele der Reihe nach treffen. Ein Treffer bringt sofort das nächste Ziel, auch mitten in der Aufnahme. Wer das letzte Ziel trifft, gewinnt sofort. Mit Sprüngen über das letzte Ziel hinaus = Ziel erreicht. Am Bull gibt es kein Triple: Bei „nur Triples“ zählt dort das Bullseye, bei „nur Doubles“ ebenfalls das Bullseye, bei „beliebig“ Single-Bull und Bullseye (Sprung immer 1). Auf dem Board ist nur das aktuelle Ziel des Werfers farbig. Kennzahlen: Darts bis Ende, Trefferquote (Vergleichsgruppe: Ziele + Ring + Sprünge).
+
+**Regeltext:** Zielfolge; welcher Ring zählt; Sprünge; Sieg.
 
 ### 7.6 Killer (Phase 3)
 
@@ -752,6 +754,9 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G39 | Count-Up, 2 Runden, A und B | A: T20 T20 T20, dann 0 0 0; B: S20 S20 S20, dann D20 D20 D20 | A 180, B 180 → Gleichstand, beide Sieger, erst nach Bs letzter Aufnahme |
 | G40 | Count-Up, 1 Runde | A: DB T19 0 | A 107 Punkte, 3-Dart-Average 107 |
 | G41 | X01 501 mit Handicap B = 301 | B: T20 T20 T20 | B Rest 121, A unverändert 501 |
+| G42 | Around the Clock, Ring beliebig, ohne Sprünge, Ziel 1 | S1, D2, T5 | Ziel danach 3 (T5 zählt nicht), 2 Treffer |
+| G43 | Around the Clock mit Sprüngen, Ziel 1 bzw. Ziel 19 | T1 bzw. D19 | Ziel 4 bzw. fertig: über das Ende hinaus = gewonnen, sofort |
+| G44 | Around the Clock nur Doubles bzw. nur Triples mit Bull | S1 bzw. am Ziel Bull: DB | S1 zählt nicht; DB zählt (am Bull gibt es kein Triple) |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

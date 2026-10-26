@@ -2,6 +2,7 @@
 
 import type { CricketSettings } from './cricket';
 import { targetsOf, type DoublesSettings } from './doubles';
+import type { AtcSettings } from './atc';
 import type { CountUpSettings } from './countup';
 import { targetOfRound, type ShanghaiSettings } from './shanghai';
 import { winsNeeded, type InOut, type Race, type X01Settings } from './x01';
@@ -262,6 +263,45 @@ export function countUpRules(s: CountUpSettings): string[] {
 export function countUpVariants(): Variant[] {
   return [
     { name: 'Runden', text: 'Wie viele Runden gespielt werden (1–50). Üblich sind 8 Runden, also 24 Darts.' },
+    ...START_VARIANTS,
+  ];
+}
+
+export function atcRules(s: AtcSettings): string[] {
+  const ring =
+    s.ring === 'double'
+      ? 'Es zählen nur Doubles.'
+      : s.ring === 'triple'
+        ? 'Es zählen nur Triples.'
+        : 'Es zählt jeder Ring: Single, Double oder Triple.';
+  const bull = s.withBull
+    ? s.ring === 'any'
+      ? ' Am Bull zählen Single-Bull und Bullseye.'
+      : ' Am Bull zählt das Bullseye (ein Triple gibt es dort nicht).'
+    : '';
+  const out = [
+    `Triff die Zahlen der Reihe nach: 1, 2, 3 … bis 20${s.withBull ? ' und zum Schluss das Bull' : ''}. Jeder wirft 3 Darts pro Aufnahme.`,
+    ring + bull,
+    'Triffst du dein Ziel, ist sofort das nächste dran, auch mitten in der Aufnahme. Auf dem Board ist nur dein aktuelles Ziel farbig.',
+  ];
+  if (s.ring === 'any' && s.jumps) {
+    out.push('Mit Sprüngen: Ein Double bringt dich 2 Ziele weiter, ein Triple 3. Springst du über das letzte Ziel hinaus, bist du fertig.');
+  }
+  out.push('Wer zuerst das letzte Ziel trifft, gewinnt sofort.');
+  return out;
+}
+
+export function atcVariants(): Variant[] {
+  return [
+    { name: 'Ziele 1–20', text: 'Die Zahlen 1 bis 20 der Reihe nach.' },
+    { name: 'Ziele 1–20 + Bull', text: 'Zum Schluss muss noch das Bull getroffen werden.' },
+    { name: 'Ring beliebig', text: 'Single, Double und Triple zählen gleich – der leichteste Einstieg.' },
+    { name: 'Nur Doubles', text: 'Nur der äußere schmale Ring zählt – gutes Training für den Checkout.' },
+    { name: 'Nur Triples', text: 'Nur der innere schmale Ring zählt – am Bull ersatzweise das Bullseye.' },
+    {
+      name: 'Sprünge',
+      text: 'Nur bei Ring „beliebig“: Ein Double bringt 2 Ziele weiter, ein Triple 3. Das Spiel wird schneller, Doubles und Triples lohnen sich.',
+    },
     ...START_VARIANTS,
   ];
 }

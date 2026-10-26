@@ -8,6 +8,7 @@ import { TopBar } from '../components';
 import { useAppData } from '../data';
 import { participantColor, participantName } from '../names';
 import { href } from '../router';
+import { AtcGame } from './AtcGame';
 import { CountUpGame } from './CountUpGame';
 import { CricketGame } from './CricketGame';
 import { DoublesGame } from './DoublesGame';
@@ -57,5 +58,7 @@ export function Game({ gameId }: { gameId: string }) {
       return <DoublesGame {...props} />;
     case 'countup':
       return <CountUpGame {...props} />;
+    case 'atc':
+      return <AtcGame {...props} />;
   }
 }

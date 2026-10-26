@@ -29,8 +29,16 @@ export async function throwOn(page: Page, board: Locator, field: string) {
 export async function dart(page: Page, field: string) {
   const pills = page.locator('.turnbox .pill');
   const before = await pills.count();
-  if (field === '0') await page.getByRole('button', { name: 'Daneben', exact: true }).click();
-  else await throwOn(page, page.locator('.board-wrap svg.board'), field);
+  if (field === '0') {
+    // Während die App den vorigen Dart noch speichert, ignoriert sie Tipps (kein Doppel-Tipp).
+    // Kommt der Tipp in diesem Augenblick, wird er wiederholt.
+    await expect(async () => {
+      if ((await pills.count()) === before) await page.getByRole('button', { name: 'Daneben', exact: true }).click();
+      await expect(pills).toHaveCount(before + 1, { timeout: 1000 });
+    }).toPass();
+    return;
+  }
+  await throwOn(page, page.locator('.board-wrap svg.board'), field);
   await expect(pills).toHaveCount(before + 1);
 }
 

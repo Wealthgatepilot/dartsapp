@@ -149,6 +149,10 @@ export function Home() {
           <strong>Count-Up</strong>
           <span class="muted">Punkte sammeln, keine Abzüge</span>
         </a>
+        <a class="menu-item menu-main" href={href({ name: 'atc' })}>
+          <strong>Around the Clock</strong>
+          <span class="muted">1 bis 20 der Reihe nach</span>
+        </a>
       </nav>
 
       <h2 class="section-title">Training</h2>

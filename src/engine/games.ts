@@ -1,5 +1,6 @@
 // Spiele aus Ereignissen: Liste, Reihenfolge, laufendes Spiel (SPEC 5).
 
+import { atcVariantLabel, computeAtc, type AtcSetup, type AtcState } from './atc';
 import { computeCountUp, type CountUpSetup, type CountUpState } from './countup';
 import { computeCricket, type CricketSetup, type CricketState } from './cricket';
 import { computeDoubles, type DoublesSetup, type DoublesState } from './doubles';
@@ -90,12 +91,19 @@ export function countUpSetupOf(game: GameInfo): CountUpSetup {
   return { gameId: c.gameId, settings: c.settings, order: game.order };
 }
 
+export function atcSetupOf(game: GameInfo): AtcSetup {
+  const c = game.created;
+  if (c.mode !== 'atc') throw new Error('Kein Around-the-Clock-Spiel');
+  return { gameId: c.gameId, settings: c.settings, order: game.order };
+}
+
 export type AnyGameState =
   | { mode: 'x01'; state: X01State }
   | { mode: 'cricket'; state: CricketState }
   | { mode: 'shanghai'; state: ShanghaiState }
   | { mode: 'doubles'; state: DoublesState }
-  | { mode: 'countup'; state: CountUpState };
+  | { mode: 'countup'; state: CountUpState }
+  | { mode: 'atc'; state: AtcState };
 
 /** Spielstand eines beliebigen Spiels. */
 export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGameState {
@@ -111,6 +119,8 @@ export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGam
       return { mode: 'doubles', state: computeDoubles(doublesSetupOf(game), evs) };
     case 'countup':
       return { mode: 'countup', state: computeCountUp(countUpSetupOf(game), evs) };
+    case 'atc':
+      return { mode: 'atc', state: computeAtc(atcSetupOf(game), evs) };
   }
 }
 
@@ -129,5 +139,7 @@ export function gameTitle(c: GameCreatedPayload): string {
       return 'Doppelfeld-Training';
     case 'countup':
       return `Count-Up · ${c.settings.rounds} Runden`;
+    case 'atc':
+      return `Around the Clock${atcVariantLabel(c.settings)}`;
   }
 }

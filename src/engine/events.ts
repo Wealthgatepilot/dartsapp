@@ -1,6 +1,7 @@
 // Ereignisse, wie die Spiellogik sie sieht (SPEC Kapitel 3).
 // Der Speicher ergänzt beim Ablegen deviceId, seq und v; die Spiellogik braucht nur id, type, ts und payload.
 
+import type { AtcSettings } from './atc';
 import type { AdviceLevel } from './checkout';
 import type { CountUpSettings } from './countup';
 import type { CricketSettings } from './cricket';
@@ -108,7 +109,8 @@ export type GameCreatedPayload =
   | (GameCreatedBase & { mode: 'cricket'; settings: CricketSettings })
   | (GameCreatedBase & { mode: 'shanghai'; settings: ShanghaiSettings })
   | (GameCreatedBase & { mode: 'doubles'; settings: DoublesSettings })
-  | (GameCreatedBase & { mode: 'countup'; settings: CountUpSettings });
+  | (GameCreatedBase & { mode: 'countup'; settings: CountUpSettings })
+  | (GameCreatedBase & { mode: 'atc'; settings: AtcSettings });
 
 export type GameMode = GameCreatedPayload['mode'];
 

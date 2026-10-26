@@ -2,6 +2,7 @@
 // Jede Funktion kann auch nur die ersten `limit` Darts auswerten: Das braucht der Vergleich
 // „Stand nach gleich vielen Darts“ (SPEC 12).
 
+import type { AtcState } from './atc';
 import type { CountUpState } from './countup';
 import type { CricketLeg, CricketTurn } from './cricket';
 import type { DoublesState } from './doubles';
@@ -9,7 +10,7 @@ import type { ShanghaiState, ShanghaiTurn } from './shanghai';
 import { BULL, fieldLabel } from './types';
 import type { InOut, Leg as X01Leg, Turn as X01Turn } from './x01';
 
-export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup';
+export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup' | 'atc';
 
 /** Würfe und Treffer je Double (Schlüssel D1 … D20, DB). */
 export type DoubleTally = Record<string, { darts: number; hits: number }>;
@@ -215,6 +216,31 @@ export function countUpMetrics(state: CountUpState, slot: number, limit = Infini
     }
   }
   m.avg = ratio(m.points * 3, m.darts);
+  return m;
+}
+
+// ---------- Around the Clock (SPEC 7.5) ----------
+
+export interface AtcMetrics {
+  darts: number;
+  hits: number;
+  /** Treffer / Darts × 100 */
+  hitRate: number | null;
+  /** Darts bis zum letzten Ziel, nur wenn geschafft. */
+  dartsToFinish: number | null;
+}
+
+export function atcMetrics(state: AtcState, slot: number, limit = Infinity): AtcMetrics {
+  const m: AtcMetrics = { darts: 0, hits: 0, hitRate: null, dartsToFinish: null };
+  outer: for (const t of state.legs[0].turns.filter((x) => x.slot === slot)) {
+    for (const d of t.darts) {
+      if (m.darts >= limit) break outer;
+      m.darts++;
+      if (d.scored) m.hits++;
+    }
+  }
+  m.hitRate = ratio(m.hits * 100, m.darts);
+  if (limit === Infinity && state.legs[0].winner === slot) m.dartsToFinish = m.darts;
   return m;
 }
 

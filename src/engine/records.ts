@@ -4,6 +4,7 @@
 import type { AppEvent } from './events';
 import { computeGame, listGames, type GameInfo } from './games';
 import {
+  atcMetrics,
   countUpMetrics,
   cricketLegMetrics,
   doublesMetrics,
@@ -13,6 +14,7 @@ import {
   type DoubleTally,
   type Mode,
 } from './metrics';
+import { atcVariantLabel } from './atc';
 import { targetsOf } from './doubles';
 
 /** Kennzahlen, die sich über die Zeit vergleichen lassen. */
@@ -74,6 +76,10 @@ export const METRICS: Record<Mode, MetricDef[]> = {
     { key: 'points', label: 'Endpunkte', better: 'higher', digits: 0 },
     { key: 'avg', label: '3-Dart-Average', better: 'higher', digits: 2 },
   ],
+  atc: [
+    { key: 'dartsToFinish', label: 'Darts bis zum Ende', better: 'lower', endOnly: true, digits: 0 },
+    { key: 'hitRate', label: 'Trefferquote', better: 'higher', digits: 1, unit: '%' },
+  ],
 };
 
 /** Ein Leg (bzw. Durchgang) eines Profils. */
@@ -134,6 +140,11 @@ export function groupOf(game: GameInfo, slot: number): { group: string; label: s
     }
     case 'countup':
       return { group: `countup|${c.settings.rounds}`, label: `Count-Up · ${c.settings.rounds} Runden` };
+    case 'atc':
+      return {
+        group: `atc|${c.settings.withBull}|${c.settings.ring}|${c.settings.ring === 'any' && c.settings.jumps}`,
+        label: `Around the Clock${atcVariantLabel(c.settings)}`,
+      };
   }
 }
 
@@ -242,6 +253,24 @@ export function legRecords(events: readonly AppEvent[]): LegRecord[] {
         out.push({
           ...base,
           mode: 'countup',
+          leg: 1,
+          complete: s.finished,
+          won: !!s.matchWinners?.includes(p.slot),
+          darts: m.darts,
+          values,
+          doubles: {},
+          heat: heatOf(s.legs[0].turns, p.slot),
+        });
+      } else if (computed.mode === 'atc') {
+        const s = computed.state;
+        const m = atcMetrics(s, p.slot);
+        if (!m.darts) continue;
+        const values: LegRecord['values'] = {};
+        if (m.hitRate !== null) values.hitRate = m.hitRate;
+        if (m.dartsToFinish !== null) values.dartsToFinish = m.dartsToFinish;
+        out.push({
+          ...base,
+          mode: 'atc',
           leg: 1,
           complete: s.finished,
           won: !!s.matchWinners?.includes(p.slot),
@@ -383,6 +412,8 @@ export function metricsAt(
     const m = countUpMetrics(c.state, slot, limit);
     put('avg', m.avg);
     v.points = m.points;
+  } else if (c.mode === 'atc') {
+    put('hitRate', atcMetrics(c.state, slot, limit).hitRate);
   } else if (c.mode === 'doubles') {
     put('hitRate', doublesMetrics(c.state, slot, limit).hitRate);
   }
