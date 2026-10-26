@@ -18,8 +18,10 @@
   --pill: #b7b4ab;
   --input-bg: #ece9e2;
   --danger: #a32d2d;
-  --miss-bg: #f2c4c4;
-  --miss-text: #791f1f;
+  --miss-bg: #c92a2a;
+  --miss-text: #fff;
+  --undo-bg: #5c5a54;
+  --undo-text: #fff;
   --banner: #c9dfc4;
   --board-miss: #b3b0a7;
   --board-miss-active: #9a978e;
@@ -56,6 +58,8 @@
   --danger: #ff8787;
   --miss-bg: #5a2a2a;
   --miss-text: #f1f3f5;
+  --undo-bg: #313a43;
+  --undo-text: #f1f3f5;
   --banner: #2f4a37;
   --board-miss: #2a3138;
   --board-miss-active: #4a5560;
@@ -973,7 +977,8 @@ button.pill-x {
   opacity: 0.4;
 }
 .hm-undo {
-  background: var(--btn);
+  background: var(--undo-bg);
+  color: var(--undo-text);
 }
 .hm-miss {
   background: var(--miss-bg);
@@ -1657,5 +1662,122 @@ button.pill-x {
   .block-stats,
   .block-dots {
     display: none;
+  }
+}
+/* Querformat mit viel Höhe (Tablet, Rückmeldung Gianluca): Spielerkarten und Cricket-Tafel aller Modi wachsen mit der Höhe. */
+@media (orientation: landscape) and (min-height: 600px) {
+  .scoreboard {
+    flex-direction: column;
+    overflow-x: visible;
+  }
+  .scoreboard:has(> :nth-child(3)) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .score-card {
+    flex: 0 0 auto;
+    min-width: 0;
+    padding: 10px 14px;
+    border-width: 3px;
+  }
+  .score-name {
+    font-size: 19px;
+  }
+  .score-name .dot {
+    width: 14px;
+    height: 14px;
+  }
+  .score-rest {
+    font-size: min(96px, 10vh);
+    line-height: 1.05;
+  }
+  .scoreboard:has(> :nth-child(3)) .score-rest {
+    font-size: min(64px, 7vh);
+  }
+  .score-meta {
+    font-size: 16px;
+  }
+  .round-head {
+    font-size: 22px;
+  }
+  .round-head strong {
+    font-size: 30px;
+  }
+  .tafel thead th {
+    padding: 6px 8px;
+  }
+  .tafel td {
+    height: min(56px, 6.2vh);
+    font-size: min(34px, 3.8vh);
+  }
+  .tafel tbody th {
+    font-size: min(28px, 3.2vh);
+  }
+  .tafel-points {
+    font-size: min(40px, 4.6vh);
+  }
+}
+/* Tablet quer: Die Spielerkarten füllen den Platz bis zur Aufnahme, statt eine leere Fläche zu lassen. */
+@media (orientation: landscape) and (min-height: 600px) {
+  .screen-game .panel > .panel-scroll {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .screen-game .panel-scroll > .scoreboard {
+    flex: 1 1 auto;
+  }
+  .scoreboard .score-card {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .scoreboard:has(> :nth-child(3)) {
+    grid-auto-rows: 1fr;
+  }
+  .score-rest {
+    font-size: min(128px, 13vh);
+  }
+  .score-name {
+    font-size: 22px;
+  }
+  .score-meta {
+    font-size: 18px;
+  }
+}
+/* Treffer/Falsch im Querformat: Knöpfe höchstens 45 % der Breite, die Blöcke füllen die Anzeige. */
+@media (orientation: landscape) {
+  .screen-hitmiss .panel {
+    flex: 1 1 auto;
+  }
+  .screen-hitmiss .hitmiss {
+    flex: 0 0 auto;
+    width: 45vw;
+    height: auto;
+  }
+  .screen-hitmiss .panel > .panel-scroll {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .screen-hitmiss .blocks {
+    flex: 1 1 auto;
+  }
+  .screen-hitmiss .block {
+    justify-content: space-between;
+  }
+}
+/* „Zurück“ bleibt auch gesperrt gut erkennbar. */
+.hitmiss button.hm-undo:disabled {
+  opacity: 0.65;
+}
+@media (orientation: landscape) and (min-height: 600px) {
+  .screen-game .panel-scroll > .blocks {
+    flex: 1 1 auto;
+  }
+  .screen-game .panel-scroll > .blocks .block {
+    justify-content: space-between;
   }
 }

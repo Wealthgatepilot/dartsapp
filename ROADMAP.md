@@ -211,6 +211,7 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 16. X01-Kennzahlen im Block: Ø und Checkout-Quote über das ganze Match, Darts und First 9 im laufenden Leg, bestes Leg = wenigste Darts in einem gewonnenen Leg.
 17. Treffer/Falsch: Die Blöcke füllen im Hochformat den Platz über den Knöpfen (statt einer leeren Lücke).
 18. Querformat (Rückmeldung Gianluca): Tablet ab 600 Punkten Höhe – Anzeige bekommt gut 40 % der Breite, Zahlen wachsen mit der Höhe (10 % davon, höchstens 108); Handy unter 500 Punkten Höhe – Blöcke als schmale Zeilen ohne Kennzahlen.
+19. Tablet quer in allen Modi (Rückmeldung Gianluca): Spielerkarten untereinander (ab drei Spielern zwei je Zeile) und so hoch, dass sie den Platz bis zur Aufnahme füllen; Cricket-Tafel mit Zeilenhöhe nach Bildschirmhöhe. Treffer/Falsch quer: Knöpfe höchstens 45 % der Breite. Handy quer bleibt ein Nebenfall (laut Gianluca nutzt das niemand).
 
 **Verworfene Alternativen (Phase 3)**
 
