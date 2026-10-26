@@ -6,6 +6,7 @@ import { computeCountUp, type CountUpSetup, type CountUpState } from './countup'
 import { computeCricket, type CricketSetup, type CricketState } from './cricket';
 import { computeKiller, type KillerSetup, type KillerState } from './killer';
 import { computeOne21, type One21Setup, type One21State } from './one21';
+import { computeFinish, type FinishSetup, type FinishState } from './finish';
 import { computeHalveIt, type HalveItSetup, type HalveItState } from './halveit';
 import { computeDoubles, type DoublesSetup, type DoublesState } from './doubles';
 import { computeShanghai, type ShanghaiSetup, type ShanghaiState } from './shanghai';
@@ -125,6 +126,12 @@ export function killerSetupOf(game: GameInfo): KillerSetup {
   return { gameId: c.gameId, settings: c.settings, order: game.order };
 }
 
+export function finishSetupOf(game: GameInfo): FinishSetup {
+  const c = game.created;
+  if (c.mode !== 'finish') throw new Error('Kein 121-Spiel');
+  return { gameId: c.gameId, settings: c.settings, order: game.order, seed: c.seed };
+}
+
 export type AnyGameState =
   | { mode: 'x01'; state: X01State }
   | { mode: 'cricket'; state: CricketState }
@@ -135,7 +142,8 @@ export type AnyGameState =
   | { mode: 'bobs'; state: BobsState }
   | { mode: 'halveit'; state: HalveItState }
   | { mode: 'one21'; state: One21State }
-  | { mode: 'killer'; state: KillerState };
+  | { mode: 'killer'; state: KillerState }
+  | { mode: 'finish'; state: FinishState };
 
 /** Spielstand eines beliebigen Spiels. */
 export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGameState {
@@ -161,6 +169,8 @@ export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGam
       return { mode: 'one21', state: computeOne21(one21SetupOf(game), evs) };
     case 'killer':
       return { mode: 'killer', state: computeKiller(killerSetupOf(game), evs) };
+    case 'finish':
+      return { mode: 'finish', state: computeFinish(finishSetupOf(game), evs) };
   }
 }
 
@@ -186,8 +196,10 @@ export function gameTitle(c: GameCreatedPayload): string {
     case 'halveit':
       return 'Halve-It';
     case 'one21':
-      return '121';
+      return '121 (alte Form)';
     case 'killer':
       return 'Killer';
+    case 'finish':
+      return '121';
   }
 }

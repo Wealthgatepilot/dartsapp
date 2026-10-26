@@ -496,6 +496,29 @@ Genauer (Annahmen Phase 3): Die Zahlen werden beim Start festgelegt und mit dem 
 
 ### 7.7 121 (Phase 3)
 
+**Neue Form ab 26.10.2026 (Wunsch Gianluca, ersetzt die unten beschriebene alte Form):**
+
+| Einstellung | Werte |
+|---|---|
+| Runden (Zahlen) | 1–50, **10** |
+| Zahlen | **für alle gleich**, jeder eigene |
+| Out | **Double**, Master |
+
+Regeln:
+1. Je Runde eine zufällige Restzahl zwischen 70 und 170, die mit 3 Darts checkbar ist (bei Double-Out fallen 169, 168, 166, 165, 163, 162, 159 weg), alle gleich wahrscheinlich. Die Zahlen entstehen aus der Zufallszahl des Spiels (`seed`), bei „jeder eigene“ je Platz abgeleitet – wie beim Doppelfeld-Training.
+2. Darts je Versuch: unter 100 → 6 (2 Aufnahmen), ab 100 → 9 (3 Aufnahmen). Spieler wechseln sich je Aufnahme ab.
+3. X01-Regeln für Bust und Out; ein Bust beendet die Aufnahme, der Rest springt auf den Stand vor der Aufnahme zurück.
+4. Nicht geschafft → dieselbe Zahl noch einmal (neuer Versuch). Geschafft → nächste Runde.
+5. Vor einer Aufnahme (noch kein Dart darin) kann der Spieler die Zahl **überspringen**; sie zählt als nicht geschafft. Das ist ein Ereignis `game.decision` mit `kind = skip` für diese Aufnahme; Rückgängig nimmt es zurück, wenn es das Letzte war.
+6. Wer alle Runden geschafft oder übersprungen hat, ist fertig. Spielende, wenn alle fertig sind. Es gewinnt, wer die meisten Zahlen geschafft hat, bei Gleichstand wer dafür insgesamt weniger Darts gebraucht hat; sonst geteilter Sieg.
+7. Je Runde wird festgehalten: Zahl, Versuche, Darts, geschafft/übersprungen – Grundlage für eine spätere Statistik je Finish-Bereich (z. B. 70–79 … 160–170).
+
+Kennzahlen: Anteil geschafft, Anteil im ersten Versuch, Darts je Finish (Vergleichsgruppe: Runden + Out). Der Computer überspringt nie.
+
+**Regeltext:** Runden und Zahlen; Darts je Versuch; Out und Bust; Wiederholen und Überspringen; Sieger.
+
+**Alte Form (bis 26.10.2026):** Gespeicherte Spiele dieser Form (`mode = one21`) werden weiter so angezeigt und ausgewertet; neu anlegen lassen sie sich nicht mehr.
+
 | Einstellung | Werte |
 |---|---|
 | Startziel | **121** (frei 61–170) |
@@ -804,6 +827,12 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G57 | Killer, A ist Killer, B hat 3 Leben | A: D5 bzw. bei Zone „ganzes Segment“: T5 | B 2 Leben (auch das Triple kostet nur 1 Leben) |
 | G58 | Killer, A Killer, B 1 Leben, nur noch A und B | A: D5 | B scheidet aus, A gewinnt sofort |
 | G59 | Killer, A Killer mit 3 Leben | A: D20 (eigene Zahl) | „kostet ein Leben“ → A 2 Leben; „zählt nicht“ → A 3 Leben |
+| G60 | 121 (Zufall), beliebiger Seed | — | jede Zahl liegt in 70–170 und ist mit 3 Darts checkbar (nie 169, 168, 166, 165, 163, 162, 159); gleicher Seed → gleiche Zahlen; „dieselben Zahlen“ → alle Spieler gleich |
+| G61 | 121 (Zufall), Zahl 81 | 2 Aufnahmen ohne Checkout | Versuch vorbei nach 6 Darts, dieselbe Zahl 81 noch einmal (2. Versuch) |
+| G62 | 121 (Zufall), Zahl ≥ 100 | 3 Aufnahmen ohne Checkout | erst nach 9 Darts neuer Versuch |
+| G63 | 121 (Zufall), Zahl 81 | T19 D12 | Checkout → Runde geschafft, nächste Zahl |
+| G64 | 121 (Zufall), letzte Runde | „Zahl überspringen“ | Runde nicht geschafft, Spieler fertig; Rückgängig hebt das Überspringen auf |
+| G65 | 121 (Zufall), 2 Spieler, 1 Runde | A checkt mit 3 Darts, B überspringt | A gewinnt (mehr geschaffte Zahlen vor weniger Darts) |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

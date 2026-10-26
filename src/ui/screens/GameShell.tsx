@@ -31,6 +31,8 @@ export interface ShellProps {
   colorOf: (slot: number) => string;
   /** Zusätzliche Knöpfe in der Kopfzeile vor 🏆, z. B. die Leg-Übersicht. */
   topActions?: ComponentChildren;
+  /** Zusätzlicher Knopf in der Kopfzeile der Aufnahme, z. B. „Überspringen“. Bekommt `act` zum Speichern. */
+  turnExtra?: (act: (evs: readonly NewAppEvent[]) => Promise<void>, busy: boolean) => ComponentChildren;
   /** Modus ohne Kennzahlen (Killer): kein Bestleistungs-Knopf. */
   noBest?: boolean;
   /** Einstellungen für die Revanche anpassen, z. B. neue Zufallszahlen bei Killer. */
@@ -202,6 +204,7 @@ export function GameShell(p: ShellProps) {
         <section class="turnbox" style={{ borderColor: p.colorOf(activeSlot) }}>
           <div class="turn-head">
             <strong>{p.nameOf(activeSlot)}</strong>
+            {p.turnExtra?.(act, busy || botTurn)}
             <span class="muted">
               {state.format ? `Leg ${leg.leg}${state.format.sets ? ` · Set ${leg.set}` : ''} · ` : ''}
               Aufnahme {turn?.turnIndex ?? state.next?.turnIndex ?? 1}

@@ -11,6 +11,7 @@ import { href } from '../router';
 import { AtcGame } from './AtcGame';
 import { BobsGame } from './BobsGame';
 import { HalveItGame } from './HalveItGame';
+import { FinishGame } from './FinishGame';
 import { KillerGame } from './KillerGame';
 import { One21Game } from './One21Game';
 import { CountUpGame } from './CountUpGame';
@@ -72,5 +73,7 @@ export function Game({ gameId }: { gameId: string }) {
       return <One21Game {...props} />;
     case 'killer':
       return <KillerGame {...props} />;
+    case 'finish':
+      return <FinishGame {...props} />;
   }
 }

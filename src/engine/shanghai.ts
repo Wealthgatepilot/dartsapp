@@ -88,7 +88,7 @@ function collectDecisions(gameId: string, events: readonly GameEvent[]): Decisio
   const voided = voidedIds(events);
   const map: Decisions = new Map();
   for (const e of events) {
-    if (e.type !== 'game.decision' || voided.has(e.id) || e.payload.gameId !== gameId) continue;
+    if (e.type !== 'game.decision' || voided.has(e.id) || e.payload.gameId !== gameId || e.payload.kind !== 'shanghai') continue;
     map.set(decisionKey(e.payload.slot, e.payload.turnIndex), { id: e.id, end: e.payload.end });
   }
   return map;

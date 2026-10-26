@@ -263,6 +263,18 @@ export function computeCore<LS, TD>(rules: Rules<LS, TD>, events: readonly GameE
           ...rules.newTurn(ls, slot, round),
         } as Turn<TD>;
 
+        // Die Regeln haben den Spieler vor seiner Aufnahme fertig gemacht (121: letzte Zahl übersprungen):
+        // Es gibt keine Aufnahme; vielleicht steht jetzt aber der Sieger fest.
+        if (rules.isDone?.(ls, slot)) {
+          const w = rules.winners(ls, { afterTurn: true, round, lastInRound: active.indexOf(slot) === active.length - 1 });
+          if (w) {
+            decideLeg(leg, w);
+            if (state.finished) break replay;
+            continue replay;
+          }
+          continue;
+        }
+
         if (!turnDarts && !confirm) {
           // Lücke: Diese Aufnahme fehlt, spätere existieren. Alles Spätere ist nicht nachvollziehbar.
           if (hasLater) break replay;

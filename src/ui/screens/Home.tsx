@@ -175,7 +175,7 @@ export function Home() {
         </a>
         <a class="menu-item menu-main" href={href({ name: 'one21' })}>
           <strong>121</strong>
-          <span class="muted">Checkouts mit festen Darts</span>
+          <span class="muted">Zufällige Finishes 70–170</span>
         </a>
       </nav>
 

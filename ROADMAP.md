@@ -140,7 +140,8 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 
 **Ideen für später (Optik und Komfort, nach der Funktion)**
 
-- Kompaktere Spielansicht für kleine Handys, damit das Board größer wird.
+- Kompaktere Spielansicht für kleine Handys, damit das Board größer wird – vor allem im Querformat auf dem iPhone scrollen die Spielerkarten noch ein Stück.
+- 121: Statistik je Finish-Bereich (70–79 … 160–170): wie oft geschafft, im wievielten Versuch, mit wie vielen Darts (Daten werden schon gespeichert).
 - Optik verfeinern (Phase 3): Farben, Übergänge, Spielende-Bildschirm.
 
 ## Phase 3 – Weitere Modi und Komfort
@@ -179,6 +180,7 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 - [x] Statistik und Bestleistung für die neuen Modi (Schritt 7) – mit den Modi gleich eingebaut
 - [x] Computergegner Stufe 1–10, eingestellt per Simulation (je 10 000 Legs), in allen Modi und beim Ausbullen; Statistik-Filter „mit/ohne Computer“
 - [x] **Haltepunkt E** (`docs/PRUEFLISTE-HALTEPUNKT-E.md`) – laut Gianluca passt es (26.10.2026), dazu umgesetzt: Ausweichen bei verdeckten Zielen, menschliche Schwankungen
+- [x] 121 neu (Wunsch Gianluca): zufällige Finishes 70–170, 6 bzw. 9 Darts je Versuch, Wiederholen bis geschafft, Überspringen; alte 121-Spiele bleiben lesbar (G60–G65)
 
 Annahmen aus dem Plan: Computer in allen Modi (bei Killer „selbst wählen“ bekommt er eine zufällige freie Zahl); in Treffer/Falsch-Modi zielt er auf das Double und das Board entscheidet; Spiele gegen den Computer zählen fürs Profil, sind in der Statistik filterbar; Killer „selbst wählen“: Zahl im Setup je Spieler auswählen (statt auf dem Board antippen – einfacher und vor dem Start prüfbar), keine doppelt; Sprachausgabe standardmäßig an, „Game Shot“ englisch; Handicap nur bei X01.
 

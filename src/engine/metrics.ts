@@ -5,6 +5,7 @@
 import type { AtcState } from './atc';
 import type { BobsState } from './bobs';
 import type { CountUpState } from './countup';
+import type { FinishState } from './finish';
 import type { HalveItState } from './halveit';
 import type { One21State } from './one21';
 import type { CricketLeg, CricketTurn } from './cricket';
@@ -13,7 +14,7 @@ import type { ShanghaiState, ShanghaiTurn } from './shanghai';
 import { BULL, fieldLabel } from './types';
 import type { InOut, Leg as X01Leg, Turn as X01Turn } from './x01';
 
-export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup' | 'atc' | 'bobs' | 'halveit' | 'one21' | 'killer';
+export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup' | 'atc' | 'bobs' | 'halveit' | 'one21' | 'killer' | 'finish';
 
 /** Würfe und Treffer je Double (Schlüssel D1 … D20, DB). */
 export type DoubleTally = Record<string, { darts: number; hits: number }>;
@@ -329,6 +330,48 @@ export function one21Metrics(state: One21State, slot: number, limit = Infinity):
     }
   }
   m.successRate = ratio(m.successes * 100, m.attempts);
+  return m;
+}
+
+// ---------- 121, neue Form (zufällige Finishes) ----------
+
+export interface FinishMetrics {
+  darts: number;
+  /** Abgeschlossene Runden (geschafft oder übersprungen) in den ausgewerteten Darts. */
+  rounds: number;
+  successes: number;
+  /** Geschaffte / abgeschlossene Runden × 100 */
+  successRate: number | null;
+  /** Darts je geschaffter Zahl (inklusive Fehlversuche). */
+  dartsPerFinish: number | null;
+  /** Im ersten Versuch geschafft / abgeschlossene Runden × 100 */
+  firstTryRate: number | null;
+}
+
+export function finishMetrics(state: FinishState, slot: number, limit = Infinity): FinishMetrics {
+  const m: FinishMetrics = { darts: 0, rounds: 0, successes: 0, successRate: null, dartsPerFinish: null, firstTryRate: null };
+  let successDarts = 0;
+  let firstTry = 0;
+  // Darts der Reihe nach bis `limit`, Runden zählen erst, wenn sie innerhalb dieser Darts abgeschlossen sind
+  let left = limit;
+  for (const r of state.players[slot]?.results ?? []) {
+    const used = Math.min(r.darts, left);
+    m.darts += used;
+    left -= used;
+    const closed = (r.success || r.skipped) && used === r.darts;
+    if (closed) {
+      m.rounds++;
+      if (r.success) {
+        m.successes++;
+        successDarts += r.darts;
+        if (r.attempts === 1) firstTry++;
+      }
+    }
+    if (left <= 0) break;
+  }
+  m.successRate = ratio(m.successes * 100, m.rounds);
+  m.dartsPerFinish = ratio(successDarts, m.successes);
+  m.firstTryRate = ratio(firstTry * 100, m.rounds);
   return m;
 }
 

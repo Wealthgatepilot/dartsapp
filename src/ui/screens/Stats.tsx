@@ -28,7 +28,8 @@ const MODES: { value: Mode; label: string }[] = [
   { value: 'halveit', label: 'Halve-It' },
   { value: 'doubles', label: 'Training' },
   { value: 'bobs', label: "Bob's 27" },
-  { value: 'one21', label: '121' },
+  { value: 'finish', label: '121' },
+  { value: 'one21', label: '121 (alte Form)' },
 ];
 
 const PERIODS = [
@@ -128,7 +129,7 @@ export function Stats() {
         <Segmented
           className="segmented-wrap"
           value={mode}
-          options={MODES}
+          options={MODES.filter((m) => m.value !== 'one21' || all.some((r) => r.mode === 'one21'))}
           onChange={(m) => (setMode(m), setGroupSel(null), setMetricSel(null))}
         />
         <Segmented value={period} options={PERIODS} onChange={setPeriod} />

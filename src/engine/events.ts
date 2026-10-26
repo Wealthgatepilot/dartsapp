@@ -7,6 +7,7 @@ import type { AdviceLevel } from './checkout';
 import type { CountUpSettings } from './countup';
 import type { CricketSettings } from './cricket';
 import type { DoublesSettings } from './doubles';
+import type { FinishSettings } from './finish';
 import type { HalveItSettings } from './halveit';
 import type { KillerSettings } from './killer';
 import type { One21Settings } from './one21';
@@ -51,13 +52,11 @@ export interface VoidPayload {
 }
 
 /** Antwort auf eine Frage im Spiel, z. B. „Spiel beenden?“ nach einem Shanghai (SPEC 7.3). */
-export interface DecisionPayload {
-  gameId: string;
-  slot: number;
-  turnIndex: number;
-  kind: 'shanghai';
-  end: boolean;
-}
+export type DecisionPayload = { gameId: string; slot: number; turnIndex: number } & (
+  | { kind: 'shanghai'; end: boolean }
+  /** 121: aktuelle Zahl überspringen (zählt als nicht geschafft), vor der Aufnahme turnIndex. */
+  | { kind: 'skip' }
+);
 
 /** Ein Ausbullen-Dart: angetippte Stelle in mm vom Mittelpunkt (x nach rechts, y nach unten), SPEC 6.4. */
 export interface BullThrowPayload {
@@ -120,7 +119,9 @@ export type GameCreatedPayload =
   | (GameCreatedBase & { mode: 'bobs'; settings: BobsSettings })
   | (GameCreatedBase & { mode: 'halveit'; settings: HalveItSettings })
   | (GameCreatedBase & { mode: 'one21'; settings: One21Settings })
-  | (GameCreatedBase & { mode: 'killer'; settings: KillerSettings });
+  | (GameCreatedBase & { mode: 'killer'; settings: KillerSettings })
+  /** 121 in der neuen Form (zufällige Finishes); 'one21' ist die alte Form, nur noch zum Lesen. */
+  | (GameCreatedBase & { mode: 'finish'; settings: FinishSettings });
 
 export type GameMode = GameCreatedPayload['mode'];
 

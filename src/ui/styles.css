@@ -1308,3 +1308,10 @@ button.pill-x {
 .score-card.killer-out {
   opacity: 0.45;
 }
+/* 121: „Überspringen“ in der Kopfzeile der Aufnahme */
+.turn-head .finish-skip {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 14px;
+  margin-left: auto;
+}

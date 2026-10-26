@@ -2,6 +2,7 @@
 
 import type { CricketSettings } from './cricket';
 import { targetsOf, type DoublesSettings } from './doubles';
+import type { FinishSettings } from './finish';
 import { halveTargetName, type HalveItSettings } from './halveit';
 import type { KillerSettings } from './killer';
 import type { One21Settings } from './one21';
@@ -423,6 +424,30 @@ export function killerVariants(): Variant[] {
     { name: 'Trefferzone ganzes Segment', text: 'Jedes Feld der Zahl zählt – deutlich leichter, gut für Einsteiger.' },
     { name: 'Eigentreffer kostet ein Leben', text: 'Als Killer musst du deine eigene Zahl meiden.' },
     { name: 'Eigentreffer zählt nicht', text: 'Als Killer passiert nichts, wenn du deine eigene Zahl triffst.' },
+    ...START_VARIANTS,
+  ];
+}
+
+export function finishRules(s: FinishSettings): string[] {
+  return [
+    `Gespielt werden ${s.rounds === 1 ? '1 Runde' : `${s.rounds} Runden`}. Jede Runde bringt eine zufällige Restzahl zwischen 70 und 170, die mit 3 Darts checkbar ist.`,
+    s.sequence === 'shared' ? 'Alle bekommen dieselben Zahlen.' : 'Jeder bekommt seine eigenen Zahlen.',
+    'Für Zahlen unter 100 hast du je Versuch 6 Darts (2 Aufnahmen), ab 100 sind es 9 Darts (3 Aufnahmen). Die Spieler wechseln sich nach jeder Aufnahme ab.',
+    s.outMode === 'double'
+      ? 'Wie bei X01 mit Double-Out: genau auf 0, der letzte Dart ein Double (auch das Bullseye). Überwerfen oder Rest 1 ist ein Bust: zurück auf den Stand vor der Aufnahme.'
+      : 'Wie bei X01 mit Master-Out: genau auf 0, der letzte Dart ein Double oder Triple. Überwerfen oder Rest 1 ist ein Bust: zurück auf den Stand vor der Aufnahme.',
+    'Schaffst du die Zahl nicht, versuchst du dieselbe noch einmal. Erst wenn du sie geschafft hast, kommt die nächste. Vor einer Aufnahme kannst du die Zahl überspringen – dann zählt sie als nicht geschafft.',
+    'Es gewinnt, wer die meisten Zahlen geschafft hat, bei Gleichstand wer dafür weniger Darts gebraucht hat.',
+  ];
+}
+
+export function finishVariants(): Variant[] {
+  return [
+    { name: 'Runden', text: 'Wie viele Zahlen jeder schaffen (oder überspringen) muss, 1–50.' },
+    { name: 'Dieselben Zahlen für alle', text: 'Alle spielen dieselben Restzahlen – der direkte Vergleich ist fair.' },
+    { name: 'Eigene Zahlen', text: 'Jeder bekommt andere Zufallszahlen – mehr Abwechslung.' },
+    { name: 'Double-Out', text: 'Der letzte Dart muss ein Double sein (oder das Bullseye).' },
+    { name: 'Master-Out', text: 'Der letzte Dart darf ein Double oder Triple sein.' },
     ...START_VARIANTS,
   ];
 }

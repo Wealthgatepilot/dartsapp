@@ -8,7 +8,7 @@ import { AtcSetup } from './screens/AtcSetup';
 import { BobsSetup } from './screens/BobsSetup';
 import { HalveItSetup } from './screens/HalveItSetup';
 import { KillerSetup } from './screens/KillerSetup';
-import { One21Setup } from './screens/One21Setup';
+import { FinishSetup } from './screens/FinishSetup';
 import { CountUpSetup } from './screens/CountUpSetup';
 import { Game } from './screens/Game';
 import { Home } from './screens/Home';
@@ -52,7 +52,8 @@ function Screens() {
     case 'halveit':
       return <HalveItSetup />;
     case 'one21':
-      return <One21Setup />;
+      // 121 in der neuen Form (zufällige Finishes); die alte Form wird nicht mehr neu angelegt
+      return <FinishSetup />;
     case 'killer':
       return <KillerSetup />;
     case 'stats':

@@ -50,6 +50,11 @@ export function botAim(g: AnyGameState): Field | null {
       const rest = turn && turn.slot === slot ? turn.endRest : g.state.players[slot].rest;
       return x01Aim(rest, dartsLeft, g.state.setup.settings.outMode, null);
     }
+    case 'finish': {
+      const turn = g.state.currentTurn;
+      const rest = turn && turn.slot === slot && !turn.confirmed ? turn.endRest : g.state.players[slot].rest;
+      return x01Aim(rest, dartsLeft, g.state.setup.settings.outMode, null);
+    }
     case 'doubles':
       return currentTarget((g.state as DoublesState).players[slot]);
     case 'bobs':

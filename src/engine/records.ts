@@ -9,6 +9,7 @@ import {
   countUpMetrics,
   cricketLegMetrics,
   doublesMetrics,
+  finishMetrics,
   halveItMetrics,
   one21Metrics,
   heatKey,
@@ -41,7 +42,9 @@ export type MetricKey =
   | 'hitRate'
   | 'highestTarget'
   | 'successes'
-  | 'successRate';
+  | 'successRate'
+  | 'dartsPerFinish'
+  | 'firstTryRate';
 
 export interface MetricDef {
   key: MetricKey;
@@ -102,6 +105,11 @@ export const METRICS: Record<Mode, MetricDef[]> = {
   ],
   // Killer hat keine Kennzahlen (SPEC 7.6), nur Sieger.
   killer: [],
+  finish: [
+    { key: 'successRate', label: 'Geschafft', better: 'higher', digits: 1, unit: '%' },
+    { key: 'firstTryRate', label: 'Im ersten Versuch', better: 'higher', digits: 1, unit: '%' },
+    { key: 'dartsPerFinish', label: 'Darts je Finish', better: 'lower', digits: 1 },
+  ],
 };
 
 /** Ein Leg (bzw. Durchgang) eines Profils. */
@@ -192,6 +200,13 @@ export function groupOf(game: GameInfo, slot: number): { group: string; label: s
     }
     case 'killer':
       return { group: 'killer', label: 'Killer' };
+    case 'finish': {
+      const s = c.settings;
+      return {
+        group: `finish|${s.rounds}|${s.outMode}`,
+        label: `121 · ${s.rounds} Zahlen · ${s.outMode === 'double' ? 'D' : 'M'}-Out`,
+      };
+    }
   }
 }
 
@@ -381,6 +396,25 @@ export function legRecords(events: readonly AppEvent[]): LegRecord[] {
           doubles: {},
           heat: heatOf(s.legs[0].turns, p.slot),
         });
+      } else if (computed.mode === 'finish') {
+        const s = computed.state;
+        const m = finishMetrics(s, p.slot);
+        if (!m.darts) continue;
+        const values: LegRecord['values'] = {};
+        if (m.successRate !== null) values.successRate = m.successRate;
+        if (m.firstTryRate !== null) values.firstTryRate = m.firstTryRate;
+        if (m.dartsPerFinish !== null) values.dartsPerFinish = m.dartsPerFinish;
+        out.push({
+          ...base,
+          mode: 'finish',
+          leg: 1,
+          complete: s.finished,
+          won: !!s.matchWinners?.includes(p.slot),
+          darts: m.darts,
+          values,
+          doubles: {},
+          heat: heatOf(s.legs[0].turns, p.slot),
+        });
       } else if (computed.mode === 'doubles') {
         const s = computed.state;
         const m = doublesMetrics(s, p.slot);
@@ -524,6 +558,11 @@ export function metricsAt(
     const m = halveItMetrics(c.state, slot, limit);
     put('hitRate', m.hitRate);
     v.points = m.points;
+  } else if (c.mode === 'finish') {
+    const m = finishMetrics(c.state, slot, limit);
+    put('successRate', m.successRate);
+    put('firstTryRate', m.firstTryRate);
+    put('dartsPerFinish', m.dartsPerFinish);
   } else if (c.mode === 'one21') {
     const m = one21Metrics(c.state, slot, limit);
     put('highestTarget', m.highestTarget);
