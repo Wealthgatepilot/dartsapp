@@ -1913,3 +1913,79 @@ button.pill-x {
     height: 30px;
   }
 }
+
+/* ---------- Turnier (SPEC 8.5) ---------- */
+.match-row {
+  gap: 8px;
+}
+.match-row .btn-small {
+  flex: 0 0 auto;
+}
+.small-ranking {
+  font-size: 17px;
+}
+.standings th,
+.standings td {
+  text-align: right;
+  white-space: nowrap;
+}
+.standings th:nth-child(2),
+.standings td:nth-child(2) {
+  text-align: left;
+}
+.standings-name {
+  max-width: 9em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.standings tr.advance td:first-child {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.bracket {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.bracket-round {
+  flex: 0 0 auto;
+  width: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 8px;
+}
+.bracket-round h3 {
+  margin: 0;
+  font-size: 13px;
+}
+.bracket-match {
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--raised);
+  text-decoration: none;
+  color: inherit;
+}
+.bracket-match.playing {
+  border: 2px solid var(--accent);
+}
+.bracket-side {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+.bracket-side + .bracket-side {
+  border-top: 1px solid var(--line-soft);
+}
+.bracket-side.won {
+  font-weight: 800;
+}
+.bracket-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

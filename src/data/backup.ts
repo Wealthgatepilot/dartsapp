@@ -64,6 +64,9 @@ const KNOWN_TYPES = new Set<string>([
   'event.voided',
   'game.decision',
   'bulloff.throw',
+  'tournament.created',
+  'tournament.tiebreak',
+  'tournament.ended',
 ]);
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === 'object' && x !== null && !Array.isArray(x);
@@ -116,6 +119,14 @@ export function checkEvent(e: unknown): string | null {
         : 'Entscheidung unvollständig';
     case 'game.favorite':
       return isStr(p.gameId) && isStr(p.profileId) && typeof p.favorite === 'boolean' ? null : 'Favorit unvollständig';
+    case 'tournament.created':
+      return isStr(p.tournamentId) && isStr(p.mode) && isObj(p.settings) && isObj(p.format) && Array.isArray(p.entrants) && isNum(p.seed)
+        ? null
+        : 'Turnier unvollständig';
+    case 'tournament.tiebreak':
+      return isStr(p.tournamentId) && isStr(p.matchId) && isStr(p.gameId) && isStr(p.winner) ? null : 'Stechen unvollständig';
+    case 'tournament.ended':
+      return isStr(p.tournamentId) && (p.reason === 'finished' || p.reason === 'abandoned') ? null : 'Turnier-Ende unvollständig';
   }
   return null;
 }

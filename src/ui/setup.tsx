@@ -66,7 +66,17 @@ export function useSavedSetup<T extends { picks: Pick[] }>(key: string, defaults
 }
 
 /** onChange bekommt eine Änderungsfunktion, damit schnelle Tipps hintereinander keine Auswahl verlieren. */
-export function PlayerPicker({ picks, onChange }: { picks: Pick[]; onChange: (update: (p: Pick[]) => Pick[]) => void }) {
+export function PlayerPicker({
+  picks,
+  onChange,
+  title = 'Spieler',
+  hint = 'Die Reihenfolge ist die Wurfreihenfolge im ersten Leg.',
+}: {
+  picks: Pick[];
+  onChange: (update: (p: Pick[]) => Pick[]) => void;
+  title?: string;
+  hint?: string;
+}) {
   const profiles = useActiveProfiles();
   const [guest, setGuest] = useState('');
   const [botLevel, setBotLevel] = useState(5);
@@ -100,7 +110,7 @@ export function PlayerPicker({ picks, onChange }: { picks: Pick[]; onChange: (up
 
   return (
     <section class="card">
-      <h2>Spieler</h2>
+      <h2>{title}</h2>
       <div class="chips">
         {profiles.map((p) => {
           const on = picks.some((x) => x.kind === 'profile' && x.profileId === p.profileId);
@@ -168,7 +178,7 @@ export function PlayerPicker({ picks, onChange }: { picks: Pick[]; onChange: (up
           ))}
         </ol>
       )}
-      <p class="muted small">Die Reihenfolge ist die Wurfreihenfolge im ersten Leg.</p>
+      <p class="muted small">{hint}</p>
     </section>
   );
 }

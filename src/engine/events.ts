@@ -12,6 +12,7 @@ import type { HalveItSettings } from './halveit';
 import type { KillerSettings } from './killer';
 import type { One21Settings } from './one21';
 import type { ShanghaiSettings } from './shanghai';
+import type { TiebreakPayload, TournamentCreatedPayload } from './tournament';
 import type { Field } from './types';
 import type { X01Settings } from './x01';
 
@@ -107,6 +108,8 @@ interface GameCreatedBase {
   participants: Participant[];
   seed: number;
   start?: StartMethod;
+  /** Partie eines Turniers (SPEC 8.6). */
+  tournament?: { tournamentId: string; matchId: string };
 }
 
 export type GameCreatedPayload =
@@ -133,8 +136,15 @@ export type MatchEvent =
   /** Ein Profil markiert ein Spiel als Favorit (bzw. nimmt die Markierung zurück); das letzte Ereignis zählt. */
   | EventOf<'game.favorite', { gameId: string; profileId: string; favorite: boolean }>;
 
+// ---------- Turniere (SPEC 8.6) ----------
+
+export type TournamentEvent =
+  | EventOf<'tournament.created', TournamentCreatedPayload>
+  | EventOf<'tournament.tiebreak', TiebreakPayload>
+  | EventOf<'tournament.ended', { tournamentId: string; reason: 'finished' | 'abandoned' }>;
+
 /** Alle Ereignisse der App. */
-export type AppEvent = GameEvent | ProfileEvent | MatchEvent;
+export type AppEvent = GameEvent | ProfileEvent | MatchEvent | TournamentEvent;
 export type NewAppEvent = NewOf<AppEvent>;
 
 /** IDs aller widerrufenen Ereignisse. */

@@ -21,7 +21,10 @@ export type Route =
   | { name: 'review'; gameId: string }
   | { name: 'game'; gameId: string }
   | { name: 'settings' }
-  | { name: 'boardtest' };
+  | { name: 'boardtest' }
+  | { name: 'tournaments' }
+  | { name: 'tournamentNew' }
+  | { name: 'tournament'; tournamentId: string };
 
 export function parseRoute(hash: string): Route {
   const parts = hash.replace(/^#\/?/, '').split('/');
@@ -58,6 +61,9 @@ export function parseRoute(hash: string): Route {
       return { name: 'settings' };
     case 'board-test':
       return { name: 'boardtest' };
+    case 'turnier':
+      if (parts[1] === 'neu') return { name: 'tournamentNew' };
+      return parts[1] ? { name: 'tournament', tournamentId: decodeURIComponent(parts[1]) } : { name: 'tournaments' };
     default:
       return { name: 'home' };
   }
@@ -101,6 +107,12 @@ export function href(r: Route): string {
       return '#/einstellungen';
     case 'boardtest':
       return '#/board-test';
+    case 'tournaments':
+      return '#/turnier';
+    case 'tournamentNew':
+      return '#/turnier/neu';
+    case 'tournament':
+      return `#/turnier/${encodeURIComponent(r.tournamentId)}`;
   }
 }
 

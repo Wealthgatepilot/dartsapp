@@ -127,7 +127,7 @@ Statt „Spielstand 351“ speichert die App nur, **was passiert ist**: „Dart 
 | `profile.created` | `profileId`, `name`, `color` | Person angelegt |
 | `profile.renamed` | `profileId`, `name` | Name geändert |
 | `profile.archived` / `profile.restored` | `profileId` | Ausblenden statt löschen |
-| `game.created` | `gameId`, `mode`, `settings`, `advice` (Checkout-Hilfe, nur X01), `participants[]`, `seed`, `start` (`bull` / `coin` / `asEntered`, fehlt bei älteren Spielen = `asEntered`), `tournamentMatchId?` | Spiel gestartet. Bei `bull`/`coin` folgt erst der Bildschirm „Wer wirft zuerst?“, dann `game.orderDecided`. Eine Revanche lost dann neu aus. |
+| `game.created` | `gameId`, `mode`, `settings`, `advice` (Checkout-Hilfe, nur X01), `participants[]`, `seed`, `start` (`bull` / `coin` / `asEntered`, fehlt bei älteren Spielen = `asEntered`), `tournament?` (`tournamentId`, `matchId`; SPEC 8.6) | Spiel gestartet. Bei `bull`/`coin` folgt erst der Bildschirm „Wer wirft zuerst?“, dann `game.orderDecided`. Eine Revanche lost dann neu aus. |
 | `game.orderDecided` | `gameId`, `order[]`, `method` (`bull` / `coin` / `asEntered`) | Reihenfolge feststeht |
 | `bulloff.throw` | `gameId`, `slot`, `attempt`, `xMm`, `yMm`, `distanceMm` | Ein Ausbullen-Dart |
 | `dart.thrown` | siehe 3.4 | Jeder Dart |
@@ -137,7 +137,7 @@ Statt „Spielstand 351“ speichert die App nur, **was passiert ist**: „Dart 
 | `game.ended` | `gameId`, `reason` (`finished` / `abandoned`) | Spielende (Ergebnis wird berechnet, nicht gespeichert) |
 | `game.hidden` | `gameId` | Spiel aus Listen und Statistik ausblenden (nur mit Freigabe, nie echtes Löschen) |
 | `game.favorite` | `gameId`, `profileId`, `favorite` | Profil markiert ein Spiel als Favorit (bzw. nimmt es zurück); das letzte Ereignis zählt |
-| `tournament.created`, `tournament.matchAssigned` | siehe Kapitel 8 | Turnier (Phase 4) |
+| `tournament.created`, `tournament.tiebreak`, `tournament.ended` | siehe Kapitel 8.6 | Turnier (Phase 4) |
 | `profile.linked` | `fromProfileId`, `toProfileId` | Gleiche Person auf zwei Geräten zusammenführen (Phase 5) |
 
 `participants[]`: je Eintrag `slot` (0, 1, 2 …), `kind` (`profile` / `guest` / `bot`), `profileId` oder `guestName` oder `botLevel`, bei Handicap `startScore`.
@@ -592,17 +592,63 @@ Regeln: Jede Aufnahme zählt ihre Punkte (Single-Bull 25, Bullseye 50). Nach der
 
 ## 8. Turnier (Phase 4)
 
-**Einstellungen:** Teilnehmer (Profile, Gäste, Computer; mindestens 2), Spielmodus und dessen Einstellungen für alle Partien, Turnierform.
+### 8.1 Die Logik dahinter
+
+Ein Turnier ist eine Liste von Partien plus Regeln, wer als Nächstes gegen wen spielt. Gespeichert wird nur „Turnier angelegt“ (Teilnehmer, Form, Spieleinstellungen, Zufallszahl). Auslosung, Turnierbaum, Tabelle und wer weiterkommt rechnet die App aus den Spielen aus. Jede Partie ist ein normales Spiel mit allen Funktionen (Board, Rückgängig, Statistik); es trägt nur den Vermerk, zu welchem Turnier und welcher Partie es gehört. Alles läuft auf einem Gerät, die Partien nacheinander; welche offene Partie als Nächste gespielt wird, wählt man in der Turnier-Übersicht.
+
+### 8.2 Einstellungen
+
+- **Teilnehmer:** Profile, Gäste, Computer; mindestens 2, höchstens 32.
+- **Spielmodus** mit dessen Einstellungen, gleich für alle Partien. Wählbar sind die Duell-Modi **X01, Cricket, Shanghai, Count-Up, Around the Clock, Halve-It** (Wahl Gianluca, 26.10.2026). Nicht wählbar: Killer (Spiel für mehrere) und die Trainings (Doppelfeld, Bob's 27, 121).
+- **Partie:** X01 und Cricket wie gewohnt „first to / best of“ Legs (auch Sets); **eigene Leg-Zahl fürs Finale** (und das Spiel um Platz 3) wählbar. Bei den anderen Modi ist eine Partie genau ein Spiel.
+- **Wer beginnt** je Partie: Ausbullen, Münzwurf oder wie gelost (der zuerst Geloste beginnt).
+- **Turnierform** (Tabelle unten), bei K.-o. und Gruppen + K.-o. Schalter **„Spiel um Platz 3“** (Standard aus).
+- Name des Turniers (Vorschlag: Modus und Datum).
 
 | Form | Ablauf |
 |---|---|
-| **K.-o.** | Feldgröße = nächste Zweierpotenz ≥ Teilnehmerzahl. Fehlende Plätze sind **Freilose**; sie werden zufällig verteilt, nie zwei Freilose gegeneinander. Wer ein Freilos hat, kommt ohne Spiel weiter. |
-| **Jeder gegen jeden** | Jede Paarung einmal (wählbar: zweimal). Spielplan nach Rundenturnier-Verfahren („Kreisverfahren“), so dass möglichst jeder pro Runde spielt. |
-| **Gruppen + K.-o.** | Gruppenanzahl G und Weiterkommende pro Gruppe K einstellbar. Gruppen zufällig gelost. Danach K.-o.: Gruppenerster gegen Gruppenzweiten einer anderen Gruppe (A1–B2, B1–A2 …). |
+| **K.-o.** | Feldgröße = nächste Zweierpotenz ≥ Teilnehmerzahl. Fehlende Plätze sind **Freilose**; sie werden zufällig verteilt, nie zwei Freilose gegeneinander. Wer ein Freilos hat, kommt ohne Spiel weiter. Der Sieger von Partie m in Runde r spielt in Runde r + 1 in Partie ⌊m/2⌋. |
+| **Jeder gegen jeden** | Jede Paarung einmal (wählbar: zweimal, dann mit getauschtem Anwurf). Spielplan nach dem Kreisverfahren, so dass möglichst jeder pro Runde spielt; bei ungerader Zahl hat je Runde einer spielfrei. |
+| **Gruppen + K.-o.** | Gruppenanzahl G (2, 4 oder 8) und Weiterkommende je Gruppe K (1 oder 2); G × K ≥ 2, jede Gruppe hat mindestens K + 1 Teilnehmer. Gruppen zufällig gelost, möglichst gleich groß. In jeder Gruppe jeder gegen jeden. Danach K.-o.: bei K = 2 Gruppenerster gegen Gruppenzweiten der Nachbargruppe (A1–B2, B1–A2, C1–D2, D1–C2 …), bei K = 1 A1–B1, C1–D1 … Die Erstplatzierten stehen so, dass sie sich frühestens im Finale treffen könnten, soweit möglich. |
 
-**Tabelle (Jeder gegen jeden, Gruppen):** Sieg 2 Punkte, Niederlage 0. Reihenfolge bei Gleichstand: 1. Punkte, 2. Leg-Differenz, 3. gewonnene Legs, 4. direkter Vergleich, 5. 3-Dart-Average (bei X01) bzw. Marks pro Runde (Cricket), 6. Los.
+### 8.3 Ergebnis einer Partie
 
-Jede Partie ist ein normales Spiel mit eigener `gameId` und `tournamentMatchId`. Die Partien eines Turniers zählen in die Profil-Statistik.
+- Es zählt das zuletzt **beendete** (nicht ausgeblendete) Spiel mit dieser Partie-Kennung. Ein abgebrochenes Spiel lässt die Partie offen; sie kann neu gestartet werden.
+- Sieger: der Sieger des Spiels. **Gleichstand** (bei Count-Up, Halve-It, Shanghai möglich): Die beiden **bullen aus** (wie SPEC 6.4, ein Dart je Spieler, wer näher an der Mitte ist, gewinnt; bei Gleichstand erneut). Das Ergebnis wird als `tournament.tiebreak` gespeichert.
+- **Legs** für die Tabelle: X01 und Cricket die gewonnenen Legs (bei Sets: Legs über alle Sets); andere Modi zählt das Spiel als ein Leg (1:0).
+- **Computer gegen Computer** (Wahl Gianluca): Die Partie wird automatisch ausgespielt, sobald sie ansteht: Dart für Dart mit denselben Regeln und derselben Zielwahl wie im Spiel, sofort als normales Spiel gespeichert (Eingabe `bot`). Ein nötiges Ausbullen wird ebenso simuliert.
+
+### 8.4 Tabelle (Jeder gegen jeden, Gruppen)
+
+Sieg 2 Punkte, Niederlage 0. Reihenfolge bei Gleichstand:
+
+1. Punkte
+2. Leg-Differenz
+3. gewonnene Legs
+4. direkter Vergleich (Punkte nur aus den Partien der Punktgleichen untereinander)
+5. Kennzahl des Modus über alle Turnierpartien: X01 3-Dart-Average, Cricket Marks pro Runde, Shanghai / Count-Up / Halve-It Punkte je Aufnahme, Around the Clock Trefferquote
+6. Los (aus der Zufallszahl des Turniers, immer gleich)
+
+Die Tabelle zeigt: Platz, Name, Partien, Siege, Niederlagen, Legs (für:gegen), Leg-Differenz, Punkte.
+
+### 8.5 Ablauf und Anzeige
+
+- **Turnier-Übersicht:** K.-o. als Turnierbaum (Runden nebeneinander, scrollbar), Jeder gegen jeden als Tabelle plus Spielplan je Runde, Gruppen + K.-o. mit Gruppen-Tabellen und Baum. Offene Partien, deren beide Teilnehmer feststehen, haben „Spielen“; laufende „Weiterspielen“; gespielte zeigen das Ergebnis und öffnen den Rückblick.
+- Nach dem Spielende einer Turnierpartie geht es zurück zur Übersicht (statt Revanche).
+- Sieger des Turniers: Sieger des Finales bzw. Tabellenerster bei Jeder gegen jeden. Platz 3 bei K.-o.: Sieger des Spiels um Platz 3 (falls gespielt).
+- Turnier abbrechen: `tournament.ended` mit `abandoned`; gespielte Partien bleiben gespeichert und in der Statistik. Beendete und abgebrochene Turniere bleiben ansehbar.
+- Startseite: Kachel „Turnier“ unter „Mehr“; ein laufendes Turnier erscheint oben mit „Weiter“.
+- Die Partien eines Turniers zählen in die Profil-Statistik und erscheinen im Spielverlauf (mit Turniername).
+
+### 8.6 Ereignisse
+
+| `type` | Inhalt (`payload`) |
+|---|---|
+| `tournament.created` | `tournamentId`, `name`, `mode`, `settings` (wie bei `game.created`, X01 mit `advice`), `finalLegs?` (Race, nur X01/Cricket), `start` (`bull` / `coin` / `asEntered`), `format` (`{kind:'ko', thirdPlace}` / `{kind:'league', twice}` / `{kind:'groups', groups, advance, thirdPlace}`), `entrants[]` (je `id`, `kind`, `profileId` / `guestName` / `botLevel`, `botHuman`), `seed` |
+| `tournament.tiebreak` | `tournamentId`, `matchId`, `gameId`, `winner` (Teilnehmer-`id`) – Ausbullen nach Gleichstand |
+| `tournament.ended` | `tournamentId`, `reason` (`finished` / `abandoned`) |
+
+Eine Turnierpartie ist ein `game.created` mit zusätzlich `tournament: { tournamentId, matchId }`. Slot 0 und 1 sind die beiden Teilnehmer in der Reihenfolge der Paarung. Partie-Kennungen: K.-o. `ko-r{Runde}-m{Nummer}`, Platz 3 `ko-p3`, Jeder gegen jeden `rr-{Runde}-{Nummer}`, Gruppen `g{Gruppe}-{Runde}-{Nummer}` (Runde, Nummer und Gruppe ab 1).
 
 ---
 
@@ -869,6 +915,17 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G63 | 121 (Zufall), Zahl 81 | T19 D12 | Checkout → Runde geschafft, nächste Zahl |
 | G64 | 121 (Zufall), letzte Runde | „Zahl überspringen“ | Runde nicht geschafft, Spieler fertig; Rückgängig hebt das Überspringen auf |
 | G65 | 121 (Zufall), 2 Spieler, 1 Runde | A checkt mit 3 Darts, B überspringt | A gewinnt (mehr geschaffte Zahlen vor weniger Darts) |
+| G66 | Turnier K.-o., 5 Teilnehmer | Auslosung | Feld 8, 3 Freilose, nie zwei Freilose in einer Partie; wer ein Freilos hat, steht in Runde 2 |
+| G67 | Turnier K.-o., 2 Teilnehmer | — | nur eine Partie (Finale) |
+| G68 | Jeder gegen jeden, 4 Teilnehmer | — | 3 Runden à 2 Partien, jede Paarung genau einmal; „zweimal“: 6 Runden, jede Paarung zweimal mit getauschtem Anwurf |
+| G69 | Jeder gegen jeden, 5 Teilnehmer | — | 5 Runden à 2 Partien, je Runde genau einer spielfrei |
+| G70 | Tabelle, A und B punktgleich, gleiche Leg-Differenz und Legs | A hat B geschlagen | A vor B (direkter Vergleich) |
+| G71 | Gruppen 2 × 2, 6 Teilnehmer | Gruppen fertig | Gruppen à 3; Halbfinale A1–B2 und B1–A2, danach Finale |
+| G72 | Turnierpartie | erstes Spiel abgebrochen, zweites beendet | Partie offen nach dem ersten, Ergebnis aus dem zweiten |
+| G73 | Turnierpartie Count-Up | beide gleich viele Punkte | Partie braucht Ausbullen; `tournament.tiebreak` legt den Sieger fest |
+| G74 | K.-o. mit Spiel um Platz 3, 4 Teilnehmer | Halbfinals gespielt | Partie `ko-p3` mit den beiden Verlierern |
+| G75 | Computer gegen Computer, 501 | automatisch ausspielen | beendetes Spiel mit genau einem Sieger, nur gültige Darts |
+| G76 | K.-o., X01 first to 2, Finale first to 3 | Finale starten | Finalspiel hat first to 3, alle anderen first to 2 |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

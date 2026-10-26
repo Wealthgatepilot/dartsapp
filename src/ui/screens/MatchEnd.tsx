@@ -9,13 +9,16 @@ export function MatchEnd({
   onUndo,
   onRematch,
   onDone,
+  doneLabel = 'Fertig',
 }: {
   winners: number[];
   nameOf: (slot: number) => string;
   children: ComponentChildren;
   onUndo: () => void;
-  onRematch: () => void;
+  /** Fehlt bei Turnierpartien: dort geht es zurück zum Turnier (SPEC 8.5). */
+  onRematch?: () => void;
   onDone: () => void;
+  doneLabel?: string;
 }) {
   const title =
     winners.length === 1
@@ -35,11 +38,13 @@ export function MatchEnd({
             <button class="btn" onClick={onUndo}>
               ↶ Rückgängig
             </button>
-            <button class="btn" onClick={onRematch}>
-              Revanche
-            </button>
+            {onRematch && (
+              <button class="btn" onClick={onRematch}>
+                Revanche
+              </button>
+            )}
             <button class="btn btn-primary grow" onClick={onDone}>
-              Fertig
+              {doneLabel}
             </button>
           </div>
         </div>

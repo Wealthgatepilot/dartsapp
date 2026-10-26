@@ -16,7 +16,7 @@ import { Board } from '../board/Board';
 import { TopBar } from '../components';
 import { speak, speechSupported, useSpeechEnabled } from '../speech';
 import { useAppData } from '../data';
-import { href, navigate } from '../router';
+import { href, navigate, type Route } from '../router';
 import { ReviewContext } from '../review';
 import { BestCompare } from './BestCompare';
 import { GameReview } from './GameReview';
@@ -79,6 +79,9 @@ export function GameShell(p: ShellProps) {
   const { append } = useAppData();
   const { game, state, gameEvents } = p;
   const gameId = game.created.gameId;
+  // Turnierpartien führen zurück zur Turnier-Übersicht (SPEC 8.5)
+  const tournamentId = game.created.tournament?.tournamentId;
+  const back: Route = tournamentId ? { name: 'tournament', tournamentId } : { name: 'home' };
   const [busy, setBusy] = useState(false);
   // Zusätzlich als Ref, weil zwei schnelle Tipps im selben Moment den neuen Zustand noch nicht sehen.
   const busyRef = useRef(false);
@@ -166,7 +169,7 @@ export function GameShell(p: ShellProps) {
   const abandon = async () => {
     if (!confirm('Spiel abbrechen? Es bleibt gespeichert, zählt aber nicht als beendet.')) return;
     await append([{ type: 'game.ended', payload: { gameId, reason: 'abandoned' } }]);
-    navigate({ name: 'home' }, true);
+    navigate(back, true);
   };
 
   const finish = async (rematch: boolean) => {
@@ -182,7 +185,7 @@ export function GameShell(p: ShellProps) {
       }
     }
     await append(evs);
-    navigate(rematch ? { name: 'game', gameId: newId } : { name: 'home' }, true);
+    navigate(rematch ? { name: 'game', gameId: newId } : back, true);
   };
 
   if (review) return <GameReview shell={p} act={act} />;
@@ -336,8 +339,9 @@ export function GameShell(p: ShellProps) {
           winners={state.matchWinners ?? []}
           nameOf={p.nameOf}
           onUndo={() => act(p.undo())}
-          onRematch={() => finish(true)}
+          onRematch={tournamentId ? undefined : () => finish(true)}
           onDone={() => finish(false)}
+          doneLabel={tournamentId ? 'Zum Turnier' : 'Fertig'}
         >
           {p.endTable}
         </MatchEnd>

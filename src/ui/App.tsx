@@ -18,6 +18,8 @@ import { ShanghaiSetup } from './screens/ShanghaiSetup';
 import { History } from './screens/History';
 import { Stats } from './screens/Stats';
 import { X01Setup } from './screens/X01Setup';
+import { TournamentView, Tournaments } from './screens/Tournament';
+import { TournamentSetup } from './screens/TournamentSetup';
 
 export function App() {
   return (
@@ -69,5 +71,11 @@ function Screens() {
       return <Settings />;
     case 'boardtest':
       return <BoardTest />;
+    case 'tournaments':
+      return <Tournaments />;
+    case 'tournamentNew':
+      return <TournamentSetup />;
+    case 'tournament':
+      return <TournamentView key={route.tournamentId} tournamentId={route.tournamentId} />;
   }
 }

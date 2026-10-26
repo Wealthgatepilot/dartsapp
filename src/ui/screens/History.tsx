@@ -5,6 +5,7 @@ import { useMemo, useState } from 'preact/hooks';
 import type { GameMode } from '../../engine/events';
 import { favoritesOf } from '../../engine/favorites';
 import { computeGame, gameTitle, listGames, type GameInfo } from '../../engine/games';
+import { listTournaments } from '../../engine/tournament';
 import { listProfiles, type Profile } from '../../engine/profiles';
 import { TopBar } from '../components';
 import { useAppData } from '../data';
@@ -36,6 +37,9 @@ export function GameRow({ game, profiles, favorite }: { game: GameInfo; profiles
   const { events } = useAppData();
   const winners = game.ended === 'finished' ? (computeGame(game, events).state.matchWinners ?? []) : [];
   const names = game.created.participants.map((p) => participantName(p, profiles));
+  // Turnierpartien mit Turniername (SPEC 8.5)
+  const tag = game.created.tournament;
+  const tournamentName = tag ? listTournaments(events).find((t) => t.created.tournamentId === tag.tournamentId)?.created.name : undefined;
   const winnerNames = game.created.participants.filter((p) => winners.includes(p.slot)).map((p) => participantName(p, profiles));
   const status = game.ended === 'abandoned' ? 'abgebrochen' : game.ended === null ? 'läuft' : winnerNames.length ? `🏆 ${winnerNames.join(', ')}` : '';
   return (
@@ -48,6 +52,7 @@ export function GameRow({ game, profiles, favorite }: { game: GameInfo; profiles
           </strong>
           <span class="muted small">
             {formatWhen(game.createdAt)} · {names.join(', ')}
+            {tournamentName ? ` · 🏅 ${tournamentName}` : ''}
           </span>
         </span>
         <span class="muted">{status}</span>

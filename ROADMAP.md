@@ -240,6 +240,48 @@ Annahmen aus dem Plan: Computer in allen Modi (bei Killer „selbst wählen“ b
 - K.-o. mit Freilosen, Jeder gegen jeden, Gruppen + K.-o.
 - Turnierbaum und Tabellen
 
+**Plan Phase 4 (freigegeben 26.10.2026)**
+
+1. SPEC Kapitel 8 ausformulieren (Ereignisse, Partie, Gleichstand, Prüffälle G66–G76)
+2. Turnier-Logik ohne Oberfläche mit Tests (Auslosung, Freilose, Kreisverfahren, Gruppen, Tabelle mit 6 Regeln)
+3. Turnier anlegen: Teilnehmer, Modus mit Einstellungen, Form
+4. Turnier-Übersicht: Baum bzw. Tabelle und Spielplan; Partie starten, danach zurück
+5. Startseite: Kachel „Turnier“, laufende fortsetzen, beendete ansehen – **Haltepunkt H:** kleines K.-o.-Turnier am Board
+6. Turnierliste, Abbrechen, Statistik-Prüfung, Handy- und iPad-Tests
+7. **Haltepunkt I:** Board-Test aller drei Formen auf iPhone und Android
+
+Entscheidungen Gianluca: alle Duell-Modi (X01, Cricket, Shanghai, Count-Up, Around the Clock, Halve-It); Computer gegen Computer wird automatisch ausgespielt; Spiel um Platz 3 als Schalter (Standard aus); eigene Leg-Zahl fürs Finale. Gleichstand in einer Partie: Ausbullen.
+
+**Stand Phase 4 (26.10.2026)**
+
+- [x] SPEC Kapitel 8 mit Ereignissen, Partie, Gleichstand, Tabelle und Prüffällen G66–G76
+- [x] Turnier-Logik (`engine/tournament.ts`): Auslosung mit Freilosen, Kreisverfahren, Gruppen mit Kreuzspielen, Tabelle mit 6 Regeln; 19 Unit-Tests
+- [x] Computer gegen Computer automatisch ausgespielt (`engine/autoplay.ts`), auch das Stechen
+- [x] Turnier anlegen, Übersicht mit Baum, Tabellen und Spielplan, Stechen über das vorhandene Ausbullen, Turnierliste, Kachel auf der Startseite, Turniername im Spielverlauf
+- [x] Sicherung kennt die Turnier-Ereignisse; Handy-Tests für Gleichstand mit Ausbullen und ein reines Computer-Turnier
+- [ ] **Haltepunkt H:** kleines K.-o.-Turnier am Board (`docs/PRUEFLISTE-HALTEPUNKT-H.md`)
+- [ ] Schritt 6: Feinschliff, iPad-Ansicht, weitere Tests
+- [ ] **Haltepunkt I:** Board-Test aller drei Formen auf iPhone und Android
+
+**Annahmen ohne Rückfrage (Phase 4)**
+
+1. Partie-Kennungen und Slots wie SPEC 8.6; ein Turnier hat höchstens 32 Teilnehmer, Gruppen 2/4/8 mit 1 oder 2 Weiterkommenden.
+2. Bei Gruppen + K.-o. wird der K.-o.-Baum nicht neu gelost: A1–B2, C1–D2 … oben, B1–A2, D1–C2 … unten.
+3. Freilos bei Platz 3 (nur bei 3 Teilnehmern möglich): der Halbfinal-Verlierer ist ohne Spiel Dritter.
+4. Das Stechen speichert seine Würfe unter „Spiel-ID:stechen“, damit sie nicht mit dem Ausbullen vor dem Spiel zusammenfallen.
+5. Ein automatisch ausgespieltes Computer-Spiel ist ein normales gespeichertes Spiel (Rückblick, Statistik); der Zufall kommt aus dem Betriebssystem.
+6. Gleich heißende Teilnehmer (z. B. zwei „Computer 5“) bekommen im Turnier eine Nummer; im Spiel selbst steht der normale Name.
+7. Das Turnier gilt als beendet, sobald alle Partien entschieden sind (`tournament.ended` wird dann automatisch gespeichert).
+
+**Verworfene Alternativen (Phase 4)**
+
+| Alternative | Warum verworfen |
+|---|---|
+| Auslosung und Paarungen als eigene Ereignisse speichern | Aus Zufallszahl und Teilnehmern immer gleich berechenbar; weniger, das sich widersprechen kann. |
+| Nur X01 und Cricket im Turnier | Gianluca wünscht alle Duell-Modi. |
+| Gleichstand per Knopf „Wer war näher?“ | Mit Computer nicht machbar; das vorhandene Ausbullen kann beides. |
+| Computer-Partien Dart für Dart zuschauen | Gianluca wählt automatisches Ausspielen. |
+
 ## Phase 5 – Daten mehrerer Geräte
 
 - Import mit Zusammenführen, Profile verknüpfen (`profile.linked`)

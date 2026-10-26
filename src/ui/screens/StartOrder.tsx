@@ -12,7 +12,7 @@ import {
   distanceMm,
 } from '../../engine/bulloff';
 import { BOT_DELAY_MS, BOT_SIGMA, BOT_SIGMA_HUMAN, aimPoint, gaussian } from '../../engine/bot';
-import type { GameEvent, NewAppEvent } from '../../engine/events';
+import type { GameEvent, NewAppEvent, Participant } from '../../engine/events';
 import type { GameInfo } from '../../engine/games';
 import { BULL } from '../../engine/types';
 import { TopBar } from '../components';
@@ -32,7 +32,8 @@ export function StartOrder(p: Props) {
   const abandon = async () => {
     if (!confirm('Spiel abbrechen?')) return;
     await append([{ type: 'game.ended', payload: { gameId, reason: 'abandoned' } }]);
-    navigate({ name: 'home' }, true);
+    const t = p.game.created.tournament;
+    navigate(t ? { name: 'tournament', tournamentId: t.tournamentId } : { name: 'home' }, true);
   };
   return (
     <div class="page start-order">
@@ -45,7 +46,19 @@ export function StartOrder(p: Props) {
           </button>
         }
       />
-      {p.game.created.start === 'coin' ? <Coin {...p} /> : <Bulloff {...p} />}
+      {p.game.created.start === 'coin' ? (
+        <Coin {...p} />
+      ) : (
+        <Bulloff
+          participants={p.game.created.participants}
+          bullId={gameId}
+          gameEvents={p.gameEvents}
+          nameOf={p.nameOf}
+          colorOf={p.colorOf}
+          decide={(order) => [{ type: 'game.orderDecided', payload: { gameId, order, method: 'bull' } }]}
+          doneLabel="Spiel anfangen"
+        />
+      )}
     </div>
   );
 }
@@ -106,10 +119,23 @@ const MIN_HALF = 6;
 /** Ganz herausgezoomt: das ganze Board mit Zahlenring (Radius 190 mm). */
 const MAX_HALF = 190;
 
-function Bulloff({ game, gameEvents, nameOf, colorOf }: Props) {
+export interface BulloffProps {
+  participants: Participant[];
+  /** Kennung, unter der die Würfe gespeichert werden (Spiel bzw. Stechen einer Turnierpartie). */
+  bullId: string;
+  gameEvents: GameEvent[];
+  nameOf: (slot: number) => string;
+  colorOf: (slot: number) => string;
+  /** Ereignisse, sobald die Reihenfolge feststeht (Erster = Sieger). */
+  decide: (order: number[]) => NewAppEvent[];
+  doneLabel: string;
+}
+
+/** Ausbullen (SPEC 6.4); auch für das Stechen nach Gleichstand im Turnier (SPEC 8.3). */
+export function Bulloff({ participants, bullId, gameEvents, nameOf, colorOf, decide, doneLabel }: BulloffProps) {
   const { append } = useAppData();
-  const gameId = game.created.gameId;
-  const slots = game.created.participants.map((x) => x.slot);
+  const gameId = bullId;
+  const slots = participants.map((x) => x.slot);
   const state = useMemo(() => computeBulloff(slots, gameId, gameEvents), [gameEvents]);
   const [pending, setPending] = useState<{ x: number; y: number } | null>(null);
   const [touch, setTouch] = useState<{ cx: number; cy: number } | null>(null);
@@ -236,7 +262,7 @@ function Bulloff({ game, gameEvents, nameOf, colorOf }: Props) {
   };
 
   // Computer (SPEC 9): wirft beim Ausbullen selbst, mit der Streuung seiner Stufe um den Mittelpunkt.
-  const bot = game.created.participants.find((x) => x.slot === state.next?.slot && x.kind === 'bot');
+  const bot = participants.find((x) => x.slot === state.next?.slot && x.kind === 'bot');
   const nextKey = state.next ? `${state.next.slot}|${state.next.attempt}` : '';
   useEffect(() => {
     // Erst werfen, wenn der vorige Wurf gespeichert ist (sonst würde er als Doppel-Tipp verworfen)
@@ -366,7 +392,7 @@ function Bulloff({ game, gameEvents, nameOf, colorOf }: Props) {
           </button>
         </div>
       ) : (
-        state.order && <Result order={state.order} nameOf={nameOf} onRethrow={rethrowAll} gameId={gameId} busy={busy} />
+        state.order && <Result order={state.order} nameOf={nameOf} onRethrow={rethrowAll} decide={decide} doneLabel={doneLabel} busy={busy} />
       )}
     </>
   );
@@ -377,13 +403,15 @@ function Result({
   order,
   nameOf,
   onRethrow,
-  gameId,
+  decide,
+  doneLabel,
   busy,
 }: {
   order: number[];
   nameOf: (s: number) => string;
   onRethrow: () => void;
-  gameId: string;
+  decide: (order: number[]) => NewAppEvent[];
+  doneLabel: string;
   busy: boolean;
 }) {
   const { append } = useAppData();
@@ -392,7 +420,7 @@ function Result({
   const start = () => {
     if (started.current) return;
     started.current = true;
-    append([{ type: 'game.orderDecided', payload: { gameId, order, method: 'bull' } }]);
+    append(decide(order));
   };
   useEffect(() => {
     if (count === null) return;
@@ -423,7 +451,8 @@ function Result({
           Erneut werfen
         </button>
         <button class="btn btn-primary grow" disabled={busy} onClick={start}>
-          Spiel anfangen{count !== null ? ` (${count})` : ''}
+          {doneLabel}
+          {count !== null ? ` (${count})` : ''}
         </button>
       </div>
       {count !== null && (

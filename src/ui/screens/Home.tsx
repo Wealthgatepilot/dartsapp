@@ -10,6 +10,7 @@ import { href, navigate } from '../router';
 import { lastBackupText } from './BackupCard';
 import { GameRow } from './History';
 import { favoritesOf } from '../../engine/favorites';
+import { listTournaments } from '../../engine/tournament';
 
 function isIos(): boolean {
   return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes('Mac') && navigator.maxTouchPoints > 1);
@@ -29,6 +30,7 @@ export function Home() {
   });
   const profiles = useMemo(() => listProfiles(events), [events]);
   const running = useMemo(() => unfinishedGame(events), [events]);
+  const tournament = useMemo(() => listTournaments(events).find((t) => !t.ended) ?? null, [events]);
   const favorites = useMemo(() => favoritesOf(events), [events]);
   const recent = useMemo(() => listGames(events).filter((g) => g.ended === 'finished' && !g.hidden).slice(0, 3), [events]);
 
@@ -134,6 +136,16 @@ export function Home() {
         </section>
       )}
 
+      {tournament && (
+        <section class="card card-accent">
+          <h2>Turnier läuft</h2>
+          <p>{tournament.created.name}</p>
+          <button class="btn btn-primary" onClick={() => navigate({ name: 'tournament', tournamentId: tournament.created.tournamentId })}>
+            Zum Turnier
+          </button>
+        </section>
+      )}
+
       <h2 class="section-title">Spiele</h2>
       <nav class="menu">
         <a class="menu-item menu-main" href={href({ name: 'setup' })}>
@@ -184,6 +196,10 @@ export function Home() {
 
       <h2 class="section-title">Mehr</h2>
       <nav class="menu">
+        <a class="menu-item" href={href({ name: 'tournaments' })}>
+          <strong>Turnier</strong>
+          <span class="muted">K.-o., Jeder gegen jeden, Gruppen</span>
+        </a>
         <a class="menu-item" href={href({ name: 'stats' })}>
           <strong>Statistik</strong>
           <span class="muted">Verlauf, Heatmap, Doppelquote</span>

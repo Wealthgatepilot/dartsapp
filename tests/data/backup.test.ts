@@ -211,4 +211,30 @@ describe('Neue Ereignisarten in der Sicherung', () => {
     const parsed = await parseBackup(file);
     expect(parsed.ok).toBe(true);
   });
+
+  it('Turnier-Ereignisse lassen sich sichern und wieder einlesen (SPEC 8.6)', async () => {
+    const a = await deviceWithGame();
+    await a.append([
+      {
+        type: 'tournament.created',
+        payload: {
+          tournamentId: 't1',
+          name: 'Turnier',
+          mode: 'countup',
+          settings: { rounds: 8 },
+          start: 'asEntered',
+          format: { kind: 'ko', thirdPlace: false },
+          entrants: [
+            { id: 'e1', kind: 'guest', guestName: 'A' },
+            { id: 'e2', kind: 'guest', guestName: 'B' },
+          ],
+          seed: 1,
+        },
+      },
+      { type: 'tournament.tiebreak', payload: { tournamentId: 't1', matchId: 'ko-r1-m1', gameId: 'g1', winner: 'e1' } },
+      { type: 'tournament.ended', payload: { tournamentId: 't1', reason: 'abandoned' } },
+    ]);
+    const parsed = await parseBackup(JSON.stringify(await buildBackup(await a.all(), a.deviceId, 'test')));
+    expect(parsed.ok).toBe(true);
+  });
 });
