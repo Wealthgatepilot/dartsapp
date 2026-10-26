@@ -96,38 +96,48 @@ function History({ state, slot }: { state: DoublesState; slot: number }) {
   );
 }
 
-/** Ergebnis je Spieler und Feld (SPEC 7.4, Regel 7). */
+/**
+ * Ergebnis je Spieler und Feld (SPEC 7.4, Regel 7). Bei vielen Feldern zwei Tabellen: im Querformat
+ * nebeneinander, im Hochformat untereinander wie eine (Wunsch Gianluca: alles ohne Scrollen sehen).
+ */
 function Results({ state, order, nameOf }: { state: DoublesState; order: number[]; nameOf: (s: number) => string }) {
+  const keys = targetsOf(state.setup.settings).map(fieldLabel);
+  // Bis zu drei Teile mit etwa gleich vielen Zeilen; die Gesamt-Zeile zählt im ersten Teil mit.
+  const per = keys.length > 6 ? Math.ceil((keys.length + 1) / 3) : keys.length + 1;
+  const parts = [keys.slice(0, per - 1), keys.slice(per - 1, 2 * per - 1), keys.slice(2 * per - 1)].filter(
+    (p, i) => i === 0 || p.length,
+  );
   return (
-    <div class="results-scroll">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Feld</th>
-            {order.map((slot) => (
-              <th key={slot}>{nameOf(slot)}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <strong>Gesamt</strong>
-            </td>
-            {order.map((slot) => {
-              const p = state.players[slot];
-              return (
-                <td key={slot}>
-                  <strong>
-                    {p.hits}/{p.darts} · {quote(p.hits, p.darts)}
-                  </strong>
+    <div class="results-fit">
+      {parts.map((part, i) => (
+        <table key={i} class="table results-table">
+          <thead>
+            <tr>
+              <th>Feld</th>
+              {order.map((slot) => (
+                <th key={slot}>{nameOf(slot)}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {i === 0 && (
+              <tr>
+                <td>
+                  <strong>Gesamt</strong>
                 </td>
-              );
-            })}
-          </tr>
-          {targetsOf(state.setup.settings).map((f) => {
-            const key = fieldLabel(f);
-            return (
+                {order.map((slot) => {
+                  const p = state.players[slot];
+                  return (
+                    <td key={slot}>
+                      <strong>
+                        {p.hits}/{p.darts} · {quote(p.hits, p.darts)}
+                      </strong>
+                    </td>
+                  );
+                })}
+              </tr>
+            )}
+            {part.map((key) => (
               <tr key={key}>
                 <td>{key}</td>
                 {order.map((slot) => {
@@ -135,10 +145,10 @@ function Results({ state, order, nameOf }: { state: DoublesState; order: number[
                   return <td key={slot}>{st ? `${st.hits}/${st.darts} · ${quote(st.hits, st.darts)}` : '—'}</td>;
                 })}
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            ))}
+          </tbody>
+        </table>
+      ))}
     </div>
   );
 }

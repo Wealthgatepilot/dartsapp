@@ -174,10 +174,16 @@ export function decideShanghai(state: ShanghaiState, end: boolean): NewEvent[] {
   return end ? [decision] : [decision, ...confirmTurnCore(state, {})];
 }
 
-/** Rückgängig nimmt nach einem Shanghai zuerst die Antwort zurück, dann den Dart. */
+/**
+ * Rückgängig nimmt nach einem Shanghai zuerst die Antwort zurück, dann den Dart. Nach „Weiterspielen“
+ * gehen Antwort und das automatische Weiter zusammen zurück, damit die Frage sofort wieder erscheint.
+ */
 export function undoShanghai(state: ShanghaiState): NewEvent[] {
   const last = state.actions[state.actions.length - 1];
   const t = last?.turn as ShanghaiTurn | undefined;
+  if (last?.kind === 'confirm' && t?.shanghai && t.decisionId && t.decided === false) {
+    return [...undoCore(state), { type: 'event.voided', payload: { gameId: state.gameId, targetId: t.decisionId, reason: 'undo' } }];
+  }
   if (last?.kind === 'dart' && t?.shanghai && t.decisionId && t.darts[t.darts.length - 1]?.id === last.id) {
     return [{ type: 'event.voided', payload: { gameId: state.gameId, targetId: t.decisionId, reason: 'undo' } }];
   }

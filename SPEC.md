@@ -198,7 +198,7 @@ Am Handy ist das Board etwa 350 Punkte breit. Ein Double-Ring wäre dann nur 8 P
   - **Daneben-Ring** 0,84 R – 1,00 R: trägt die Zahlen. Antippen = Fehlwurf (0 Punkte).
 - Das Board füllt die verfügbare Breite bzw. Höhe maximal aus (Hochformat: unten, bildschirmbreit; Querformat: rechts, bildschirmhoch).
 - Zusätzlich gibt es einen großen Knopf **„Daneben“** (mindestens 56 × 56 Punkte).
-- In Modi mit Zielfeldern (Cricket, Shanghai, Around the Clock usw.) sind Zielfelder farbig, alle anderen grau. Graue Felder bleiben antippbar, damit die Heatmap stimmt; sie bringen keine Punkte.
+- In Modi mit Zielfeldern (Cricket, Shanghai, Around the Clock usw.) sind Zielfelder farbig, alle anderen grau. Graue Felder reagieren nicht, damit ein Vertipper (z. B. zwischen 15 und 17) kein falsches Feld einträgt. Ein Dart neben die Ziele wird über den Daneben-Ring oder den Knopf „Daneben“ eingetragen; er zählt genauso (0 Marks bzw. 0 Punkte) und erscheint in der Heatmap als „Daneben“ (Entscheidung Gianluca, 26.10.2026; vorher waren graue Felder antippbar).
 
 ### 4.3 Bedienung „Antippen, Ziehen, Loslassen“
 
@@ -266,7 +266,7 @@ Siehe 6.4.
 - Wer dran ist, ist deutlich hervorgehoben.
 - Bei vielen Spielern: Liste scrollt, der aktive Spieler bleibt sichtbar.
 - Knopf **„Bestleistung“** (Kapitel 12).
-- X01 mit mehr als einem Leg: Knopf **„Leg-Übersicht“** unter dem Spielstand. Tabelle je Leg mit dem 3-Dart-Average jedes Spielers, seinen Darts und dem Leg-Gewinner (✔), unten der Average über das Match. Das laufende Leg erscheint mit dem bisherigen Stand. Dieselbe Tabelle steht am Spielende, dazu die Aufnahmen 80+ … 180 im Match (Wunsch Gianluca, 26.10.2026).
+- X01 mit mehr als einem Leg: Knopf **„Legs“** in der Kopfzeile (Leg-Übersicht, immer sichtbar). Tabelle je Leg mit dem 3-Dart-Average jedes Spielers, seinen Darts, dem Leg-Gewinner (✔) und den Aufnahmen 80+ … 180 dieses Legs (nur Bereiche, die vorkamen, z. B. „100+ ×2“), unten der Average über das Match. Das laufende Leg erscheint mit dem bisherigen Stand. Dieselbe Tabelle steht am Spielende, dazu die Aufnahmen 80+ … 180 im Match (Wunsch Gianluca, 26.10.2026).
 - Bildschirm bleibt an, solange ein Spiel läuft (Screen Wake Lock, wo unterstützt).
 
 ### 5.4 Regelerklärung
@@ -429,7 +429,7 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 2. Pro Runde wirft jeder Spieler eine Aufnahme (3 Darts) auf das Ziel.
 3. Punkte nur für Treffer auf das Ziel: Zahl × Multiplikator (Bull: 25 bzw. 50). Andere Felder 0.
 4. **Shanghai** = in einer Aufnahme Single, Double **und** Triple des Ziels (Reihenfolge egal). Im Bull-Rundenziel ist kein Shanghai möglich (kein Triple).
-5. Nach jedem Shanghai fragt die App: **„Spiel beenden“** oder **„Weiterspielen“** (Wunsch Gianluca, 25.10.2026). Die Einstellung „Shanghai beendet das Spiel“ bestimmt nur, welcher Knopf hervorgehoben ist. „Spiel beenden“: Der Werfer gewinnt sofort. „Weiterspielen“: Das Shanghai wird vermerkt, das Spiel läuft normal weiter. Die Antwort ist ein eigenes Ereignis `game.decision` (`gameId`, `slot`, `turnIndex`, `kind = shanghai`, `end`). Bis zur Antwort ist „Weiter“ gesperrt. Rückgängig nimmt zuerst die Antwort zurück, dann den Dart.
+5. Nach jedem Shanghai fragt die App: **„Spiel beenden“** oder **„Weiterspielen“** (Wunsch Gianluca, 25.10.2026). Die Einstellung „Shanghai beendet das Spiel“ bestimmt nur, welcher Knopf hervorgehoben ist. „Spiel beenden“: Der Werfer gewinnt sofort. „Weiterspielen“: Das Shanghai wird vermerkt, das Spiel läuft normal weiter. Die Antwort ist ein eigenes Ereignis `game.decision` (`gameId`, `slot`, `turnIndex`, `kind = shanghai`, `end`). Bis zur Antwort ist „Weiter“ gesperrt. Rückgängig nimmt zuerst die Antwort zurück (nach „Weiterspielen“ zusammen mit dem automatischen Weiter, sodass die Frage sofort wieder erscheint; Wunsch Gianluca, 26.10.2026), dann den Dart.
 6. Nach der letzten Runde gewinnt, wer die meisten Punkte hat. Bei Punktgleichheit teilen sich die Spieler den Platz.
 7. Auf dem Board ist nur das aktuelle Ziel farbig.
 

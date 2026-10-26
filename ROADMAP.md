@@ -112,7 +112,7 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 5. Ausbullen: Der Punkt zählt erst mit „Wurf bestätigen“; ein Doppeltipp über zwei Würfe hinweg zählt nicht als Zoom.
 6. Statistik-Übersicht und Verlauf zeigen nur abgeschlossene Legs; Quoten nutzen weiter alle Darts (SPEC 11.1).
 7. Gleitender Durchschnitt über die letzten 10 Werte; Zeitraum „alles“ als Standard, die Wahl wird je Gerät gemerkt.
-8. Heatmap in einer blauen Stufenreihe: dunkel = selten, hell = oft.
+8. Heatmap in einer roten Stufenreihe: dunkelrot = selten, hellrot = oft (zuerst blau, auf Wunsch Gianluca rot).
 9. Aufnahmen 80+ … 180 in der Langzeitstatistik als Summe, Schnitt je Leg und bestes Leg.
 10. Der Bestleistungs-Knopf 🏆 sitzt in der Kopfzeile aller Spielansichten.
 11. Die Leg-Übersicht erscheint ab dem zweiten Leg und zeigt das laufende Leg mit dem bisherigen Stand.

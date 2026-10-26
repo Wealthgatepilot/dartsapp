@@ -20,6 +20,14 @@ test('ganzes Cricket-Spiel bis zum Sieg', async ({ page }) => {
   await expect(page.locator('.board-wrap g[data-n="1"] path.b-grey').first()).toBeVisible();
   await expect(page.locator('.board-wrap g[data-n="20"] path.b-grey')).toHaveCount(0);
 
+  // Graue Zahlen reagieren nicht: Tippen auf die 2 (zwischen 15 und 17) trägt nichts ein
+  const two = (await page.locator('.board-wrap g[data-n="2"] path').first().boundingBox())!;
+  await page.mouse.move(two.x + two.width / 2, two.y + two.height / 2);
+  await page.mouse.down();
+  await expect(page.locator('.ringbar')).toHaveCount(0);
+  await page.mouse.up();
+  await expect(page.locator('.turnbox')).toContainText('Noch kein Dart');
+
   const cell = (n: string, col: number) =>
     page.locator('.tafel tbody tr', { has: page.locator('th', { hasText: new RegExp(`^${n}$`) }) }).locator('td').nth(col);
 

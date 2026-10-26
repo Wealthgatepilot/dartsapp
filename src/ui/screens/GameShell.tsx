@@ -27,6 +27,8 @@ export interface ShellProps {
   state: AnyState;
   nameOf: (slot: number) => string;
   colorOf: (slot: number) => string;
+  /** Zusätzliche Knöpfe in der Kopfzeile vor 🏆, z. B. die Leg-Übersicht. */
+  topActions?: ComponentChildren;
   /** Stand aller Spieler (Karten, Tafel …). */
   scoreboard: ComponentChildren;
   /** Unter den Pills: Rechenzeile, Checkout-Vorschlag, Hinweise. */
@@ -44,7 +46,10 @@ export interface ShellProps {
   isTarget?: (n: number) => boolean;
   /** Tabelle am Spielende. */
   endTable: ComponentChildren;
-  /** Platz über dem Board im Hochformat in Pixeln (größer = kleineres Board, z. B. für die Cricket-Tafel). */
+  /**
+   * Platz über dem Board im Hochformat in Pixeln, für eine große Tafel (Cricket). Gesetzt darf das Board
+   * dort kleiner werden, damit die Tafel ganz sichtbar bleibt.
+   */
   reserve?: number;
   /** Zusätzliches Fenster über dem Spiel, z. B. eine Frage nach einem Shanghai. Bekommt `act` zum Speichern. */
   overlay?: (act: (evs: readonly NewAppEvent[]) => Promise<void>) => ComponentChildren;
@@ -123,13 +128,17 @@ export function GameShell(p: ShellProps) {
   const leg = state.legs[state.legs.length - 1];
 
   return (
-    <div class={p.hitMiss ? "screen screen-game screen-hitmiss" : "screen screen-game"} style={p.reserve ? { '--reserve': `${p.reserve}px` } : undefined}>
+    <div
+      class={`screen screen-game${p.hitMiss ? ' screen-hitmiss' : ''}${p.reserve ? ' screen-tafel' : ''}`}
+      style={p.reserve ? { '--reserve': `${p.reserve}px` } : undefined}
+    >
       <section class="panel">
         <TopBar
           title={gameTitle(game.created)}
           back={href({ name: 'home' })}
           right={
             <span class="row topbar-actions">
+              {p.topActions}
               <button class="btn btn-small" onClick={() => setShowBest(true)} aria-label="Bestleistung">
                 🏆
               </button>

@@ -33,14 +33,14 @@ Vorher: In der App auf der Startseite „Jetzt neu laden“ tippen, falls eine n
 ## 5. X01 mit mehreren Legs
 
 - [ ] 501, first to 3 Legs, 2 Spieler.
-- [ ] Ab dem 2. Leg: „Leg-Übersicht“ unter dem Spielstand – Average je Leg, Darts, ✔ beim Gewinner, Match-Average unten.
+- [ ] Ab dem 2. Leg: Knopf „Legs“ oben – Average je Leg, Darts, ✔ beim Gewinner, Aufnahmen 80+ … 180 je Leg, Match-Average unten.
 - [ ] 🏆 oben: Vergleich mit der Bestleistung, beide Sichten, Abweichung in Prozent grün/rot.
 - [ ] Spielende: Ergebnis, Average je Leg, Aufnahmen 80+ … 180.
 
 ## 6. Statistik
 
 - [ ] Statistik öffnen, Profil und Modus wählen: Verlauf mit Punkten und Durchschnittslinie, Zeitraum umschalten.
-- [ ] Heatmap: Die Felder, auf die du oft wirfst, sind hell.
+- [ ] Heatmap: Die Felder, auf die du oft wirfst, sind hellrot.
 - [ ] Doppelquote je Feld: Training, X01 und zusammen.
 - [ ] Die Zahlen passen grob zu dem, was du gespielt hast.
 

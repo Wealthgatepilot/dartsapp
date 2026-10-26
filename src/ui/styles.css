@@ -1156,10 +1156,6 @@ button.pill-x {
 .dev-bad {
   color: #e66767;
 }
-.legs-button {
-  align-self: flex-start;
-  margin-top: 6px;
-}
 .leg-overview td {
   vertical-align: top;
 }
@@ -1169,4 +1165,108 @@ button.pill-x {
 .leg-total td {
   font-weight: 800;
   border-top: 2px solid #3a434c;
+}
+
+/* Spielansicht im Hochformat (Wunsch Gianluca): Die Anzeige oben ist so hoch, wie sie es braucht,
+   damit Spielstand und Knöpfe ganz sichtbar sind. Das Board nimmt den restlichen Platz, bleibt quadratisch
+   und wird nie kleiner als die Mindestgröße – reicht der Platz dann nicht, scrollt nur der Spielstand. */
+@media (orientation: portrait) {
+  .screen-game:not(.screen-hitmiss) .panel {
+    flex: 0 1 auto;
+  }
+  .screen-game:not(.screen-hitmiss) .board-wrap {
+    flex: 1 1 0;
+    min-height: min(68vw, 45vh);
+    align-items: center;
+    container-type: size;
+  }
+  @supports (width: 1cqmin) {
+    .screen-game:not(.screen-hitmiss) .board {
+      width: 100cqmin;
+      height: 100cqmin;
+    }
+  }
+}
+
+/* X01: Rechenzeile links, Checkout-Vorschlag rechts, immer gleich hoch */
+.turn-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+}
+.turn-info .calc {
+  text-align: left;
+  min-height: 0;
+}
+.banner.turn-info {
+  justify-content: center;
+  padding: 4px 8px;
+  font-size: 15px;
+}
+.screen-game .panel {
+  gap: 8px;
+}
+/* Cricket: Die Tafel ist groß, das Board darf dafür kleiner werden (wie bisher). */
+@media (orientation: portrait) {
+  .screen-game.screen-tafel .board-wrap {
+    min-height: min(45vw, 28vh);
+  }
+}
+.screen-game .turnbox .pills {
+  min-height: 36px;
+}
+
+/* Training-Ergebnis (Wunsch Gianluca): alle Felder ohne Scrollen, Schrift bleibt gut lesbar. */
+.results-fit {
+  overflow-x: auto;
+}
+.results-table th,
+.results-table td {
+  padding: 2px 6px;
+  font-size: 15px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+/* Hochformat: zwei Teile wirken wie eine Tabelle; Querformat: nebeneinander */
+.results-fit {
+  display: grid;
+  gap: 0;
+}
+.results-fit .results-table + .results-table thead {
+  display: none;
+}
+.results-table {
+  table-layout: fixed;
+  width: 100%;
+}
+.results-table th:first-child,
+.results-table td:first-child {
+  width: 4.5em;
+}
+@media (orientation: landscape) {
+  .results-fit {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0 12px;
+    align-items: start;
+  }
+  .results-table th:first-child,
+  .results-table td:first-child {
+    width: 3.2em;
+  }
+  .results-table th,
+  .results-table td {
+    padding: 1px 3px;
+    white-space: normal;
+  }
+  .results-fit .results-table + .results-table thead {
+    display: table-header-group;
+  }
+}
+/* Spielende im Querformat: breiter, damit Tabellen nebeneinander Platz haben */
+@media (orientation: landscape) {
+  .modal.match-end {
+    width: min(960px, 100%);
+  }
 }

@@ -100,6 +100,9 @@ export function Board({ onDart, onPreview, stepPx = 50, disabled = false, classN
     const radius = rect.width / 2;
     const zone = zoneAt(e.clientX - (rect.left + radius), e.clientY - (rect.top + radius), radius);
     if (zone.kind === 'outside') return;
+    // Graue Zahlen (keine Ziele) reagieren nicht, damit ein Vertipper kein falsches Feld einträgt.
+    // Darts daneben gehen über den Ring oder den Knopf „Daneben“.
+    if (isTarget && zone.kind !== 'miss' && !isTarget(zone.kind === 'bull' ? BULL : zone.n)) return;
     e.preventDefault();
     try {
       svg.setPointerCapture(e.pointerId); // Finger darf beim Ziehen das Board verlassen

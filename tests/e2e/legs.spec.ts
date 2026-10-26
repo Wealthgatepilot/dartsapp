@@ -25,6 +25,8 @@ test('Average je Leg in einem Match über 2 Legs', async ({ page }) => {
   const leg1 = live.locator('tbody tr').first();
   await expect(leg1.locator('td').nth(1)).toContainText('101,00');
   await expect(leg1.locator('td').nth(1)).toContainText('✔ 3 Darts');
+  await expect(leg1.locator('td').nth(1).locator('.leg-counts')).toHaveText('100+ ×1'); // 101 Punkte
+  await expect(leg1.locator('td').nth(2).locator('.leg-counts')).toHaveCount(0);
   await page.getByRole('button', { name: 'Schließen' }).click();
 
   await turn(page, 'S20', 'S20', 'S20'); // Jörn 60 in 3 Darts

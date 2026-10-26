@@ -95,14 +95,12 @@ describe('Punkte und Shanghai', () => {
     expect(g.state.next).toMatchObject({ slot: B, turnIndex: 1 });
   });
 
-  it('Rückgängig: erst Weiter, dann die Antwort (Frage kommt wieder), dann den Dart', () => {
+  it('Rückgängig nach „Weiterspielen“: Frage kommt sofort wieder, danach der Dart (Wunsch Gianluca)', () => {
     const g = Shanghai.create({ startNumber: 7 }).throw('S7', 'D7', 'T7');
     g.add(decideShanghai(g.state, false));
-    g.add(undoShanghai(g.state)); // Weiter
-    expect(g.state.pendingDecision).toBe(false);
-    expect(g.state.awaitingConfirm).toBe(true);
-    g.add(undoShanghai(g.state)); // Antwort
+    g.add(undoShanghai(g.state)); // Antwort und das automatische Weiter zusammen
     expect(g.state.pendingDecision).toBe(true);
+    expect(g.state.next).toBeNull();
     g.add(undoShanghai(g.state)); // Dart T7
     expect(g.state.currentTurn!.shanghai).toBe(false);
     expect(g.state.next).toMatchObject({ slot: A, dartIndex: 3 });

@@ -28,14 +28,17 @@ export function X01Game({ game, gameEvents, nameOf, colorOf }: ModeViewProps) {
       state={state}
       nameOf={nameOf}
       colorOf={colorOf}
+      // In der Kopfzeile ist der Knopf immer sichtbar, auch wenn der Platz über dem Board knapp ist.
+      topActions={
+        state.legs.length > 1 && (
+          <button class="btn btn-small" onClick={() => setShowLegs(true)} aria-label="Leg-Übersicht">
+            Legs
+          </button>
+        )
+      }
       scoreboard={
         <>
           <Scoreboard state={state} order={game.order} activeSlot={activeSlot} nameOf={nameOf} colorOf={colorOf} />
-          {state.legs.length > 1 && (
-            <button class="btn btn-small legs-button" onClick={() => setShowLegs(true)}>
-              Leg-Übersicht ({state.legs.filter((l) => l.winner !== null).length} gespielt)
-            </button>
-          )}
           {showLegs && (
             <Modal title="Leg-Übersicht" onClose={() => setShowLegs(false)} wide>
               <LegOverview state={state} order={game.order} nameOf={nameOf} />
@@ -44,16 +47,19 @@ export function X01Game({ game, gameEvents, nameOf, colorOf }: ModeViewProps) {
         </>
       }
       turnDetails={
-        <>
-          <TurnLine turn={turn} state={state} />
-          <CheckoutHint state={state} advice={advice} />
-          {legWon && (
-            <p class="banner">
-              Leg an {nameOf(turn!.slot)} · {legNumbers(leg, turn!.slot).darts} Darts · Average{' '}
-              {formatAverage(legNumbers(leg, turn!.slot).average)}
-            </p>
-          )}
-        </>
+        // Rechenzeile und Checkout-Vorschlag teilen sich eine Zeile mit fester Höhe,
+        // damit das Board beim Werfen nicht kleiner und größer wird.
+        legWon ? (
+          <p class="banner turn-info">
+            Leg an {nameOf(turn!.slot)} · {legNumbers(leg, turn!.slot).darts} Darts · Average{' '}
+            {formatAverage(legNumbers(leg, turn!.slot).average)}
+          </p>
+        ) : (
+          <div class="turn-info">
+            <TurnLine turn={turn} state={state} />
+            <CheckoutHint state={state} advice={advice} />
+          </div>
+        )
       }
       pillText={(d) => `${fieldLabel(d.field)} · ${points(d.field)}`}
       throwDart={(f) => throwDart(state, f)}
@@ -188,7 +194,8 @@ function MatchCounts({ state, order, nameOf }: { state: X01State; order: number[
 }
 
 /**
- * Leg-Übersicht (Wunsch Gianluca): je Leg der 3-Dart-Average jedes Spielers, wer gewonnen hat und mit wie vielen Darts.
+ * Leg-Übersicht (Wunsch Gianluca): je Leg der 3-Dart-Average jedes Spielers, wer gewonnen hat und mit wie vielen Darts,
+ * dazu die Aufnahmen 80+ … 180 dieses Legs.
  * Unten der Average über das ganze Match. Ein laufendes Leg erscheint mit dem bisherigen Stand.
  */
 export function LegOverview({ state, order, nameOf }: { state: X01State; order: number[]; nameOf: (s: number) => string }) {
@@ -217,12 +224,17 @@ export function LegOverview({ state, order, nameOf }: { state: X01State; order: 
               {order.map((slot) => {
                 const m = x01LegMetrics(leg, slot, out);
                 const won = leg.winner === slot;
+                // Aufnahmen 80+ … 180 nur, wenn sie vorkamen (Wunsch Gianluca)
+                const counts = BUCKETS.filter((b) => m[b.key] > 0)
+                  .map((b) => `${b.label} ×${m[b.key]}`)
+                  .join(' · ');
                 return (
                   <td key={slot} class={won ? 'leg-won' : ''}>
                     {formatAverage(m.avg)}
                     <div class="muted small">
                       {won ? `✔ ${m.darts} Darts` : `${m.darts} Darts`}
                     </div>
+                    {counts && <div class="muted small leg-counts">{counts}</div>}
                   </td>
                 );
               })}

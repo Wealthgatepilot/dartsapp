@@ -25,7 +25,7 @@ export function MatchEnd({
         : 'Spiel beendet';
   return (
     <div class="modal-backdrop">
-      <div class="modal" role="dialog" aria-label="Spielende">
+      <div class="modal match-end" role="dialog" aria-label="Spielende">
         <header class="modal-head">
           <h2>{title}</h2>
         </header>

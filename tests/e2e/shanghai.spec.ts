@@ -46,6 +46,11 @@ test('ganzes Shanghai-Spiel über 2 Runden', async ({ page }) => {
   await expect(question.getByRole('button', { name: 'Weiterspielen' })).toHaveClass(/btn-primary/);
   await question.getByRole('button', { name: 'Weiterspielen' }).click();
   await expect(page.locator('.turnbox')).toContainText('Noch kein Dart');
+  // Rückgängig nach „Weiterspielen“ bringt sofort die Frage zurück
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(question).toContainText('Gian hat ein Shanghai geworfen');
+  await question.getByRole('button', { name: 'Weiterspielen' }).click();
+  await expect(page.locator('.turnbox')).toContainText('Noch kein Dart');
   await expect(points('Gian')).toHaveText('196');
 
   // Jörn, letzte Aufnahme: nach dem dritten Dart ist das Spiel entschieden (wie ein Checkout, ohne Weiter)
