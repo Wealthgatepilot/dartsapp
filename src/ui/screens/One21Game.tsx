@@ -58,7 +58,7 @@ export function One21Game({ game, gameEvents, nameOf, colorOf }: ModeViewProps) 
       }
       turnDetails={<TurnInfo state={state} turn={turn} />}
       pillText={(d) => `${fieldLabel(d.field)} · ${points(d.field)}`}
-      throwDart={(f) => throwOne21Dart(state, f)}
+      throwDart={(f, input) => throwOne21Dart(state, f, input)}
       confirm={() => confirmOne21Turn(state)}
       undo={() => undoOne21(state)}
       planEdit={(t, fields) => planOne21Edit(state, gameEvents, t, fields)}

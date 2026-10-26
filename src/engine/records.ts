@@ -115,6 +115,8 @@ export interface LegRecord {
   groupLabel: string;
   /** Zeitpunkt des Spielstarts. */
   ts: number;
+  /** Spiel gegen den Computer (in der Statistik filterbar, SPEC 11.6). */
+  vsBot: boolean;
   leg: number;
   /** Leg bzw. Durchgang abgeschlossen (nur dann zählt er für Bestleistungen). */
   complete: boolean;
@@ -216,7 +218,8 @@ export function legRecords(events: readonly AppEvent[]): LegRecord[] {
     for (const p of game.created.participants) {
       if (p.kind !== 'profile' || !p.profileId) continue;
       const { group, label } = groupOf(game, p.slot);
-      const base = { profileId: p.profileId, gameId: game.created.gameId, slot: p.slot, group, groupLabel: label, ts: game.createdAt };
+      const vsBot = game.created.participants.some((x) => x.kind === 'bot');
+      const base = { profileId: p.profileId, gameId: game.created.gameId, slot: p.slot, group, groupLabel: label, ts: game.createdAt, vsBot };
 
       if (computed.mode === 'x01') {
         const s = computed.state;

@@ -62,7 +62,7 @@ export function HalveItGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps
         </div>
       }
       pillText={(d) => `${fieldLabel(d.field)} · ${d.scored}`}
-      throwDart={(f) => throwHalveItDart(state, f)}
+      throwDart={(f, input) => throwHalveItDart(state, f, input)}
       confirm={() => confirmHalveItTurn(state)}
       undo={() => undoHalveIt(state)}
       planEdit={(t, fields) => planHalveItEdit(state, gameEvents, t, fields)}

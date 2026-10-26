@@ -9,15 +9,25 @@ import { Segmented, Stepper } from './components';
 import { useAppData } from './data';
 import { href, navigate } from './router';
 
-export type Pick = { kind: 'profile'; profileId: string } | { kind: 'guest'; guestName: string };
+export type Pick =
+  | { kind: 'profile'; profileId: string }
+  | { kind: 'guest'; guestName: string }
+  /** Computergegner (SPEC 9); botId unterscheidet mehrere Computer gleicher Stufe. */
+  | { kind: 'bot'; botLevel: number; botId: string };
 
 /** Eindeutiger Schlüssel eines ausgewählten Spielers, z. B. für sein Handicap. */
-export const pickKey = (p: Pick) => (p.kind === 'profile' ? `p:${p.profileId}` : `g:${p.guestName}`);
+export const pickKey = (p: Pick) =>
+  p.kind === 'profile' ? `p:${p.profileId}` : p.kind === 'guest' ? `g:${p.guestName}` : `b:${p.botId}`;
 
 /** Anzeigename eines ausgewählten Spielers. */
 export function usePickName(): (p: Pick) => string {
   const profiles = useActiveProfiles();
-  return (p) => (p.kind === 'guest' ? `${p.guestName} (Gast)` : (profiles.find((x) => x.profileId === p.profileId)?.name ?? '?'));
+  return (p) =>
+    p.kind === 'guest'
+      ? `${p.guestName} (Gast)`
+      : p.kind === 'bot'
+        ? `Computer ${p.botLevel}`
+        : (profiles.find((x) => x.profileId === p.profileId)?.name ?? '?');
 }
 
 const RACE_KIND: { value: Race['kind']; label: string }[] = [
@@ -44,7 +54,7 @@ export function useSavedSetup<T extends { picks: Pick[] }>(key: string, defaults
       const merged = {
         ...defaults,
         ...saved,
-        picks: saved.picks.filter((p) => p.kind === 'guest' || profiles.some((x) => x.profileId === p.profileId)),
+        picks: saved.picks.filter((p) => p.kind !== 'profile' || profiles.some((x) => x.profileId === p.profileId)),
       };
       setSetup(merged);
       onLoad?.(merged);
@@ -59,6 +69,7 @@ export function useSavedSetup<T extends { picks: Pick[] }>(key: string, defaults
 export function PlayerPicker({ picks, onChange }: { picks: Pick[]; onChange: (update: (p: Pick[]) => Pick[]) => void }) {
   const profiles = useActiveProfiles();
   const [guest, setGuest] = useState('');
+  const [botLevel, setBotLevel] = useState(5);
 
   const toggle = (profileId: string) =>
     onChange((cur) =>
@@ -116,6 +127,16 @@ export function PlayerPicker({ picks, onChange }: { picks: Pick[]; onChange: (up
           + Gast
         </button>
       </form>
+      <div class="row bot-row">
+        <span class="grow">Computer, Stufe</span>
+        <Stepper label="Stufe" value={botLevel} min={1} max={10} onChange={setBotLevel} />
+        <button
+          class="btn btn-small"
+          onClick={() => onChange((cur) => [...cur, { kind: 'bot', botLevel, botId: uuidv7() }])}
+        >
+          + Computer
+        </button>
+      </div>
       {picks.length > 0 && (
         <ol class="order">
           {picks.map((p, i) => (
@@ -227,7 +248,9 @@ export function useStartGame() {
     const gameId = uuidv7();
     const participants: Participant[] = picks.map((p, slot) => {
       const own = startScores?.[pickKey(p)];
-      return { slot, ...p, ...(own ? { startScore: own } : {}) };
+      const who: Omit<Participant, 'slot'> =
+        p.kind === 'bot' ? { kind: 'bot', botLevel: p.botLevel } : p;
+      return { slot, ...who, ...(own ? { startScore: own } : {}) };
     });
     const method: StartMethod = picks.length < 2 ? 'asEntered' : start;
     await append([

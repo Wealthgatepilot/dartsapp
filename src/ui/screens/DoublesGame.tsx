@@ -36,8 +36,8 @@ export function DoublesGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps
       undo={() => undoDoubles(state)}
       hitMiss={{
         targetLabel: target ? fieldLabel(target) : '—',
-        onHit: () => throwDoublesDart(state, true),
-        onMiss: () => throwDoublesDart(state, false),
+        onHit: (input) => throwDoublesDart(state, true, input),
+        onMiss: (input) => throwDoublesDart(state, false, input),
       }}
       endTable={<Results state={state} order={game.order} nameOf={nameOf} />}
     />

@@ -11,7 +11,7 @@ import {
   type Rules,
   type Turn as CoreTurn,
 } from './core';
-import type { GameEvent, NewEvent } from './events';
+import type { DartPayload, GameEvent, NewEvent } from './events';
 import { BULL, isValidField, points, type Field } from './types';
 
 export interface BobsSettings {
@@ -112,11 +112,11 @@ export function computeBobs(setup: BobsSetup, events: readonly GameEvent[]): Bob
 }
 
 /** Treffer oder Falsch für das Ziel der laufenden Aufnahme. */
-export function throwBobsDart(state: BobsState, hit: boolean): NewEvent | null {
+export function throwBobsDart(state: BobsState, hit: boolean, input: DartPayload['input'] = 'hitmiss'): NewEvent | null {
   const pos = state.next;
   if (!pos) return null;
   const target = BOBS_TARGETS[pos.turnIndex - 1];
-  const ev = throwDartCore(state, { acceptsDart: () => true }, { field: hit ? target : null, hit }, 'hitmiss');
+  const ev = throwDartCore(state, { acceptsDart: () => true }, { field: hit ? target : null, hit }, input);
   if (ev?.type === 'dart.thrown') ev.payload.target = target;
   return ev;
 }

@@ -53,7 +53,7 @@ export function AtcGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps) {
         <div class="calc">{turn && turn.darts.length ? `${turn.hits} Treffer` : ''}</div>
       }
       pillText={(d) => `${fieldLabel(d.field)}${d.scored ? ' ✓' : ''}`}
-      throwDart={(f) => throwAtcDart(state, f)}
+      throwDart={(f, input) => throwAtcDart(state, f, input)}
       confirm={() => confirmAtcTurn(state)}
       undo={() => undoAtc(state)}
       planEdit={(t, fields) => planAtcEdit(state, gameEvents, t, fields)}

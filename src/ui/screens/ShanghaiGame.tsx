@@ -124,7 +124,7 @@ export function ShanghaiGame({ game, gameEvents, nameOf, colorOf }: ModeViewProp
         ) : null
       }
       pillText={(d) => `${fieldLabel(d.field)} · ${d.scored}`}
-      throwDart={(f) => throwShanghaiDart(state, f)}
+      throwDart={(f, input) => throwShanghaiDart(state, f, input)}
       confirm={() => confirmShanghaiTurn(state)}
       undo={() => undoShanghai(state)}
       planEdit={(t, fields) => planShanghaiEdit(state, gameEvents, t, fields)}

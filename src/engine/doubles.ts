@@ -10,7 +10,7 @@ import {
   type Rules,
   type Turn as CoreTurn,
 } from './core';
-import type { GameEvent, NewEvent } from './events';
+import type { DartPayload, GameEvent, NewEvent } from './events';
 import { BULL, fieldLabel, isValidField, type Field } from './types';
 
 export interface DoublesSettings {
@@ -176,13 +176,13 @@ export function computeDoubles(setup: DoublesSetup, events: readonly GameEvent[]
 }
 
 /** Treffer oder Falsch für das aktuelle Ziel des Spielers, der dran ist. */
-export function throwDoublesDart(state: DoublesState, hit: boolean): NewEvent | null {
+export function throwDoublesDart(state: DoublesState, hit: boolean, input: DartPayload['input'] = 'hitmiss'): NewEvent | null {
   const slot = state.next?.slot;
   if (slot === undefined) return null;
   const target = currentTarget(state.players[slot]);
   if (!target) return null;
   const d: DartInput = { field: hit ? target : null, hit };
-  const ev = throwDartCore(state, { acceptsDart: () => true }, d, 'hitmiss');
+  const ev = throwDartCore(state, { acceptsDart: () => true }, d, input);
   if (ev?.type === 'dart.thrown') ev.payload.target = target;
   return ev;
 }

@@ -4,8 +4,10 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { CoreState, DartView, EditPlan, TurnBase } from '../../engine/core';
-import type { GameEvent, NewAppEvent, NewEvent } from '../../engine/events';
-import type { GameInfo } from '../../engine/games';
+import { BOT_DELAY_MS, BOT_SIGMA, throwAt } from '../../engine/bot';
+import { botAim, sameField } from '../../engine/botaim';
+import type { DartPayload, GameEvent, NewAppEvent, NewEvent } from '../../engine/events';
+import type { AnyGameState, GameInfo } from '../../engine/games';
 import { gameTitle } from '../../engine/games';
 import { MISS, type Field } from '../../engine/types';
 import { uuidv7 } from '../../data/ids';
@@ -39,7 +41,7 @@ export interface ShellProps {
   turnDetails: ComponentChildren;
   pillText: (d: DartView) => string;
   /** Board-Eingabe. Fehlt sie, gibt es stattdessen die Treffer/Falsch-Flächen (hitMiss). */
-  throwDart?: (f: Field) => NewEvent | null;
+  throwDart?: (f: Field, input?: DartPayload['input']) => NewEvent | null;
   confirm: () => NewEvent[];
   undo: () => NewEvent[];
   /** Runde bearbeiten und Pills entfernen; fehlt es, gibt es beides nicht (Training: Rückgängig genügt). */
@@ -60,7 +62,11 @@ export interface ShellProps {
   /** „Weiter“ sperren, z. B. solange eine Frage offen ist. */
   blockConfirm?: boolean;
   /** Treffer/Falsch-Eingabe statt Board (SPEC 4.5). */
-  hitMiss?: { targetLabel: string; onHit: () => NewEvent | null; onMiss: () => NewEvent | null };
+  hitMiss?: {
+    targetLabel: string;
+    onHit: (input?: DartPayload['input']) => NewEvent | null;
+    onMiss: (input?: DartPayload['input']) => NewEvent | null;
+  };
 }
 
 export function GameShell(p: ShellProps) {
@@ -75,6 +81,28 @@ export function GameShell(p: ShellProps) {
 
   useWakeLock();
   useNoPinchZoom();
+
+  // Computergegner (SPEC 9): Ist er dran, wirft er Dart für Dart mit kurzer Pause. „Weiter“ tippt der Mensch.
+  const bot = game.created.participants.find((x) => x.slot === state.next?.slot && x.kind === 'bot');
+  const botTurn = !!bot && !state.finished;
+  const nextKey = state.next ? `${state.next.leg}|${state.next.slot}|${state.next.turnIndex}|${state.next.dartIndex}` : '';
+  useEffect(() => {
+    if (!bot || state.finished || editing || p.blockConfirm || !state.next || busy) return;
+    const timer = setTimeout(() => {
+      const aim = botAim({ mode: game.created.mode, state } as AnyGameState);
+      if (!aim) return;
+      const landed = throwAt(aim, BOT_SIGMA[bot.botLevel ?? 5], Math.random);
+      const ev = p.hitMiss
+        ? sameField(landed, aim)
+          ? p.hitMiss.onHit('bot')
+          : p.hitMiss.onMiss('bot')
+        : (p.throwDart?.(landed, 'bot') ?? null);
+      if (ev) act([ev]);
+    }, BOT_DELAY_MS);
+    return () => clearTimeout(timer);
+    // Nur bei einer neuen Position werfen; der Stand selbst ändert sich mit jedem Dart.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nextKey, bot?.slot, state.finished, editing, p.blockConfirm, busy]);
 
   /** Ereignisse anhängen; während des Schreibens sind weitere Eingaben gesperrt (kein Doppel-Tipp). */
   const act = async (evs: readonly NewAppEvent[]) => {
@@ -196,7 +224,7 @@ export function GameShell(p: ShellProps) {
             </button>
           )}
           {p.throwDart && (
-            <button class="btn" disabled={busy || !state.next} onClick={() => onDart(MISS)}>
+            <button class="btn" disabled={busy || !state.next || botTurn} onClick={() => onDart(MISS)}>
               Daneben
             </button>
           )}
@@ -215,16 +243,16 @@ export function GameShell(p: ShellProps) {
           <button class="hm-undo" disabled={busy || state.actions.length === 0} onClick={() => act(p.undo())} aria-label="Rückgängig">
             ↶
           </button>
-          <button class="hm-miss" disabled={busy || !state.next} onClick={() => act([p.hitMiss!.onMiss()].filter((e): e is NewEvent => !!e))}>
+          <button class="hm-miss" disabled={busy || !state.next || botTurn} onClick={() => act([p.hitMiss!.onMiss()].filter((e): e is NewEvent => !!e))}>
             Falsch
           </button>
-          <button class="hm-hit" disabled={busy || !state.next} onClick={() => act([p.hitMiss!.onHit()].filter((e): e is NewEvent => !!e))}>
+          <button class="hm-hit" disabled={busy || !state.next || botTurn} onClick={() => act([p.hitMiss!.onHit()].filter((e): e is NewEvent => !!e))}>
             {p.hitMiss.targetLabel}
           </button>
         </section>
       ) : (
         <section class="board-wrap">
-          <Board onDart={onDart} disabled={busy || !state.next} isTarget={p.isTarget} />
+          <Board onDart={onDart} disabled={busy || !state.next || botTurn} isTarget={p.isTarget} />
         </section>
       )}
 

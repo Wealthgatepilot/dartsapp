@@ -54,7 +54,7 @@ export function CountUpGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps
       }
       turnDetails={<div class="calc">{turn && turn.darts.length ? `+${turn.points}` : ''}</div>}
       pillText={(d) => `${fieldLabel(d.field)} · ${d.scored}`}
-      throwDart={(f) => throwCountUpDart(state, f)}
+      throwDart={(f, input) => throwCountUpDart(state, f, input)}
       confirm={() => confirmCountUpTurn(state)}
       undo={() => undoCountUp(state)}
       planEdit={(t, fields) => planCountUpEdit(state, gameEvents, t, fields)}

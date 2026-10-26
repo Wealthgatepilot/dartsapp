@@ -61,7 +61,7 @@ export function CricketGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps
         </>
       }
       pillText={(d) => `${fieldLabel(d.field)} · ${d.scored} M`}
-      throwDart={(f) => throwCricketDart(state, f)}
+      throwDart={(f, input) => throwCricketDart(state, f, input)}
       confirm={() => confirmCricketTurn(state)}
       undo={() => undoCricket(state)}
       planEdit={(t, fields) => planCricketEdit(state, gameEvents, t, fields)}

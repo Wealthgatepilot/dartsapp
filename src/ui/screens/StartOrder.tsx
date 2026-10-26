@@ -11,8 +11,10 @@ import {
   distanceLabel,
   distanceMm,
 } from '../../engine/bulloff';
+import { BOT_DELAY_MS, BOT_SIGMA, aimPoint, gaussian } from '../../engine/bot';
 import type { GameEvent, NewAppEvent } from '../../engine/events';
 import type { GameInfo } from '../../engine/games';
+import { BULL } from '../../engine/types';
 import { TopBar } from '../components';
 import { useAppData } from '../data';
 import { href, navigate } from '../router';
@@ -232,6 +234,30 @@ function Bulloff({ game, gameEvents, nameOf, colorOf }: Props) {
       },
     ]);
   };
+
+  // Computer (SPEC 9): wirft beim Ausbullen selbst, mit der Streuung seiner Stufe um den Mittelpunkt.
+  const bot = game.created.participants.find((x) => x.slot === state.next?.slot && x.kind === 'bot');
+  const nextKey = state.next ? `${state.next.slot}|${state.next.attempt}` : '';
+  useEffect(() => {
+    // Erst werfen, wenn der vorige Wurf gespeichert ist (sonst würde er als Doppel-Tipp verworfen)
+    if (!bot || !state.next || busy) return;
+    const next = state.next;
+    const timer = setTimeout(() => {
+      const sigma = BOT_SIGMA[bot.botLevel ?? 5];
+      const p = aimPoint({ n: BULL, m: 2 });
+      const x = Math.round((p.x + gaussian(Math.random) * sigma) * 10) / 10;
+      const y = Math.round((p.y + gaussian(Math.random) * sigma) * 10) / 10;
+      act([
+        {
+          type: 'bulloff.throw',
+          payload: { gameId, slot: next.slot, attempt: next.attempt, xMm: x, yMm: y, distanceMm: distanceMm(x, y) },
+        },
+      ]);
+    }, BOT_DELAY_MS);
+    return () => clearTimeout(timer);
+    // Nur einmal je Wurf des Computers
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nextKey, bot?.slot, busy]);
 
   const undoLast = () => {
     const last = state.throws.reduce<(typeof state.throws)[number] | null>(

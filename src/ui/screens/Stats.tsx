@@ -76,12 +76,14 @@ export function Stats() {
   const [profileId, setProfileId] = remember<string | null>('stats.profile', null);
   const [mode, setMode] = remember<Mode>('stats.mode', 'x01');
   const [period, setPeriod] = remember<number>('stats.period', 0);
+  const [withBots, setWithBots] = remember<boolean>('stats.withBots', true);
   const [groupSel, setGroupSel] = useState<string | null>(null);
   const [metricSel, setMetricSel] = useState<MetricKey | null>(null);
 
   const profile = profiles.find((p) => p.profileId === profileId) ?? profiles[0];
   const since = period ? Date.now() - period * DAY : 0;
-  const mine = all.filter((r) => r.profileId === profile?.profileId && r.ts >= since);
+  const anyBot = all.some((r) => r.profileId === profile?.profileId && r.vsBot);
+  const mine = all.filter((r) => r.profileId === profile?.profileId && r.ts >= since && (withBots || !r.vsBot));
   const inMode = mine.filter((r) => r.mode === mode);
   // Übersicht und Verlauf: nur abgeschlossene Legs (ein abgebrochenes Leg mit einem Dart verzerrt sonst den Average).
   const complete = inMode.filter((r) => r.complete);
@@ -130,6 +132,17 @@ export function Stats() {
           onChange={(m) => (setMode(m), setGroupSel(null), setMetricSel(null))}
         />
         <Segmented value={period} options={PERIODS} onChange={setPeriod} />
+        {anyBot && (
+          <Segmented
+            label="Spiele gegen den Computer"
+            value={withBots ? 'mit' : 'ohne'}
+            options={[
+              { value: 'mit', label: 'mit Computer' },
+              { value: 'ohne', label: 'ohne Computer' },
+            ]}
+            onChange={(v) => setWithBots(v === 'mit')}
+          />
+        )}
         {groups.length > 1 && (
           <select class="select" value={group} onChange={(e) => setGroupSel((e.target as HTMLSelectElement).value)}>
             {groups.map((g) => (

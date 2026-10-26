@@ -62,7 +62,7 @@ export function X01Game({ game, gameEvents, nameOf, colorOf }: ModeViewProps) {
         )
       }
       pillText={(d) => `${fieldLabel(d.field)} · ${points(d.field)}`}
-      throwDart={(f) => throwDart(state, f)}
+      throwDart={(f, input) => throwDart(state, f, input)}
       confirm={() => confirmTurn(state)}
       undo={() => undo(state)}
       planEdit={(t, fields) => planEdit(state, gameEvents, t, fields)}

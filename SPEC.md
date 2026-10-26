@@ -566,6 +566,15 @@ Jede Partie ist ein normales Spiel mit eigener `gameId` und `tournamentMatchId`.
 - Der Computer wirft mit kurzer Pause pro Dart (0,8 s), die Darts erscheinen als Pills. Weiter tippt der Mensch.
 - Computer haben keine Statistik. Spiele gegen den Computer zählen für das Profil des Menschen, sind aber in der Statistik filterbar („gegen Computer“).
 
+**Umsetzung (Phase 3, 26.10.2026)**
+
+- Eingestellte Streuung σ je Stufe (10 000 Legs, Kontrolle mit anderem Zufall): 1 = 34,7 mm (24,98), 2 = 24 (34,77), 3 = 18,2 (45,13), 4 = 15,6 (52,02), 5 = 13,3 (60,22), 6 = 11,7 (66,83), 7 = 10,1 (75,17), 8 = 8,7 (83,23), 9 = 7,3 (92,89), 10 = 6,4 (99,40). Ein Test prüft Stufe 1, 5 und 10 bei jedem Lauf mit festem Zufall.
+- Zielpunkt ist die Mitte des Feldes; beim Single das große äußere Segment. Ohne Checkout mit den übrigen Darts stellt der Computer einen Rest, der mit 2 Darts checkbar ist, und wirft nie absichtlich über.
+- Zielwahl in den Phase-3-Modi: Count-Up T20; Around the Clock das aktuelle Ziel im gewählten Ring (am Bull die Mitte); Halve-It das Ziel (beliebiges Double: D20, beliebiges Triple: T20); Killer erst die eigene Zahl, als Killer der Gegner mit den wenigsten Leben; 121 wie X01. In Treffer/Falsch-Modi (Training, Bob's 27) zielt er auf das Double; „Treffer“, wenn der Dart genau dort landet.
+- Beim Ausbullen wirft der Computer mit der Streuung seiner Stufe um den Mittelpunkt.
+- Während der Computer wirft, sind Board und Eingabeflächen gesperrt. Fragen im Spiel (z. B. nach einem Shanghai) beantwortet der Mensch.
+- Auswahl im Setup: „Computer, Stufe 1–10“ und „+ Computer“, auch mehrere; Name „Computer 5“.
+
 ---
 
 ## 10. Sprachausgabe (Phase 3)

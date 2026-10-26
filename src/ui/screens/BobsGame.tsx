@@ -62,8 +62,8 @@ export function BobsGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps) {
       undo={() => undoBobs(state)}
       hitMiss={{
         targetLabel: state.target ? fieldLabel(state.target) : '—',
-        onHit: () => throwBobsDart(state, true),
-        onMiss: () => throwBobsDart(state, false),
+        onHit: (input) => throwBobsDart(state, true, input),
+        onMiss: (input) => throwBobsDart(state, false, input),
       }}
       endTable={
         <table class="table">

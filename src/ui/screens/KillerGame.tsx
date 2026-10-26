@@ -82,7 +82,7 @@ export function KillerGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps)
       }
       turnDetails={<div class="calc killer-effects">{turn?.effects.map(effectText).join(' · ') ?? ''}</div>}
       pillText={(d) => `${fieldLabel(d.field)}${d.scored ? ' ✓' : ''}`}
-      throwDart={(f) => throwKillerDart(state, f)}
+      throwDart={(f, input) => throwKillerDart(state, f, input)}
       confirm={() => confirmKillerTurn(state)}
       undo={() => undoKiller(state)}
       planEdit={(t, fields) => planKillerEdit(state, gameEvents, t, fields)}
