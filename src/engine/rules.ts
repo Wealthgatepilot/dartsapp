@@ -3,6 +3,7 @@
 import type { CricketSettings } from './cricket';
 import { targetsOf, type DoublesSettings } from './doubles';
 import type { AtcSettings } from './atc';
+import type { BobsSettings } from './bobs';
 import type { CountUpSettings } from './countup';
 import { targetOfRound, type ShanghaiSettings } from './shanghai';
 import { winsNeeded, type InOut, type Race, type X01Settings } from './x01';
@@ -301,6 +302,32 @@ export function atcVariants(): Variant[] {
     {
       name: 'Sprünge',
       text: 'Nur bei Ring „beliebig“: Ein Double bringt 2 Ziele weiter, ein Triple 3. Das Spiel wird schneller, Doubles und Triples lohnen sich.',
+    },
+    ...START_VARIANTS,
+  ];
+}
+
+export function bobsRules(s: BobsSettings): string[] {
+  return [
+    'Du startest mit 27 Punkten. Ziele sind D1, D2 … D20 und zum Schluss das Bullseye – auf jedes Ziel wirfst du eine Aufnahme mit 3 Darts.',
+    'Nach jedem Dart tippst du „Treffer“ oder „Falsch“. Jeder Treffer bringt den Wert des Doubles (D7 = 14, Bullseye = 50).',
+    'Triffst du in einer Aufnahme gar nicht, wird der Wert des Doubles einmal abgezogen.',
+    s.dieAtZero
+      ? 'Fällst du auf 0 oder darunter, scheidest du aus.'
+      : 'Auch unter 0 spielst du bis zum Bullseye weiter.',
+    'Am Ende gewinnt, wer die meisten Punkte hat. Deine Treffer zählen in die Doppelquote je Feld in der Statistik.',
+  ];
+}
+
+export function bobsVariants(): Variant[] {
+  return [
+    {
+      name: 'Bei 0 oder weniger ausscheiden: ja',
+      text: 'Die übliche Form: Wer auf 0 oder darunter fällt, ist raus. Gut, um Druck auf die ersten, kleinen Doubles zu bekommen.',
+    },
+    {
+      name: 'Bei 0 oder weniger ausscheiden: nein',
+      text: 'Jeder spielt alle 21 Ziele durch, auch mit Minuspunkten – gut zum Üben aller Doubles.',
     },
     ...START_VARIANTS,
   ];

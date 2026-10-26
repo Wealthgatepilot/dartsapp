@@ -2,6 +2,7 @@
 // Der Speicher ergänzt beim Ablegen deviceId, seq und v; die Spiellogik braucht nur id, type, ts und payload.
 
 import type { AtcSettings } from './atc';
+import type { BobsSettings } from './bobs';
 import type { AdviceLevel } from './checkout';
 import type { CountUpSettings } from './countup';
 import type { CricketSettings } from './cricket';
@@ -110,7 +111,8 @@ export type GameCreatedPayload =
   | (GameCreatedBase & { mode: 'shanghai'; settings: ShanghaiSettings })
   | (GameCreatedBase & { mode: 'doubles'; settings: DoublesSettings })
   | (GameCreatedBase & { mode: 'countup'; settings: CountUpSettings })
-  | (GameCreatedBase & { mode: 'atc'; settings: AtcSettings });
+  | (GameCreatedBase & { mode: 'atc'; settings: AtcSettings })
+  | (GameCreatedBase & { mode: 'bobs'; settings: BobsSettings });
 
 export type GameMode = GameCreatedPayload['mode'];
 

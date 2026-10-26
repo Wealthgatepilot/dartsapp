@@ -5,6 +5,7 @@ import type { AppEvent } from './events';
 import { computeGame, listGames, type GameInfo } from './games';
 import {
   atcMetrics,
+  bobsMetrics,
   countUpMetrics,
   cricketLegMetrics,
   doublesMetrics,
@@ -80,6 +81,10 @@ export const METRICS: Record<Mode, MetricDef[]> = {
     { key: 'dartsToFinish', label: 'Darts bis zum Ende', better: 'lower', endOnly: true, digits: 0 },
     { key: 'hitRate', label: 'Trefferquote', better: 'higher', digits: 1, unit: '%' },
   ],
+  bobs: [
+    { key: 'points', label: 'Endpunkte', better: 'higher', digits: 0 },
+    { key: 'hitRate', label: 'Trefferquote', better: 'higher', digits: 1, unit: '%' },
+  ],
 };
 
 /** Ein Leg (bzw. Durchgang) eines Profils. */
@@ -144,6 +149,11 @@ export function groupOf(game: GameInfo, slot: number): { group: string; label: s
       return {
         group: `atc|${c.settings.withBull}|${c.settings.ring}|${c.settings.ring === 'any' && c.settings.jumps}`,
         label: `Around the Clock${atcVariantLabel(c.settings)}`,
+      };
+    case 'bobs':
+      return {
+        group: `bobs|${c.settings.dieAtZero}`,
+        label: `Bob's 27${c.settings.dieAtZero ? '' : ' · ohne Ausscheiden'}`,
       };
   }
 }
@@ -278,6 +288,25 @@ export function legRecords(events: readonly AppEvent[]): LegRecord[] {
           values,
           doubles: {},
           heat: heatOf(s.legs[0].turns, p.slot),
+        });
+      } else if (computed.mode === 'bobs') {
+        const s = computed.state;
+        const m = bobsMetrics(s, p.slot);
+        if (!m.darts) continue;
+        const values: LegRecord['values'] = { points: m.points };
+        if (m.hitRate !== null) values.hitRate = m.hitRate;
+        out.push({
+          ...base,
+          mode: 'bobs',
+          leg: 1,
+          complete: s.finished,
+          won: !!s.matchWinners?.includes(p.slot),
+          darts: m.darts,
+          values,
+          // Bob's 27 zählt in die Doppelquote aus dem Training (SPEC 7.8, 11.6)
+          doubles: m.perField,
+          doublesSource: 'training',
+          heat: {},
         });
       } else if (computed.mode === 'doubles') {
         const s = computed.state;
@@ -414,6 +443,10 @@ export function metricsAt(
     v.points = m.points;
   } else if (c.mode === 'atc') {
     put('hitRate', atcMetrics(c.state, slot, limit).hitRate);
+  } else if (c.mode === 'bobs') {
+    const m = bobsMetrics(c.state, slot, limit);
+    put('hitRate', m.hitRate);
+    v.points = m.points;
   } else if (c.mode === 'doubles') {
     put('hitRate', doublesMetrics(c.state, slot, limit).hitRate);
   }

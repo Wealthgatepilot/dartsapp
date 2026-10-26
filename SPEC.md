@@ -503,7 +503,9 @@ Regeln: Pro Versuch ist das Ziel der Rest; X01-Regeln für Bust und Out. Bust se
 ### 7.8 Bob's 27 (Phase 3)
 
 Ohne Einstellungen außer **„Bei 0 oder weniger ausscheiden“** (**ja**, nein).
-Regeln: Start mit 27 Punkten. Ziele D1, D2, …, D20, Bullseye; je Ziel eine Aufnahme mit 3 Darts. Jeder Treffer: + Wert des Doubles (D7 = 14, Bullseye = 50). Kein Treffer in der Aufnahme: − Wert des Doubles. Eingabe Treffer/Falsch. Ergebnis: Endpunkte; Doubles fließen in die Doppelquote pro Feld ein.
+Regeln: Start mit 27 Punkten. Ziele D1, D2, …, D20, Bullseye; je Ziel eine Aufnahme mit 3 Darts. Jeder Treffer: + Wert des Doubles (D7 = 14, Bullseye = 50). Kein Treffer in der Aufnahme: − Wert des Doubles. Eingabe Treffer/Falsch. Ergebnis: Endpunkte; Doubles fließen in die Doppelquote pro Feld ein. Abgerechnet wird nach dem dritten Dart der Aufnahme („Weiter“ füllt mit Falsch auf). Wer ausscheidet, wird übersprungen. Das Spiel endet, wenn alle durch sind oder ausgeschieden; es gewinnt, wer die meisten Punkte hat, bei Gleichstand teilen sich die Spieler den Sieg. Kennzahlen: Endpunkte, Trefferquote (Vergleichsgruppe: „ausscheiden“ ja/nein).
+
+**Regeltext:** Start 27; Zielfolge; Plus je Treffer, Minus ohne Treffer; Ausscheiden; Sieger.
 
 ### 7.9 Halve-It (Phase 3)
 
@@ -757,6 +759,9 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G42 | Around the Clock, Ring beliebig, ohne Sprünge, Ziel 1 | S1, D2, T5 | Ziel danach 3 (T5 zählt nicht), 2 Treffer |
 | G43 | Around the Clock mit Sprüngen, Ziel 1 bzw. Ziel 19 | T1 bzw. D19 | Ziel 4 bzw. fertig: über das Ende hinaus = gewonnen, sofort |
 | G44 | Around the Clock nur Doubles bzw. nur Triples mit Bull | S1 bzw. am Ziel Bull: DB | S1 zählt nicht; DB zählt (am Bull gibt es kein Triple) |
+| G45 | Bob's 27, Ziel D1 | Falsch, Falsch, Falsch | 27 − 2 = 25 |
+| G46 | Bob's 27, Ziel D1 | Treffer, Falsch, Treffer | 27 + 2 + 2 = 31 (kein Abzug, es gab Treffer) |
+| G47 | Bob's 27, „ausscheiden = ja“ | D1 bis D5 nur Falsch | 25, 21, 15, 7, −3 → nach D5 ausgeschieden; bei „nein“ geht es mit D6 weiter |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

@@ -1,5 +1,6 @@
 // Spiele aus Ereignissen: Liste, Reihenfolge, laufendes Spiel (SPEC 5).
 
+import { computeBobs, type BobsSetup, type BobsState } from './bobs';
 import { atcVariantLabel, computeAtc, type AtcSetup, type AtcState } from './atc';
 import { computeCountUp, type CountUpSetup, type CountUpState } from './countup';
 import { computeCricket, type CricketSetup, type CricketState } from './cricket';
@@ -97,13 +98,20 @@ export function atcSetupOf(game: GameInfo): AtcSetup {
   return { gameId: c.gameId, settings: c.settings, order: game.order };
 }
 
+export function bobsSetupOf(game: GameInfo): BobsSetup {
+  const c = game.created;
+  if (c.mode !== 'bobs') throw new Error("Kein Bob's-27-Spiel");
+  return { gameId: c.gameId, settings: c.settings, order: game.order };
+}
+
 export type AnyGameState =
   | { mode: 'x01'; state: X01State }
   | { mode: 'cricket'; state: CricketState }
   | { mode: 'shanghai'; state: ShanghaiState }
   | { mode: 'doubles'; state: DoublesState }
   | { mode: 'countup'; state: CountUpState }
-  | { mode: 'atc'; state: AtcState };
+  | { mode: 'atc'; state: AtcState }
+  | { mode: 'bobs'; state: BobsState };
 
 /** Spielstand eines beliebigen Spiels. */
 export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGameState {
@@ -121,6 +129,8 @@ export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGam
       return { mode: 'countup', state: computeCountUp(countUpSetupOf(game), evs) };
     case 'atc':
       return { mode: 'atc', state: computeAtc(atcSetupOf(game), evs) };
+    case 'bobs':
+      return { mode: 'bobs', state: computeBobs(bobsSetupOf(game), evs) };
   }
 }
 
@@ -141,5 +151,7 @@ export function gameTitle(c: GameCreatedPayload): string {
       return `Count-Up · ${c.settings.rounds} Runden`;
     case 'atc':
       return `Around the Clock${atcVariantLabel(c.settings)}`;
+    case 'bobs':
+      return "Bob's 27";
   }
 }

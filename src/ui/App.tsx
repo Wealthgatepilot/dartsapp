@@ -5,6 +5,7 @@ import { useRoute } from './router';
 import { CricketSetup } from './screens/CricketSetup';
 import { DoublesSetup } from './screens/DoublesSetup';
 import { AtcSetup } from './screens/AtcSetup';
+import { BobsSetup } from './screens/BobsSetup';
 import { CountUpSetup } from './screens/CountUpSetup';
 import { Game } from './screens/Game';
 import { Home } from './screens/Home';
@@ -43,6 +44,8 @@ function Screens() {
       return <CountUpSetup />;
     case 'atc':
       return <AtcSetup />;
+    case 'bobs':
+      return <BobsSetup />;
     case 'stats':
       return <Stats />;
     case 'game':

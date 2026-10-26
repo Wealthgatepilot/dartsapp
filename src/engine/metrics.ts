@@ -3,6 +3,7 @@
 // „Stand nach gleich vielen Darts“ (SPEC 12).
 
 import type { AtcState } from './atc';
+import type { BobsState } from './bobs';
 import type { CountUpState } from './countup';
 import type { CricketLeg, CricketTurn } from './cricket';
 import type { DoublesState } from './doubles';
@@ -10,7 +11,7 @@ import type { ShanghaiState, ShanghaiTurn } from './shanghai';
 import { BULL, fieldLabel } from './types';
 import type { InOut, Leg as X01Leg, Turn as X01Turn } from './x01';
 
-export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup' | 'atc';
+export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup' | 'atc' | 'bobs';
 
 /** Würfe und Treffer je Double (Schlüssel D1 … D20, DB). */
 export type DoubleTally = Record<string, { darts: number; hits: number }>;
@@ -241,6 +242,35 @@ export function atcMetrics(state: AtcState, slot: number, limit = Infinity): Atc
   }
   m.hitRate = ratio(m.hits * 100, m.darts);
   if (limit === Infinity && state.legs[0].winner === slot) m.dartsToFinish = m.darts;
+  return m;
+}
+
+// ---------- Bob's 27 (SPEC 7.8) ----------
+
+export interface BobsMetrics {
+  darts: number;
+  hits: number;
+  hitRate: number | null;
+  /** Punkte nach den ausgewerteten Darts (Start 27). */
+  points: number;
+  /** Würfe und Treffer je Double, fließen in die Doppelquote aus dem Training ein. */
+  perField: DoubleTally;
+}
+
+export function bobsMetrics(state: BobsState, slot: number, limit = Infinity): BobsMetrics {
+  const m: BobsMetrics = { darts: 0, hits: 0, hitRate: null, points: 27, perField: {} };
+  outer: for (const t of state.legs[0].turns.filter((x) => x.slot === slot)) {
+    const key = fieldLabel(t.target);
+    for (const d of t.darts) {
+      if (m.darts >= limit) break outer;
+      m.darts++;
+      if (d.hit) m.hits++;
+      addTally(m.perField, key, !!d.hit);
+    }
+    // Abgerechnet wird nach dem dritten Dart (SPEC 7.8)
+    if (m.darts <= limit) m.points += t.change;
+  }
+  m.hitRate = ratio(m.hits * 100, m.darts);
   return m;
 }
 

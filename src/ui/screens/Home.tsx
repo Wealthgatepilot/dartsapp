@@ -161,6 +161,10 @@ export function Home() {
           <strong>Doppelfeld-Training</strong>
           <span class="muted">D1–D20 und Bullseye in zufälliger Folge</span>
         </a>
+        <a class="menu-item menu-main" href={href({ name: 'bobs' })}>
+          <strong>Bob's 27</strong>
+          <span class="muted">Alle Doubles, Punkte gegen dich</span>
+        </a>
       </nav>
 
       <h2 class="section-title">Mehr</h2>

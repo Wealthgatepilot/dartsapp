@@ -9,6 +9,7 @@ import { useAppData } from '../data';
 import { participantColor, participantName } from '../names';
 import { href } from '../router';
 import { AtcGame } from './AtcGame';
+import { BobsGame } from './BobsGame';
 import { CountUpGame } from './CountUpGame';
 import { CricketGame } from './CricketGame';
 import { DoublesGame } from './DoublesGame';
@@ -60,5 +61,7 @@ export function Game({ gameId }: { gameId: string }) {
       return <CountUpGame {...props} />;
     case 'atc':
       return <AtcGame {...props} />;
+    case 'bobs':
+      return <BobsGame {...props} />;
   }
 }
