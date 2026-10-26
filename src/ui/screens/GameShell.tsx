@@ -13,6 +13,7 @@ import { Board } from '../board/Board';
 import { TopBar } from '../components';
 import { useAppData } from '../data';
 import { href, navigate } from '../router';
+import { BestCompare } from './BestCompare';
 import { EditRound } from './EditRound';
 import { MatchEnd } from './MatchEnd';
 
@@ -61,6 +62,7 @@ export function GameShell(p: ShellProps) {
   // Zusätzlich als Ref, weil zwei schnelle Tipps im selben Moment den neuen Zustand noch nicht sehen.
   const busyRef = useRef(false);
   const [editing, setEditing] = useState(false);
+  const [showBest, setShowBest] = useState(false);
 
   useWakeLock();
   useNoPinchZoom();
@@ -127,9 +129,14 @@ export function GameShell(p: ShellProps) {
           title={gameTitle(game.created)}
           back={href({ name: 'home' })}
           right={
-            <button class="btn btn-small" onClick={abandon}>
-              Abbrechen
-            </button>
+            <span class="row topbar-actions">
+              <button class="btn btn-small" onClick={() => setShowBest(true)} aria-label="Bestleistung">
+                🏆
+              </button>
+              <button class="btn btn-small" onClick={abandon}>
+                Abbrechen
+              </button>
+            </span>
           }
         />
 
@@ -219,6 +226,17 @@ export function GameShell(p: ShellProps) {
             await act(evs);
             setEditing(false);
           }}
+        />
+      )}
+
+      {showBest && (
+        <BestCompare
+          gameId={gameId}
+          leg={leg.leg}
+          participants={game.created.participants}
+          activeSlot={activeSlot}
+          nameOf={p.nameOf}
+          onClose={() => setShowBest(false)}
         />
       )}
 

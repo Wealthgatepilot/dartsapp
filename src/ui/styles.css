@@ -1142,3 +1142,17 @@ button.pill-x {
   padding: 6px 2px;
   font-size: 13px;
 }
+.topbar-actions {
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+.dev {
+  white-space: nowrap;
+  font-weight: 700;
+}
+.dev-good {
+  color: #0ca30c;
+}
+.dev-bad {
+  color: #e66767;
+}
