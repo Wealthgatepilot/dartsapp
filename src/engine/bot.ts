@@ -21,16 +21,16 @@ export const R = {
  * 501 Double-Out im Schnitt diese 3-Dart-Averages ergibt: 25, 35, 45, 52, 60, 67, 75, 83, 92, 100 (SPEC 9).
  */
 export const BOT_SIGMA: Record<number, number> = {
-  1: 34.7, // Kontrolle (10 000 Legs, anderer Zufall): 24,98
-  2: 24, // 34,77
-  3: 18.2, // 45,13
-  4: 15.6, // 52,02
-  5: 13.3, // 60,22
-  6: 11.7, // 66,83
-  7: 10.1, // 75,17
-  8: 8.7, // 83,23
-  9: 7.3, // 92,89
-  10: 6.4, // 99,40
+  1: 34.7, // Kontrolle (10 000 Legs, anderer Zufall): 24,96
+  2: 24, // 34,74
+  3: 18.1, // 45,16
+  4: 15.6, // 51,74
+  5: 13.2, // 60,24
+  6: 11.6, // 66,73
+  7: 10, // 74,77
+  8: 8.5, // 83,16
+  9: 7.1, // 92,54
+  10: 6.1, // 100,34
 };
 
 export const BOT_TARGET_AVERAGE: Record<number, number> = { 1: 25, 2: 35, 3: 45, 4: 52, 5: 60, 6: 67, 7: 75, 8: 83, 9: 92, 10: 100 };
@@ -72,8 +72,61 @@ export function gaussian(random: () => number): number {
 
 /** Ein Wurf auf `target` mit Streuung σ (mm): liefert das getroffene Feld. */
 export function throwAt(target: Field, sigma: number, random: () => number): Field {
+  return throwAtPoint(aimPoint(target), sigma, random).field;
+}
+
+/** Ein Wurf auf einen Punkt: liefert die Stelle, an der der Dart steckt, und das Feld. */
+export function throwAtPoint(aim: Point, sigma: number, random: () => number): { point: Point; field: Field } {
+  const point = { x: aim.x + gaussian(random) * sigma, y: aim.y + gaussian(random) * sigma };
+  return { point, field: fieldAt(point) };
+}
+
+// ---------- Verdeckte Ziele (Wunsch Gianluca, 26.10.2026) ----------
+// Steckt ein Dart der laufenden Aufnahme direkt vor dem Zielpunkt, wirft man nicht stur darauf:
+// Verdeckt ein knapp verfehlter Dart das Ziel, wechseln Profis das Feld (T20 → T19 → T18);
+// steckt er im Ziel selbst, zielen sie etwas zur Seite.
+
+/** Ab diesem Abstand (mm) zum Zielpunkt gilt ein steckender Dart als verdeckend. */
+export const BLOCK_MM = 7;
+/** So weit (mm) wird zur Seite gezielt, wenn ein Dart im Ziel steckt oder es kein Ersatzfeld gibt. */
+export const SIDESTEP_MM = 8;
+
+const sameField = (a: Field, b: Field) => a.n === b.n && a.m === b.m;
+const SCORING_SWITCH: Field[] = [20, 19, 18].map((n) => ({ n, m: 3 as const }));
+
+const blockers = (aim: Point, darts: readonly Point[]) => darts.filter((d) => Math.hypot(d.x - aim.x, d.y - aim.y) < BLOCK_MM);
+
+/** Zielpunkt entlang des Rings seitlich verschieben, weg vom verdeckenden Dart. */
+function sidestep(aim: Point, from: Point): Point {
+  const r = Math.hypot(aim.x, aim.y);
+  if (r < 1) return { x: aim.x + (from.x > 0 ? -SIDESTEP_MM : SIDESTEP_MM), y: aim.y }; // am Bull: waagrecht ausweichen
+  // Tangente an den Ring durch den Zielpunkt
+  const tx = aim.y / r;
+  const ty = -aim.x / r;
+  const side = (from.x - aim.x) * tx + (from.y - aim.y) * ty >= 0 ? -1 : 1;
+  return { x: aim.x + side * tx * SIDESTEP_MM, y: aim.y + side * ty * SIDESTEP_MM };
+}
+
+/**
+ * Wohin der Computer wirklich zielt, wenn schon Darts stecken (`darts`: Stellen der Darts dieser Aufnahme).
+ * Liefert das (evtl. gewechselte) Zielfeld und den Zielpunkt.
+ */
+export function planAim(target: Field, darts: readonly Point[]): { target: Field; point: Point } {
   const aim = aimPoint(target);
-  return fieldAt({ x: aim.x + gaussian(random) * sigma, y: aim.y + gaussian(random) * sigma });
+  const block = blockers(aim, darts);
+  if (!block.length) return { target, point: aim };
+  // Steckt der Dart im Ziel selbst, bleibt das Ziel, nur etwas zur Seite
+  const missBlock = block.find((d) => !sameField(fieldAt(d), target));
+  if (!missBlock) return { target, point: sidestep(aim, block[0]) };
+  // Ein knapp verfehlter Dart verdeckt das Ziel: beim Punkten auf das nächste Triple wechseln
+  const i = SCORING_SWITCH.findIndex((f) => sameField(f, target));
+  if (i >= 0) {
+    for (const alt of [...SCORING_SWITCH.slice(i + 1), ...SCORING_SWITCH.slice(0, i)]) {
+      const p = aimPoint(alt);
+      if (!blockers(p, darts).length) return { target: alt, point: p };
+    }
+  }
+  return { target, point: sidestep(aim, missBlock) };
 }
 
 /** Wiederholbarer Zufall für Tests und Simulation (mulberry32). */

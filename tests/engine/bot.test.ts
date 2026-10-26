@@ -1,7 +1,7 @@
 // Computergegner nach SPEC 9: Board-Geometrie, Zielwahl, Stärkestufen.
 
 import { describe, expect, it } from 'vitest';
-import { BOT_SIGMA, BOT_TARGET_AVERAGE, aimPoint, fieldAt, seededRandom, throwAt, x01Aim } from '../../src/engine/bot';
+import { BOT_SIGMA, BOT_TARGET_AVERAGE, aimPoint, fieldAt, planAim, seededRandom, throwAt, x01Aim } from '../../src/engine/bot';
 import { simulateAverage } from '../../src/engine/botsim';
 import { fieldLabel, parseField } from '../../src/engine/types';
 
@@ -66,5 +66,40 @@ describe('Stärkestufen (SPEC 9)', () => {
       const avg = simulateAverage(BOT_SIGMA[level], 2000, seededRandom(42 + level));
       expect(Math.abs(avg - BOT_TARGET_AVERAGE[level])).toBeLessThanOrEqual(2);
     }
+  });
+});
+
+describe('Verdeckte Ziele (Wunsch Gianluca)', () => {
+  const t20 = aimPoint(parseField('T20'));
+
+  it('freies Ziel: genau auf die Mitte', () => {
+    expect(planAim(parseField('T20'), [])).toEqual({ target: parseField('T20'), point: t20 });
+  });
+
+  it('knapp unter T20 verfehlt (Single 20) → Wechsel auf T19', () => {
+    const below = { x: t20.x, y: t20.y - 5 }; // 5 mm unter der Mitte, schon im Single
+    expect(fieldLabel(fieldAt(below))).toBe('S20');
+    const plan = planAim(parseField('T20'), [below]);
+    expect(fieldLabel(plan.target)).toBe('T19');
+  });
+
+  it('T20 und T19 verdeckt → T18', () => {
+    const t19 = aimPoint(parseField('T19'));
+    const plan = planAim(parseField('T20'), [{ x: t20.x, y: t20.y - 5 }, { x: t19.x, y: t19.y + 5 }]);
+    expect(fieldLabel(plan.target)).toBe('T18');
+  });
+
+  it('Dart steckt im T20 selbst → weiter T20, aber seitlich daneben (noch im T20)', () => {
+    const plan = planAim(parseField('T20'), [{ x: t20.x + 1, y: t20.y }]);
+    expect(fieldLabel(plan.target)).toBe('T20');
+    expect(Math.hypot(plan.point.x - t20.x, plan.point.y - t20.y)).toBeGreaterThan(7);
+    expect(fieldLabel(fieldAt(plan.point))).toBe('T20');
+  });
+
+  it('verdecktes Double ohne Ersatz → seitlich auf dasselbe Double', () => {
+    const d16 = aimPoint(parseField('D16'));
+    const plan = planAim(parseField('D16'), [{ x: d16.x * 0.97, y: d16.y * 0.97 }]); // knapp innen, Single 16
+    expect(fieldLabel(plan.target)).toBe('D16');
+    expect(fieldLabel(fieldAt(plan.point))).toBe('D16');
   });
 });

@@ -568,9 +568,13 @@ Jede Partie ist ein normales Spiel mit eigener `gameId` und `tournamentMatchId`.
 
 **Umsetzung (Phase 3, 26.10.2026)**
 
-- Eingestellte Streuung σ je Stufe (10 000 Legs, Kontrolle mit anderem Zufall): 1 = 34,7 mm (24,98), 2 = 24 (34,77), 3 = 18,2 (45,13), 4 = 15,6 (52,02), 5 = 13,3 (60,22), 6 = 11,7 (66,83), 7 = 10,1 (75,17), 8 = 8,7 (83,23), 9 = 7,3 (92,89), 10 = 6,4 (99,40). Ein Test prüft Stufe 1, 5 und 10 bei jedem Lauf mit festem Zufall.
+- Eingestellte Streuung σ je Stufe (10 000 Legs, Kontrolle mit anderem Zufall, inklusive Ausweichen bei verdeckten Zielen): 1 = 34,7 mm (24,96), 2 = 24 (34,74), 3 = 18,1 (45,16), 4 = 15,6 (51,74), 5 = 13,2 (60,24), 6 = 11,6 (66,73), 7 = 10 (74,77), 8 = 8,5 (83,16), 9 = 7,1 (92,54), 10 = 6,1 (100,34). Ein Test prüft Stufe 1, 5 und 10 bei jedem Lauf mit festem Zufall.
 - Zielpunkt ist die Mitte des Feldes; beim Single das große äußere Segment. Ohne Checkout mit den übrigen Darts stellt der Computer einen Rest, der mit 2 Darts checkbar ist, und wirft nie absichtlich über.
 - Zielwahl in den Phase-3-Modi: Count-Up T20; Around the Clock das aktuelle Ziel im gewählten Ring (am Bull die Mitte); Halve-It das Ziel (beliebiges Double: D20, beliebiges Triple: T20); Killer erst die eigene Zahl, als Killer der Gegner mit den wenigsten Leben; 121 wie X01. In Treffer/Falsch-Modi (Training, Bob's 27) zielt er auf das Double; „Treffer“, wenn der Dart genau dort landet.
+- **Verdeckte Ziele** (Wunsch Gianluca, 26.10.2026): Die App merkt sich, wo die Darts des Computers in der laufenden Aufnahme stecken (mm). Steckt einer näher als 7 mm am Zielpunkt des nächsten Darts:
+  - knapp verfehlt (Dart steckt nicht im Zielfeld) und das Ziel ist T20, T19 oder T18 → Wechsel auf das nächste freie dieser Triples (T20 → T19 → T18);
+  - sonst (Dart steckt im Zielfeld, oder es gibt kein Ersatzfeld, z. B. beim Checkout-Double) → 8 mm seitlich entlang des Rings daneben zielen, weg vom steckenden Dart.
+  Die Simulation für die Stufen enthält dieses Verhalten.
 - Beim Ausbullen wirft der Computer mit der Streuung seiner Stufe um den Mittelpunkt.
 - Während der Computer wirft, sind Board und Eingabeflächen gesperrt. Fragen im Spiel (z. B. nach einem Shanghai) beantwortet der Mensch.
 - Auswahl im Setup: „Computer, Stufe 1–10“ und „+ Computer“, auch mehrere; Name „Computer 5“.

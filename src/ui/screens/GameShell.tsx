@@ -4,7 +4,7 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { CoreState, DartView, EditPlan, TurnBase } from '../../engine/core';
-import { BOT_DELAY_MS, BOT_SIGMA, throwAt } from '../../engine/bot';
+import { BOT_DELAY_MS, BOT_SIGMA, planAim, throwAtPoint, type Point } from '../../engine/bot';
 import { botAim, sameField } from '../../engine/botaim';
 import type { DartPayload, GameEvent, NewAppEvent, NewEvent } from '../../engine/events';
 import type { AnyGameState, GameInfo } from '../../engine/games';
@@ -85,13 +85,23 @@ export function GameShell(p: ShellProps) {
   // Computergegner (SPEC 9): Ist er dran, wirft er Dart für Dart mit kurzer Pause. „Weiter“ tippt der Mensch.
   const bot = game.created.participants.find((x) => x.slot === state.next?.slot && x.kind === 'bot');
   const botTurn = !!bot && !state.finished;
+  const botStuck = useRef<{ key: string; points: Point[] }>({ key: '', points: [] });
   const nextKey = state.next ? `${state.next.leg}|${state.next.slot}|${state.next.turnIndex}|${state.next.dartIndex}` : '';
   useEffect(() => {
     if (!bot || state.finished || editing || p.blockConfirm || !state.next || busy) return;
     const timer = setTimeout(() => {
-      const aim = botAim({ mode: game.created.mode, state } as AnyGameState);
-      if (!aim) return;
-      const landed = throwAt(aim, BOT_SIGMA[bot.botLevel ?? 5], Math.random);
+      const wanted = botAim({ mode: game.created.mode, state } as AnyGameState);
+      if (!wanted || !state.next) return;
+      // Stellen der Darts, die in dieser Aufnahme schon stecken: Verdecken sie das Ziel, weicht er aus.
+      const turnKey = `${state.next.leg}|${state.next.slot}|${state.next.turnIndex}`;
+      if (botStuck.current.key !== turnKey) botStuck.current = { key: turnKey, points: [] };
+      // Nach Rückgängig stecken nur noch die Darts vor dieser Position
+      botStuck.current.points = botStuck.current.points.slice(0, state.next.dartIndex - 1);
+      const plan = planAim(wanted, botStuck.current.points);
+      const thrown = throwAtPoint(plan.point, BOT_SIGMA[bot.botLevel ?? 5], Math.random);
+      botStuck.current.points.push(thrown.point);
+      const aim = plan.target;
+      const landed = thrown.field;
       const ev = p.hitMiss
         ? sameField(landed, aim)
           ? p.hitMiss.onHit('bot')
