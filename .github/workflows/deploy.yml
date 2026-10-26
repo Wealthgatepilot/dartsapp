@@ -19,6 +19,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Ein normaler Lauf dauert 3–4 Minuten. Ohne Grenze wartet GitHub bei einem Hänger 6 Stunden
+    # und hält alle späteren Veröffentlichungen auf.
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,7 +31,14 @@ jobs:
       - run: npm ci
       - run: npm test
       # Handy-Durchläufe (iPhone = WebKit, Android = Chromium) vor jeder Veröffentlichung
-      - run: npx playwright install --with-deps webkit chromium
+      # Das Herunterladen der Browser bleibt selten an einem Paket-Server hängen (26.10.2026):
+      # dann nach 5 Minuten abbrechen und bis zu dreimal neu versuchen.
+      - run: |
+          for i in 1 2 3; do
+            timeout 300 npx playwright install --with-deps webkit chromium && exit 0
+            echo "Versuch $i hing oder schlug fehl, neuer Versuch …"
+          done
+          exit 1
       - run: npm run e2e
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
@@ -38,6 +48,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
