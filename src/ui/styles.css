@@ -1989,3 +1989,7 @@ button.pill-x {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.match-row .btn-small.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
