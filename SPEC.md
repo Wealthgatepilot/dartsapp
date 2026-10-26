@@ -536,8 +536,9 @@ Regeln:
 2. Darts je Versuch: unter 100 → 6 (2 Aufnahmen), ab 100 → 9 (3 Aufnahmen). Spieler wechseln sich je Aufnahme ab.
 3. X01-Regeln für Bust und Out; ein Bust beendet die Aufnahme, der Rest springt auf den Stand vor der Aufnahme zurück.
 4. Nicht geschafft → dieselbe Zahl noch einmal (neuer Versuch). Geschafft → nächste Runde.
-5. Vor einer Aufnahme (noch kein Dart darin) kann der Spieler die Zahl **überspringen**; sie zählt als nicht geschafft. Das ist ein Ereignis `game.decision` mit `kind = skip` für diese Aufnahme; Rückgängig nimmt es zurück, wenn es das Letzte war.
-6. Wer alle Runden geschafft oder übersprungen hat, ist fertig. Spielende, wenn alle fertig sind. Es gewinnt, wer die meisten Zahlen geschafft hat, bei Gleichstand wer dafür insgesamt weniger Darts gebraucht hat; sonst geteilter Sieg.
+5. Vor einer Aufnahme (noch kein Dart darin) kann der Spieler die Zahl **überspringen**; sie zählt als nicht geschafft. Das ist ein Ereignis `game.decision` mit `kind = skip` für diese Aufnahme; Rückgängig nimmt es zurück, wenn es das Letzte war. Mehrere Zahlen lassen sich direkt hintereinander überspringen, auch die letzte (Fehler behoben 27.10.2026).
+6. Wer alle Runden geschafft oder übersprungen hat, ist fertig. Spielende, wenn alle fertig sind.
+   Ist der Erste fertig und andere noch nicht, fragt die App einmal: **Weiterspielen** oder **Spiel beenden** (Wunsch Gianluca, 27.10.2026). Die Antwort ist ein Ereignis `game.decision` mit `kind = finishEnd` und `end` (ja/nein) vor der Aufnahme, die gerade dran ist; Rückgängig nimmt es zurück. Weiterspielen: Alles danach zählt normal in Ergebnis und Statistik, die Frage kommt nicht wieder. Spiel beenden: Alle gelten als fertig, gewertet wird der Stand; angefangene und nicht gespielte Zahlen zählen weder als geschafft noch als übersprungen und nicht in die Statistik. Es gewinnt, wer die meisten Zahlen geschafft hat, bei Gleichstand wer dafür insgesamt weniger Darts gebraucht hat; sonst geteilter Sieg.
 7. Je Runde wird festgehalten: Zahl, Versuche, Darts, geschafft/übersprungen – Grundlage für eine spätere Statistik je Finish-Bereich (z. B. 70–79 … 160–170).
 
 Kennzahlen: Anteil geschafft, Anteil im ersten Versuch, Darts je Finish (Vergleichsgruppe: Runden + Out). Der Computer überspringt nie.
@@ -914,7 +915,9 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G62 | 121 (Zufall), Zahl ≥ 100 | 3 Aufnahmen ohne Checkout | erst nach 9 Darts neuer Versuch |
 | G63 | 121 (Zufall), Zahl 81 | T19 D12 | Checkout → Runde geschafft, nächste Zahl |
 | G64 | 121 (Zufall), letzte Runde | „Zahl überspringen“ | Runde nicht geschafft, Spieler fertig; Rückgängig hebt das Überspringen auf |
-| G65 | 121 (Zufall), 2 Spieler, 1 Runde | A checkt mit 3 Darts, B überspringt | A gewinnt (mehr geschaffte Zahlen vor weniger Darts) |
+| G65 | 121 (Zufall), 2 Spieler, 1 Runde | A checkt mit 3 Darts, „Weiterspielen“, B überspringt | A gewinnt (mehr geschaffte Zahlen vor weniger Darts) |
+| G77 | 121 (Zufall), 3 Runden | dreimal „Zahl überspringen“ ohne Dart dazwischen | jede Zahl übersprungen, Spieler fertig; Rückgängig nimmt eines nach dem anderen zurück |
+| G78 | 121 (Zufall), 2 Spieler, 1 Runde | A checkt | Frage „Weiterspielen oder Spiel beenden?“; Weiterspielen → Spiel läuft, keine neue Frage; Beenden → Spielende, A gewinnt; Rückgängig hebt das Beenden auf |
 | G66 | Turnier K.-o., 5 Teilnehmer | Auslosung | Feld 8, 3 Freilose, nie zwei Freilose in einer Partie; wer ein Freilos hat, steht in Runde 2 |
 | G67 | Turnier K.-o., 2 Teilnehmer | — | nur eine Partie (Finale) |
 | G68 | Jeder gegen jeden, 4 Teilnehmer | — | 3 Runden à 2 Partien, jede Paarung genau einmal; „zweimal“: 6 Runden, jede Paarung zweimal mit getauschtem Anwurf |

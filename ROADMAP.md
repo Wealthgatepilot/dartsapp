@@ -282,6 +282,16 @@ Entscheidungen Gianluca: alle Duell-Modi (X01, Cricket, Shanghai, Count-Up, Arou
 | Gleichstand per Knopf „Wer war näher?“ | Mit Computer nicht machbar; das vorhandene Ausbullen kann beides. |
 | Computer-Partien Dart für Dart zuschauen | Gianluca wählt automatisches Ausspielen. |
 
+**Rückmeldung vom Spielen: 121 mit zufälligen Zahlen (27.10.2026)**
+
+- [x] Fehler behoben: Zwei Zahlen direkt hintereinander überspringen ging nicht (das zweite Überspringen wurde als doppelt ignoriert), deshalb ließ sich die letzte Zahl nicht überspringen. Prüffall G77.
+- [x] Neu: Ist der Erste fertig, fragt die App einmal „Weiterspielen“ oder „Spiel beenden“ (SPEC 121 Regel 6, Prüffall G78).
+- [x] Die Liste der checkbaren Zahlen wird nur noch einmal berechnet (121-Tests von 44 s auf unter 1 s).
+
+Annahmen: Die Frage kommt nur einmal je Spiel, auch bei mehr als 2 Spielern; Rückgängig im Fenster nimmt den letzten Dart zurück. Beim Beenden zählen angefangene Zahlen weder als geschafft noch als übersprungen und nicht in die Statistik; nach „Weiterspielen“ zählt alles normal. Ältere Spiele, in denen jemand vergeblich zweimal übersprungen hat, rechnen das zweite Überspringen jetzt mit.
+
+Verworfen: „Spiel beenden“ als dauerhafter Knopf (Gianluca wünscht eine Frage im richtigen Moment); Beenden durch automatisches Überspringen aller offenen Zahlen (würde die Statistik verfälschen).
+
 ## Phase 5 – Daten mehrerer Geräte
 
 - Import mit Zusammenführen, Profile verknüpfen (`profile.linked`)

@@ -7,6 +7,7 @@ import {
   DEFAULT_FINISH,
   computeFinish,
   confirmFinishTurn,
+  decideFinishEnd,
   finishPool,
   finishSequence,
   skipFinish,
@@ -137,9 +138,49 @@ describe('121 mit zufälligen Finishes', () => {
     expect(skipFinish(g.state)).toEqual([]);
   });
 
+  it('G77: mehrere Zahlen hintereinander überspringen, auch die letzte', () => {
+    const g = Finish.create({ rounds: 3 }, 1);
+    g.add(skipFinish(g.state));
+    g.add(skipFinish(g.state));
+    expect(g.state.players[A].round).toBe(2);
+    expect(g.state.canSkip).toBe(true);
+    g.add(skipFinish(g.state));
+    expect(g.state.finished).toBe(true);
+    expect(g.state.players[A].results.map((r) => r.skipped)).toEqual([true, true, true]);
+    // Rückgängig nimmt ein Überspringen nach dem anderen zurück
+    g.add(undoFinish(g.state, g.events));
+    expect(g.state.finished).toBe(false);
+    expect(g.state.players[A].round).toBe(2);
+  });
+
+  it('G78: Erster fertig → Frage; „Spiel beenden“ wertet den Stand, „Weiterspielen“ fragt nicht wieder', () => {
+    const g = Finish.create({ rounds: 1 }, 2, 81);
+    expect(g.state.askEnd).toBe(false);
+    g.turn('T19', 'S4', 'D10'); // A checkt 81 → fertig, B noch nicht
+    expect(g.state.askEnd).toBe(true);
+    expect(g.state.canSkip).toBe(false);
+
+    const cont = new Finish(g.setup.settings, 2, g.setup.seed);
+    cont.events = [...g.events];
+    cont.add(decideFinishEnd(cont.state, false));
+    expect(cont.state.askEnd).toBe(false);
+    expect(cont.state.finished).toBe(false);
+    expect(cont.state.canSkip).toBe(true);
+
+    g.add(decideFinishEnd(g.state, true));
+    expect(g.state.finished).toBe(true);
+    expect(g.state.matchWinners).toEqual([A]);
+    expect(g.state.players[B].round).toBe(0); // B hatte noch eine offene Zahl
+    // Rückgängig hebt das Beenden auf, die Frage kommt wieder
+    g.add(undoFinish(g.state, g.events));
+    expect(g.state.finished).toBe(false);
+    expect(g.state.askEnd).toBe(true);
+  });
+
   it('G65: mehr geschaffte Zahlen gewinnen vor weniger Darts', () => {
     const g = Finish.create({ rounds: 1 }, 2, 81);
     g.turn('T19', 'S4', 'D10'); // A: 57 + 4 + 20 = 81
+    g.add(decideFinishEnd(g.state, false)); // weiterspielen
     g.add(skipFinish(g.state)); // B überspringt, 0 Darts
     expect(g.state.finished).toBe(true);
     expect(g.state.matchWinners).toEqual([A]);

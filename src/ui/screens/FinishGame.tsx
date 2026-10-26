@@ -6,6 +6,7 @@ import { formatCheckout, suggestCheckout } from '../../engine/checkout';
 import {
   computeFinish,
   confirmFinishTurn,
+  decideFinishEnd,
   planFinishEdit,
   skipFinish,
   throwFinishDart,
@@ -79,8 +80,44 @@ export function FinishGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps)
         const x = t as FinishTurn;
         return x.checkout ? `Checkout ${x.target}` : x.bust ? 'Bust' : `Rest ${x.endRest}`;
       }}
+      blockConfirm={state.askEnd}
+      overlay={(act) =>
+        state.askEnd ? (
+          <EndQuestion
+            done={game.order.filter((slot) => state.players[slot].round >= s.rounds).map(nameOf)}
+            onEnd={() => act(decideFinishEnd(state, true))}
+            onContinue={() => act(decideFinishEnd(state, false))}
+            onUndo={() => act(undoFinish(state, gameEvents))}
+          />
+        ) : null
+      }
       endTable={<Results state={state} order={game.order} nameOf={nameOf} />}
     />
+  );
+}
+
+/** Der Erste ist fertig: weiterspielen, bis alle fertig sind, oder das Spiel jetzt beenden. */
+function EndQuestion({ done, onEnd, onContinue, onUndo }: { done: string[]; onEnd: () => void; onContinue: () => void; onUndo: () => void }) {
+  return (
+    <div class="modal-backdrop">
+      <div class="modal" role="dialog" aria-label="Weiterspielen?">
+        <header class="modal-head">
+          <h2>✓ {done.join(', ')} {done.length > 1 ? 'sind' : 'ist'} fertig</h2>
+        </header>
+        <div class="modal-body">
+          <p>Weiterspielen, bis alle fertig sind, oder das Spiel jetzt beenden? Beim Beenden zählt, was bis jetzt geschafft ist.</p>
+          <button class="btn btn-primary" onClick={onContinue}>
+            Weiterspielen
+          </button>
+          <button class="btn" onClick={onEnd}>
+            Spiel beenden
+          </button>
+          <button class="btn" onClick={onUndo}>
+            ↶ Rückgängig (Dart falsch eingegeben)
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

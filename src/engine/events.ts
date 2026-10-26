@@ -57,6 +57,8 @@ export type DecisionPayload = { gameId: string; slot: number; turnIndex: number 
   | { kind: 'shanghai'; end: boolean }
   /** 121: aktuelle Zahl überspringen (zählt als nicht geschafft), vor der Aufnahme turnIndex. */
   | { kind: 'skip' }
+  /** 121: Der Erste ist fertig – Spiel beenden (true) oder weiterspielen (false), vor der Aufnahme turnIndex. */
+  | { kind: 'finishEnd'; end: boolean }
 );
 
 /** Ein Ausbullen-Dart: angetippte Stelle in mm vom Mittelpunkt (x nach rechts, y nach unten), SPEC 6.4. */

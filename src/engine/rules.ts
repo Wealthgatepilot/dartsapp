@@ -438,6 +438,7 @@ export function finishRules(s: FinishSettings): string[] {
       : 'Wie bei X01 mit Master-Out: genau auf 0, der letzte Dart ein Double oder Triple. Überwerfen oder Rest 1 ist ein Bust: zurück auf den Stand vor der Aufnahme.',
     'Schaffst du die Zahl nicht, versuchst du dieselbe noch einmal. Erst wenn du sie geschafft hast, kommt die nächste. Vor einer Aufnahme kannst du die Zahl überspringen – dann zählt sie als nicht geschafft.',
     'Es gewinnt, wer die meisten Zahlen geschafft hat, bei Gleichstand wer dafür weniger Darts gebraucht hat.',
+    'Ist der Erste fertig, fragt die App: weiterspielen, bis alle fertig sind, oder das Spiel beenden. Beim Beenden zählt der Stand bis dahin.',
   ];
 }
 

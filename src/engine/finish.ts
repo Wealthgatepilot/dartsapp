@@ -41,10 +41,16 @@ export function validateFinish(s: FinishSettings): string[] {
   return Number.isInteger(s.rounds) && s.rounds >= 1 && s.rounds <= 50 ? [] : ['Runden 1 bis 50.'];
 }
 
-/** Alle Restzahlen 70–170, die mit 3 Darts checkbar sind. */
+const pools = new Map<FinishSettings['outMode'], number[]>();
+
+/** Alle Restzahlen 70–170, die mit 3 Darts checkbar sind (einmal je Out-Art berechnet). */
 export function finishPool(out: FinishSettings['outMode']): number[] {
-  const pool: number[] = [];
-  for (let n = FINISH_MIN; n <= FINISH_MAX; n++) if (suggestCheckout(n, 3, out, 'expert')) pool.push(n);
+  let pool = pools.get(out);
+  if (!pool) {
+    pool = [];
+    for (let n = FINISH_MIN; n <= FINISH_MAX; n++) if (suggestCheckout(n, 3, out, 'expert')) pool.push(n);
+    pools.set(out, pool);
+  }
   return pool;
 }
 
@@ -106,6 +112,8 @@ export interface FinishTurnData {
 
 export interface FinishLegState {
   players: Record<number, FinishPlayer>;
+  /** „Spiel beenden“, nachdem der Erste fertig war: alle gelten als fertig. */
+  stopped?: boolean;
 }
 
 export type FinishTurn = CoreTurn<FinishTurnData>;
@@ -115,26 +123,47 @@ export type FinishState = CoreState<FinishLegState, FinishTurnData> & {
   sequences: Record<number, number[]>;
   /** Überspringen vor der Aufnahme, die gerade dran ist, erlaubt (noch kein Dart in dieser Aufnahme). */
   canSkip: boolean;
+  /** Frage „Weiterspielen oder Spiel beenden?“ steht an: der Erste ist fertig, andere nicht, noch nicht beantwortet. */
+  askEnd: boolean;
 };
 
 const qualifiesOut = (out: FinishSettings['outMode'], f: Field) => (out === 'double' ? f.m === 2 : f.m >= 2);
 const skipKey = (slot: number, turnIndex: number) => `${slot}|${turnIndex}`;
 
-/** Gültige „Überspringen“-Antworten: Platz|Aufnahme → Ereignis-ID. */
-function collectSkips(gameId: string, events: readonly GameEvent[]): Map<string, string> {
+/**
+ * Gültige „Überspringen“-Antworten: Platz|Aufnahme → Ereignis-IDs in Reihenfolge.
+ * Mehrere Zahlen hintereinander überspringen (ohne Dart dazwischen) ergibt mehrere Antworten vor derselben Aufnahme.
+ */
+function collectSkips(gameId: string, events: readonly GameEvent[]): Map<string, string[]> {
   const voided = voidedIds(events);
-  const map = new Map<string, string>();
+  const map = new Map<string, string[]>();
   for (const e of events) {
     if (e.type !== 'game.decision' || voided.has(e.id) || e.payload.gameId !== gameId || e.payload.kind !== 'skip') continue;
-    map.set(skipKey(e.payload.slot, e.payload.turnIndex), e.id);
+    const k = skipKey(e.payload.slot, e.payload.turnIndex);
+    map.set(k, [...(map.get(k) ?? []), e.id]);
   }
   return map;
 }
 
-function finishRules(setup: FinishSetup, skips: Map<string, string>): Rules<FinishLegState, FinishTurnData> {
+/** Antworten auf „Weiterspielen oder Spiel beenden?“: beantwortet ja/nein, Platz|Aufnahme des Beendens. */
+function collectEnd(gameId: string, events: readonly GameEvent[]) {
+  const voided = voidedIds(events);
+  let answered = false;
+  let stopAt: string | null = null;
+  const ids: string[] = [];
+  for (const e of events) {
+    if (e.type !== 'game.decision' || voided.has(e.id) || e.payload.gameId !== gameId || e.payload.kind !== 'finishEnd') continue;
+    answered = true;
+    ids.push(e.id);
+    if (e.payload.end) stopAt ??= skipKey(e.payload.slot, e.payload.turnIndex);
+  }
+  return { answered, stopAt, ids };
+}
+
+function finishRules(setup: FinishSetup, skips: Map<string, string[]>, stopAt: string | null): Rules<FinishLegState, FinishTurnData> {
   const { settings: s, order } = setup;
   const seqs = Object.fromEntries(order.map((slot) => [slot, finishSequence(setup, slot)]));
-  const isDone = (ls: FinishLegState, slot: number) => ls.players[slot].round >= s.rounds;
+  const isDone = (ls: FinishLegState, slot: number) => !!ls.stopped || ls.players[slot].round >= s.rounds;
 
   const current = (p: FinishPlayer) => p.results[p.round];
   /** Weiter zur nächsten Runde (nach Erfolg oder Überspringen). */
@@ -162,8 +191,11 @@ function finishRules(setup: FinishSetup, skips: Map<string, string>): Rules<Fini
     }),
     newTurn: (ls, slot, turnIndex) => {
       const p = ls.players[slot];
-      // „Zahl überspringen“ vor dieser Aufnahme
-      if (skips.has(skipKey(slot, turnIndex)) && !isDone(ls, slot)) {
+      // „Spiel beenden“ vor dieser Aufnahme: angefangene Zahlen bleiben offen
+      if (stopAt === skipKey(slot, turnIndex)) ls.stopped = true;
+      // „Zahl überspringen“ vor dieser Aufnahme, auch mehrmals hintereinander
+      for (const _ of skips.get(skipKey(slot, turnIndex)) ?? []) {
+        if (isDone(ls, slot)) break;
         current(p).skipped = true;
         nextRound(p, slot);
       }
@@ -231,16 +263,27 @@ function finishRules(setup: FinishSetup, skips: Map<string, string>): Rules<Fini
 
 export function computeFinish(setup: FinishSetup, events: readonly GameEvent[]): FinishState {
   const skips = collectSkips(setup.gameId, events);
-  const core = computeCore(finishRules(setup, skips), events);
+  const end = collectEnd(setup.gameId, events);
+  const core = computeCore(finishRules(setup, skips, end.stopAt), events);
   const players = core.legs[0].state.players;
   const pos = core.next;
+  const done = setup.order.filter((slot) => players[slot].round >= setup.settings.rounds).length;
+  const askEnd = !!pos && pos.dartIndex === 1 && !end.answered && done > 0 && done < setup.order.length;
   return {
     ...core,
     setup,
     players,
     sequences: Object.fromEntries(setup.order.map((slot) => [slot, finishSequence(setup, slot)])),
-    canSkip: !!pos && pos.dartIndex === 1,
+    canSkip: !!pos && pos.dartIndex === 1 && !askEnd,
+    askEnd,
   };
+}
+
+/** Antwort auf „Weiterspielen oder Spiel beenden?“ vor der Aufnahme, die gerade dran ist. */
+export function decideFinishEnd(state: FinishState, end: boolean): NewEvent[] {
+  const pos = state.next;
+  if (!pos || !state.askEnd) return [];
+  return [{ type: 'game.decision', payload: { gameId: state.gameId, slot: pos.slot, turnIndex: pos.turnIndex, kind: 'finishEnd', end } }];
 }
 
 export function throwFinishDart(state: FinishState, field: Field, input: DartPayload['input'] = 'board'): NewEvent | null {
@@ -258,9 +301,9 @@ export function skipFinish(state: FinishState): NewEvent[] {
   return [{ type: 'game.decision', payload: { gameId: state.gameId, slot: pos.slot, turnIndex: pos.turnIndex, kind: 'skip' } }];
 }
 
-/** Rückgängig nimmt das Letzte zurück: ein Überspringen oder (wie sonst) Dart bzw. Weiter. */
+/** Rückgängig nimmt das Letzte zurück: ein Überspringen, eine Antwort auf die Beenden-Frage oder (wie sonst) Dart bzw. Weiter. */
 export function undoFinish(state: FinishState, events: readonly GameEvent[]): NewEvent[] {
-  const skipIds = new Set(collectSkips(state.gameId, events).values());
+  const skipIds = new Set([...[...collectSkips(state.gameId, events).values()].flat(), ...collectEnd(state.gameId, events).ids]);
   const lastAction = state.actions[state.actions.length - 1]?.id;
   for (let i = events.length - 1; i >= 0; i--) {
     const id = events[i].id;
