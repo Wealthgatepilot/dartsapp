@@ -4,6 +4,7 @@ import { computeBobs, type BobsSetup, type BobsState } from './bobs';
 import { atcVariantLabel, computeAtc, type AtcSetup, type AtcState } from './atc';
 import { computeCountUp, type CountUpSetup, type CountUpState } from './countup';
 import { computeCricket, type CricketSetup, type CricketState } from './cricket';
+import { computeOne21, type One21Setup, type One21State } from './one21';
 import { computeHalveIt, type HalveItSetup, type HalveItState } from './halveit';
 import { computeDoubles, type DoublesSetup, type DoublesState } from './doubles';
 import { computeShanghai, type ShanghaiSetup, type ShanghaiState } from './shanghai';
@@ -111,6 +112,12 @@ export function halveItSetupOf(game: GameInfo): HalveItSetup {
   return { gameId: c.gameId, settings: c.settings, order: game.order };
 }
 
+export function one21SetupOf(game: GameInfo): One21Setup {
+  const c = game.created;
+  if (c.mode !== 'one21') throw new Error('Kein 121-Spiel');
+  return { gameId: c.gameId, settings: c.settings, order: game.order };
+}
+
 export type AnyGameState =
   | { mode: 'x01'; state: X01State }
   | { mode: 'cricket'; state: CricketState }
@@ -119,7 +126,8 @@ export type AnyGameState =
   | { mode: 'countup'; state: CountUpState }
   | { mode: 'atc'; state: AtcState }
   | { mode: 'bobs'; state: BobsState }
-  | { mode: 'halveit'; state: HalveItState };
+  | { mode: 'halveit'; state: HalveItState }
+  | { mode: 'one21'; state: One21State };
 
 /** Spielstand eines beliebigen Spiels. */
 export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGameState {
@@ -141,6 +149,8 @@ export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGam
       return { mode: 'bobs', state: computeBobs(bobsSetupOf(game), evs) };
     case 'halveit':
       return { mode: 'halveit', state: computeHalveIt(halveItSetupOf(game), evs) };
+    case 'one21':
+      return { mode: 'one21', state: computeOne21(one21SetupOf(game), evs) };
   }
 }
 
@@ -165,5 +175,7 @@ export function gameTitle(c: GameCreatedPayload): string {
       return "Bob's 27";
     case 'halveit':
       return 'Halve-It';
+    case 'one21':
+      return '121';
   }
 }

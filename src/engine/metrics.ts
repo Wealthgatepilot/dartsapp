@@ -6,13 +6,14 @@ import type { AtcState } from './atc';
 import type { BobsState } from './bobs';
 import type { CountUpState } from './countup';
 import type { HalveItState } from './halveit';
+import type { One21State } from './one21';
 import type { CricketLeg, CricketTurn } from './cricket';
 import type { DoublesState } from './doubles';
 import type { ShanghaiState, ShanghaiTurn } from './shanghai';
 import { BULL, fieldLabel } from './types';
 import type { InOut, Leg as X01Leg, Turn as X01Turn } from './x01';
 
-export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup' | 'atc' | 'bobs' | 'halveit';
+export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup' | 'atc' | 'bobs' | 'halveit' | 'one21';
 
 /** Würfe und Treffer je Double (Schlüssel D1 … D20, DB). */
 export type DoubleTally = Record<string, { darts: number; hits: number }>;
@@ -297,6 +298,37 @@ export function halveItMetrics(state: HalveItState, slot: number, limit = Infini
     if (t.halved) m.points = Math.floor(m.points / 2);
   }
   m.hitRate = ratio(m.hits * 100, m.darts);
+  return m;
+}
+
+// ---------- 121 (SPEC 7.7) ----------
+
+export interface One21Metrics {
+  darts: number;
+  /** Beendete Versuche (mit oder ohne Erfolg) in den ausgewerteten Darts. */
+  attempts: number;
+  successes: number;
+  /** Erfolge / Versuche × 100 */
+  successRate: number | null;
+  highestTarget: number | null;
+}
+
+export function one21Metrics(state: One21State, slot: number, limit = Infinity): One21Metrics {
+  const m: One21Metrics = { darts: 0, attempts: 0, successes: 0, successRate: null, highestTarget: null };
+  outer: for (const t of state.legs[0].turns.filter((x) => x.slot === slot)) {
+    for (const _ of t.darts) {
+      if (m.darts >= limit) break outer;
+      m.darts++;
+    }
+    if (t.checkout) {
+      m.attempts++;
+      m.successes++;
+      m.highestTarget = Math.max(m.highestTarget ?? 0, t.target);
+    } else if (t.failed) {
+      m.attempts++;
+    }
+  }
+  m.successRate = ratio(m.successes * 100, m.attempts);
   return m;
 }
 

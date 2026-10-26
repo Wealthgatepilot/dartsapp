@@ -169,6 +169,10 @@ export function Home() {
           <strong>Bob's 27</strong>
           <span class="muted">Alle Doubles, Punkte gegen dich</span>
         </a>
+        <a class="menu-item menu-main" href={href({ name: 'one21' })}>
+          <strong>121</strong>
+          <span class="muted">Checkouts mit festen Darts</span>
+        </a>
       </nav>
 
       <h2 class="section-title">Mehr</h2>

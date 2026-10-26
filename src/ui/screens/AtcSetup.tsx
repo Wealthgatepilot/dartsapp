@@ -88,6 +88,9 @@ export function AtcSetup() {
             />
           </div>
         )}
+        {s.ring === 'any' && (
+          <p class="muted small">Sprünge: Ein Double bringt dich 2 Ziele weiter, ein Triple 3. Singles zählen wie immer 1.</p>
+        )}
       </section>
 
       <StartButton errors={errors} onStart={go} />

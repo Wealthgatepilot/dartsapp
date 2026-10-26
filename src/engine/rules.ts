@@ -3,6 +3,7 @@
 import type { CricketSettings } from './cricket';
 import { targetsOf, type DoublesSettings } from './doubles';
 import { halveTargetName, type HalveItSettings } from './halveit';
+import type { One21Settings } from './one21';
 import type { AtcSettings } from './atc';
 import type { BobsSettings } from './bobs';
 import type { CountUpSettings } from './countup';
@@ -357,6 +358,37 @@ export function halveItVariants(): Variant[] {
       name: 'Startpunkte',
       text: 'Mit Startpunkten (z. B. 40) hat ein früher Fehlwurf weniger Gewicht, weil es schon etwas zu halbieren gibt.',
     },
+    ...START_VARIANTS,
+  ];
+}
+
+export function one21Rules(s: One21Settings): string[] {
+  const turns = s.dartsPerAttempt / 3;
+  return [
+    `Ziel ist, ${s.startTarget} zu checken. Für jeden Versuch hast du ${s.dartsPerAttempt} Darts (${turns === 1 ? '1 Aufnahme' : `${turns} Aufnahmen`}); die Spieler wechseln sich nach jeder Aufnahme ab.`,
+    s.outMode === 'double'
+      ? 'Wie bei X01 mit Double-Out: genau auf 0, der letzte Dart ein Double (auch das Bullseye).'
+      : 'Wie bei X01 mit Master-Out: genau auf 0, der letzte Dart ein Double oder Triple (auch das Bullseye).',
+    'Überwirfst du oder bleibt 1 übrig, ist die Aufnahme ein Bust: Der Rest springt auf den Stand vor der Aufnahme zurück. Der Versuch geht mit der nächsten Aufnahme weiter, solange er noch Darts hat.',
+    `Schaffst du den Checkout, ist das nächste Ziel 1 höher. Schaffst du ihn nicht, ${
+      s.afterFail === 'same' ? 'bleibt das Ziel gleich' : `geht das Ziel 1 runter (nie unter ${s.startTarget})`
+    }.`,
+    `Jeder hat ${s.attempts === 1 ? '1 Versuch' : `${s.attempts} Versuche`}. Es gewinnt, wer das höchste Ziel gecheckt hat, bei Gleichstand wer öfter gecheckt hat.`,
+  ];
+}
+
+export function one21Variants(): Variant[] {
+  return [
+    { name: 'Startziel', text: 'Üblich ist 121. Niedrigere Ziele (ab 61) eignen sich zum Einstieg, höhere bis 170 für Fortgeschrittene.' },
+    {
+      name: 'Darts pro Versuch',
+      text: '3, 6, 9 oder 12 Darts. Mit 9 Darts (3 Aufnahmen) ist 121 die klassische Form; weniger Darts machen es schwerer.',
+    },
+    { name: 'Double-Out', text: 'Der letzte Dart muss ein Double sein (oder das Bullseye) – wie im Turnier.' },
+    { name: 'Master-Out', text: 'Der letzte Dart darf ein Double oder ein Triple sein – etwas leichter.' },
+    { name: 'Nach Fehlschlag: gleiches Ziel', text: 'Du versuchst dasselbe Ziel noch einmal.' },
+    { name: 'Nach Fehlschlag: Ziel −1', text: 'Das Ziel geht 1 runter, aber nie unter das Startziel – so bleibst du im Bereich, den du schaffst.' },
+    { name: 'Versuche', text: 'Wie viele Versuche jeder Spieler hat (1–50).' },
     ...START_VARIANTS,
   ];
 }

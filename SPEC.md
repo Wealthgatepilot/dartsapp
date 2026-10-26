@@ -500,6 +500,10 @@ Regeln:
 
 Regeln: Pro Versuch ist das Ziel der Rest; X01-Regeln für Bust und Out. Bust setzt auf den Rest am Anfang der Aufnahme zurück, der Versuch läuft weiter, solange Darts übrig sind. Checkout innerhalb der Darts → nächstes Ziel = Ziel + 1. Ergebnis: höchstes gechecktes Ziel und Anzahl Erfolge. Spieler wechseln sich je Aufnahme ab.
 
+Genauer (Annahmen Phase 3): Ein Versuch hat Darts/3 Aufnahmen. Ein Bust beendet die Aufnahme wie bei X01, ihre restlichen Darts verfallen. Ein Checkout beendet Aufnahme und Versuch sofort; der nächste Versuch beginnt mit der nächsten Aufnahme. Das Ziel steigt höchstens bis 170. Das Spiel endet, wenn alle Spieler ihre Versuche gespielt haben. Es gewinnt, wer das höchste Ziel gecheckt hat, bei Gleichstand wer mehr Erfolge hat; sonst teilen sich die Spieler den Sieg. Der Checkout-Vorschlag zeigt wie bei X01 einen Weg für die Darts der laufenden Aufnahme. Kennzahlen: höchstes gechecktes Ziel, Erfolge, Erfolgsquote (Vergleichsgruppe: alle Einstellungen).
+
+**Regeltext:** Ziel und Darts je Versuch; Out und Bust; nach Erfolg bzw. Fehlschlag; Anzahl Versuche; Sieger.
+
 ### 7.8 Bob's 27 (Phase 3)
 
 Ohne Einstellungen außer **„Bei 0 oder weniger ausscheiden“** (**ja**, nein).
@@ -768,6 +772,10 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G49 | Halve-It, 61 Punkte, Ziel 16 | S20, T19, 0 | kein Treffer → 61 / 2 = 30 (abgerundet) |
 | G50 | Halve-It, Ziel „beliebiges Double“ | D5, D20, DB | 10 + 40 + 50 = 100 (Bullseye zählt als Double) |
 | G51 | Halve-It, Ziel Bull bzw. „beliebiges Triple“ | SB, DB bzw. T7, DB | 25 + 50 = 75 bzw. 21 (am Bull gibt es kein Triple) |
+| G52 | 121, Double-Out, Ziel 121 | T20, T20 (Rest 1) | Bust: Rest zurück auf 121, Aufnahme vorbei, Versuch läuft mit der nächsten Aufnahme weiter |
+| G53 | 121, Ziel 121 | T20, T11, D14 | Checkout → Erfolg, nächstes Ziel 122 |
+| G54 | 121, 9 Darts, Ziel 125, „Nach Fehlschlag: −1“ | 3 Aufnahmen ohne Checkout | nächstes Ziel 124; bei Ziel 121 bleibt es 121 (nicht unter das Startziel) |
+| G55 | 121, 1 Versuch, 2 Spieler | A checkt, B nicht | Spielende nach Bs letztem Versuch, A gewinnt (höchstes Ziel, dann Erfolge) |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

@@ -10,6 +10,7 @@ import {
   cricketLegMetrics,
   doublesMetrics,
   halveItMetrics,
+  one21Metrics,
   heatKey,
   shanghaiMetrics,
   x01LegMetrics,
@@ -37,7 +38,10 @@ export type MetricKey =
   | 'points'
   | 'dartsToWin'
   | 'fastestShanghai'
-  | 'hitRate';
+  | 'hitRate'
+  | 'highestTarget'
+  | 'successes'
+  | 'successRate';
 
 export interface MetricDef {
   key: MetricKey;
@@ -90,6 +94,11 @@ export const METRICS: Record<Mode, MetricDef[]> = {
   halveit: [
     { key: 'points', label: 'Endpunkte', better: 'higher', digits: 0 },
     { key: 'hitRate', label: 'Trefferquote', better: 'higher', digits: 1, unit: '%' },
+  ],
+  one21: [
+    { key: 'highestTarget', label: 'Höchstes gechecktes Ziel', better: 'higher', digits: 0 },
+    { key: 'successes', label: 'Erfolge', better: 'higher', digits: 0 },
+    { key: 'successRate', label: 'Erfolgsquote', better: 'higher', digits: 1, unit: '%' },
   ],
 };
 
@@ -166,6 +175,15 @@ export function groupOf(game: GameInfo, slot: number): { group: string; label: s
       return {
         group: `halveit|${c.settings.targets.join(',')}|${c.settings.startPoints}`,
         label: `Halve-It · ${list}${c.settings.startPoints ? ` · Start ${c.settings.startPoints}` : ''}`,
+      };
+    }
+    case 'one21': {
+      const s = c.settings;
+      return {
+        group: `one21|${s.startTarget}|${s.dartsPerAttempt}|${s.outMode}|${s.afterFail}|${s.attempts}`,
+        label: `121 ab ${s.startTarget} · ${s.dartsPerAttempt} Darts · ${s.outMode === 'double' ? 'D' : 'M'}-Out · ${s.attempts} Versuche${
+          s.afterFail === 'down' ? ' · −1' : ''
+        }`,
       };
     }
   }
@@ -338,6 +356,24 @@ export function legRecords(events: readonly AppEvent[]): LegRecord[] {
           doubles: {},
           heat: heatOf(s.legs[0].turns, p.slot),
         });
+      } else if (computed.mode === 'one21') {
+        const s = computed.state;
+        const m = one21Metrics(s, p.slot);
+        if (!m.darts) continue;
+        const values: LegRecord['values'] = { successes: m.successes };
+        if (m.highestTarget !== null) values.highestTarget = m.highestTarget;
+        if (m.successRate !== null) values.successRate = m.successRate;
+        out.push({
+          ...base,
+          mode: 'one21',
+          leg: 1,
+          complete: s.finished,
+          won: !!s.matchWinners?.includes(p.slot),
+          darts: m.darts,
+          values,
+          doubles: {},
+          heat: heatOf(s.legs[0].turns, p.slot),
+        });
       } else if (computed.mode === 'doubles') {
         const s = computed.state;
         const m = doublesMetrics(s, p.slot);
@@ -481,6 +517,11 @@ export function metricsAt(
     const m = halveItMetrics(c.state, slot, limit);
     put('hitRate', m.hitRate);
     v.points = m.points;
+  } else if (c.mode === 'one21') {
+    const m = one21Metrics(c.state, slot, limit);
+    put('highestTarget', m.highestTarget);
+    put('successRate', m.successRate);
+    v.successes = m.successes;
   } else if (c.mode === 'doubles') {
     put('hitRate', doublesMetrics(c.state, slot, limit).hitRate);
   }

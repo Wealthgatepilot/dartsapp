@@ -11,6 +11,7 @@ import { href } from '../router';
 import { AtcGame } from './AtcGame';
 import { BobsGame } from './BobsGame';
 import { HalveItGame } from './HalveItGame';
+import { One21Game } from './One21Game';
 import { CountUpGame } from './CountUpGame';
 import { CricketGame } from './CricketGame';
 import { DoublesGame } from './DoublesGame';
@@ -66,5 +67,7 @@ export function Game({ gameId }: { gameId: string }) {
       return <BobsGame {...props} />;
     case 'halveit':
       return <HalveItGame {...props} />;
+    case 'one21':
+      return <One21Game {...props} />;
   }
 }

@@ -28,6 +28,7 @@ const MODES: { value: Mode; label: string }[] = [
   { value: 'halveit', label: 'Halve-It' },
   { value: 'doubles', label: 'Training' },
   { value: 'bobs', label: "Bob's 27" },
+  { value: 'one21', label: '121' },
 ];
 
 const PERIODS = [
