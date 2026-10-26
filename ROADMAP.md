@@ -178,7 +178,7 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 - [x] Killer (G56–G59); keine Kennzahlen laut SPEC, daher ohne Statistik und 🏆
 - [x] Statistik und Bestleistung für die neuen Modi (Schritt 7) – mit den Modi gleich eingebaut
 - [x] Computergegner Stufe 1–10, eingestellt per Simulation (je 10 000 Legs), in allen Modi und beim Ausbullen; Statistik-Filter „mit/ohne Computer“
-- [ ] **Haltepunkt E** (`docs/PRUEFLISTE-HALTEPUNKT-E.md`)
+- [x] **Haltepunkt E** (`docs/PRUEFLISTE-HALTEPUNKT-E.md`) – laut Gianluca passt es (26.10.2026), dazu umgesetzt: Ausweichen bei verdeckten Zielen, menschliche Schwankungen
 
 Annahmen aus dem Plan: Computer in allen Modi (bei Killer „selbst wählen“ bekommt er eine zufällige freie Zahl); in Treffer/Falsch-Modi zielt er auf das Double und das Board entscheidet; Spiele gegen den Computer zählen fürs Profil, sind in der Statistik filterbar; Killer „selbst wählen“: Zahl im Setup je Spieler auswählen (statt auf dem Board antippen – einfacher und vor dem Start prüfbar), keine doppelt; Sprachausgabe standardmäßig an, „Game Shot“ englisch; Handicap nur bei X01.
 
