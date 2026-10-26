@@ -30,8 +30,14 @@ test('X01: Spielerblöcke mit Legs, Kennzahlen und zweiter Seite', async ({ page
 
   await turn(page, 'T20', 'T20', 'T20');
   await expect(gian.locator('.block-big')).toHaveText('321');
-  await expect(gian.locator('.block-stat', { hasText: 'Letzte Aufnahme' })).toContainText('180');
   await expect(joern).toHaveClass(/active/);
+
+  // Handy quer: Blöcke als schmale Zeilen ohne Kennzahlen (SPEC 5.3)
+  if (page.viewportSize()!.height < 500) {
+    await expect(gian.locator('.block-stats')).toBeHidden();
+    return;
+  }
+  await expect(gian.locator('.block-stat', { hasText: 'Letzte Aufnahme' })).toContainText('180');
 
   // Antippen der Kennzahlen blättert alle Blöcke auf Seite 2
   await gian.locator('.block-stats').click();

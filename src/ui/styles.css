@@ -1593,3 +1593,69 @@ button.pill-x {
     gap: 4px;
   }
 }
+/* Querformat mit viel Höhe (Tablet, Rückmeldung Gianluca): Blöcke größer. */
+@media (orientation: landscape) and (min-height: 600px) {
+  /* Die Anzeige bekommt gut 40 % der Breite, die Scheibe den Rest. */
+  .screen {
+    --board: min(var(--vh) - 16px - var(--inset-y), 58vw - var(--inset-x));
+  }
+  .block {
+    gap: 6px;
+    padding: 10px 14px 8px;
+  }
+  .block-initial {
+    width: 36px;
+    height: 36px;
+    font-size: 17px;
+  }
+  .block-name {
+    font-size: 19px;
+  }
+  .block-badge {
+    min-width: 34px;
+    height: 34px;
+    font-size: 18px;
+  }
+  .block-big,
+  .blocks-1 .block-big {
+    font-size: min(108px, 10vh);
+  }
+  .blocks-many .block-big {
+    font-size: 64px;
+  }
+  .block-stats {
+    font-size: 18px;
+    gap: 4px;
+  }
+}
+/* Querformat mit wenig Höhe (Handy): jeder Block eine schmale Zeile ohne Kennzahlen, damit der Stand sichtbar bleibt. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .blocks {
+    gap: 2px;
+  }
+  .block {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 0 8px;
+    border-width: 2px;
+    overflow: hidden;
+  }
+  .block-head {
+    flex: 1 1 auto;
+  }
+  .block-big,
+  .blocks-1 .block-big,
+  .blocks-many .block-big {
+    order: 2;
+    font-size: 28px;
+    letter-spacing: 0;
+  }
+  .block-note {
+    order: 1;
+  }
+  .block-stats,
+  .block-dots {
+    display: none;
+  }
+}
