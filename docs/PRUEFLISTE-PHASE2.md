@@ -40,7 +40,7 @@ Vorher: In der App auf der Startseite „Jetzt neu laden“ tippen, falls eine n
 ## 6. Statistik
 
 - [ ] Statistik öffnen, Profil und Modus wählen: Verlauf mit Punkten und Durchschnittslinie, Zeitraum umschalten.
-- [ ] Heatmap: Die Felder, auf die du oft wirfst, sind hellrot.
+- [ ] Heatmap: Die Felder, auf die du oft wirfst, sind rot, seltene blau, dazwischen weiß.
 - [ ] Doppelquote je Feld: Training, X01 und zusammen.
 - [ ] Die Zahlen passen grob zu dem, was du gespielt hast.
 

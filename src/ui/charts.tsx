@@ -151,8 +151,8 @@ export function TrendChart({
 
 // ---------- Heatmap ----------
 
-/** Rote Stufen für dunklen Hintergrund (Wunsch Gianluca: „Heat“): selten = dunkelrot (nahe der Fläche), oft = hellrot. */
-const RAMP = ['#3d1414', '#521919', '#671e1d', '#7d2221', '#932726', '#a92c2a', '#bf302e', '#d43633', '#e34948', '#ec6b69', '#f4918f'];
+/** Wärmebild (Wunsch Gianluca): selten = blau, mittel = weiß, oft = rot. Felder ohne Darts bleiben dunkel. */
+const RAMP = ['#184f95', '#2a78d6', '#5598e7', '#9ec5f4', '#d6e6fa', '#f5f5f5', '#fad4d3', '#f4918f', '#e66767', '#d43633', '#a92c2a'];
 
 function polar(r: number, deg: number): string {
   const a = (deg * Math.PI) / 180;

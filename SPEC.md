@@ -613,7 +613,7 @@ Bezeichnungen: `D` = geworfene Darts des Spielers im Leg (inklusive Bust-Darts u
 ### 11.6 Langzeitstatistik je Profil und Modus
 
 - **Verlaufsdiagramm:** x-Achse Datum, y-Achse gewählte Kennzahl. Ein Punkt je Leg bzw. Durchgang, dazu eine Linie als gleitender Durchschnitt der letzten 10 Werte. Zeitraum wählbar: 30 Tage, 90 Tage, 1 Jahr, alles. Filter: Vergleichsgruppe, mit/ohne Computerspiele.
-- **Treffer-Heatmap:** gezeichnetes Board, jedes Feld (S/D/T je Zahl, SB, DB, Daneben) eingefärbt nach Anteil: `Darts auf dieses Feld / alle Board-Darts × 100 %`. Nur Darts aus der Board-Eingabe (`field` bekannt). Filter: Modus, Zeitraum.
+- **Treffer-Heatmap:** gezeichnetes Board, jedes Feld (S/D/T je Zahl, SB, DB, Daneben) eingefärbt nach Anteil: `Darts auf dieses Feld / alle Board-Darts × 100 %`. Farben als Wärmebild: selten blau, mittel weiß, oft rot; Felder ohne Darts bleiben dunkel (Wunsch Gianluca, 26.10.2026). Nur Darts aus der Board-Eingabe (`field` bekannt). Filter: Modus, Zeitraum.
 - **Doppelquote je Feld** (D1–D20, Bullseye), in drei Spalten:
   - aus dem Training: `Treffer / Würfe` auf dieses Double (Doppelfeld-Training, Bob's 27)
   - aus X01: `Checkouts auf dieses Double / Double-Versuche auf dieses Double`
