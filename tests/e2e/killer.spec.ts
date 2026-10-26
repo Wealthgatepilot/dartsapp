@@ -51,3 +51,17 @@ test('Killer mit selbst gewählten Zahlen', async ({ page }) => {
   await end.getByRole('button', { name: 'Fertig' }).click();
   await expect(page.locator('.list-row', { hasText: 'Killer' })).toContainText('🏆 Gian');
 });
+
+test('Killer „selbst wählen“ mit Computer: er bekommt eine freie Zahl', async ({ page }) => {
+  await createProfiles(page, 'Gian');
+  await page.goto('./#/killer');
+  await page.getByRole('button', { name: 'Gian' }).click();
+  await page.getByRole('button', { name: '+ Computer' }).click();
+  await page.getByRole('radio', { name: 'selbst wählen' }).click();
+  await expect(page.getByLabel('Zahl Computer 5')).toHaveCount(0);
+  await page.getByLabel('Zahl Gian').selectOption('20');
+  await page.getByRole('button', { name: 'Spiel starten' }).click();
+  const bot = Number(await page.locator('.score-card', { hasText: 'Computer 5' }).locator('.score-rest').innerText());
+  expect(bot).toBeGreaterThanOrEqual(1);
+  expect(bot).toBeLessThanOrEqual(19);
+});

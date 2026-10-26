@@ -41,12 +41,19 @@ export function KillerSetup() {
   const chosen = (p: Pick) => setup.chosen?.[pickKey(p)] ?? 0;
 
   const errors = validateKiller(s, setup.picks.length);
-  if (s.assignment === 'choose' && setup.picks.length > 0) errors.push(...validateKillerNumbers(setup.picks.map(chosen)));
+  // Selbst wählen: Menschen wählen, der Computer bekommt beim Start eine zufällige freie Zahl (Plan Phase 3)
+  const humans = setup.picks.filter((p) => p.kind !== 'bot');
+  if (s.assignment === 'choose' && humans.length > 0) errors.push(...validateKillerNumbers(humans.map(chosen)));
 
   const go = async () => {
     if (errors.length) return;
     await save(setup);
-    const list = s.assignment === 'random' ? randomKillerNumbers(setup.picks.length, cryptoRandom) : setup.picks.map(chosen);
+    let list: number[];
+    if (s.assignment === 'random') list = randomKillerNumbers(setup.picks.length, cryptoRandom);
+    else {
+      const free = randomKillerNumbers(20, cryptoRandom).filter((n) => !humans.map(chosen).includes(n));
+      list = setup.picks.map((p) => (p.kind === 'bot' ? free.shift()! : chosen(p)));
+    }
     const numbers = Object.fromEntries(list.map((n, slot) => [slot, n]));
     await start(setup.picks, { mode: 'killer', settings: { ...s, numbers } }, setup.start);
   };
@@ -84,7 +91,7 @@ export function KillerSetup() {
           />
         </div>
         {s.assignment === 'choose' &&
-          setup.picks.map((p) => (
+          humans.map((p) => (
             <label key={pickKey(p)} class="setting">
               <span>Zahl {pickName(p)}</span>
               <select

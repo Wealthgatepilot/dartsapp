@@ -184,6 +184,39 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 - [x] Sprachausgabe (Punkte, „du brauchst“, Game Shot, Sieger), 🔊 im Spiel, Schalter in den Einstellungen
 - [x] Spielverlauf mit Filtern, Rückblick je Spiel (Ergebnis, Kennzahlen, Aufnahmen) und Favoriten je Profil (Wunsch Gianluca)
 - [x] Fehler behoben: Sicherungen mit 121-„Überspringen“ wären beim Import abgelehnt worden
+- [x] Killer „selbst wählen“: Der Computer bekommt beim Start eine zufällige freie Zahl
+- [x] GitHub-Ablauf testet im fertigen Playwright-Paket (vorher hing der Browser-Download zweimal über 40 Minuten)
+- [ ] Optik-Vorschläge (Haltepunkt F) – auf Wunsch nach dem Abschluss
+- [ ] **Haltepunkt G: Test am Board auf iPhone und Android** (`docs/PRUEFLISTE-PHASE3.md`)
+
+**Annahmen ohne Rückfrage (Phase 3)**
+
+1. Jede Regelansicht erklärt alle Varianten des Modus, auch die nicht gewählten, und wie bestimmt wird, wer beginnt.
+2. Startseite gegliedert in „Spiele“, „Training“ und „Mehr“, zwei Kacheln je Zeile.
+3. Handicap gibt es nur bei X01; die Statistik vergleicht jeden nur mit Spielen vom selben Startwert.
+4. Around the Clock: Am Bull zählt bei „nur Doubles“ und „nur Triples“ das Bullseye; Sprünge nur bei Ring „beliebig“; wer das letzte Ziel trifft, gewinnt sofort.
+5. Bob's 27 und Halve-It rechnen nach dem dritten Dart ab („Weiter“ füllt auf); bei Halve-It zählt das Bullseye als beliebiges Double.
+6. 121 (neu): nur mit 3 Darts checkbare Zahlen; Überspringen nur vor einer Aufnahme; Sieger nach geschafften Zahlen, dann wenigsten Darts.
+7. Killer: Zahlen werden beim Start festgelegt und mit dem Spiel gespeichert; Revanche mit „zufällig“ verteilt neu; keine Kennzahlen.
+8. Graue Zahlen (keine Ziele) sind in allen Modi mit Zielen gesperrt, nicht nur in Cricket und Shanghai.
+9. Computer: Stufen per Simulation im Duell zweier gleich starker Computer („first to 3“), damit Druck vorkommt; in Treffer/Falsch-Modi entscheidet ein simulierter Wurf aufs Double.
+10. Computer weicht verdeckten Zielen aus: Dart näher als 7 mm am Zielpunkt → T20 → T19 → T18, sonst 8 mm seitlich.
+11. Menschliche Schwankungen sind standardmäßig an (Tagesform ±8 %, Streaks ±10 %, Druck beim Checken).
+12. Sprachausgabe: Zahlen als Ziffern an die Stimme; nach „Weiter“ angesagt, der Sieger nur, wenn das Spiel gerade endet; an/aus je Gerät.
+13. Spielverlauf: Startseite zeigt die 3 neuesten Spiele; Rückblick ohne Board; Favoriten je Profil, das letzte Ereignis zählt.
+
+**Verworfene Alternativen (Phase 3)**
+
+| Alternative | Warum verworfen |
+|---|---|
+| Neues Zufalls-Training neben 121 | Gianluca wollte 121 ersetzen; alte Spiele bleiben lesbar. |
+| 121: Zahl nur wiederholen, ohne Überspringen | Bei schweren Zahlen hängt man fest. |
+| 121: Sieger allein nach wenigsten Darts | Überspringen wäre ein Vorteil. |
+| Killer: Zahl auf dem Board antippen | Auswahl im Setup ist einfacher und vor dem Start prüfbar. |
+| Stufen nur mit einzelnen Legs einstellen | Druck (Matchdart, Gegner auf Finish) käme nicht vor. |
+| Eigene Double-Streuung für den Computer | Quoten liegen schon im realistischen Bereich; bei Bedarf später. |
+| Browser-Download im GitHub-Ablauf mit längeren Grenzen | Hing zweimal über 40 Minuten; fertiges Playwright-Paket ist schneller und stabiler. |
+| Kennzahlen im Rückblick mit Spielern als Zeilen | Bei X01 elf Spalten, zu breit fürs Handy. |
 
 Annahmen aus dem Plan: Computer in allen Modi (bei Killer „selbst wählen“ bekommt er eine zufällige freie Zahl); in Treffer/Falsch-Modi zielt er auf das Double und das Board entscheidet; Spiele gegen den Computer zählen fürs Profil, sind in der Statistik filterbar; Killer „selbst wählen“: Zahl im Setup je Spieler auswählen (statt auf dem Board antippen – einfacher und vor dem Start prüfbar), keine doppelt; Sprachausgabe standardmäßig an, „Game Shot“ englisch; Handicap nur bei X01.
 
