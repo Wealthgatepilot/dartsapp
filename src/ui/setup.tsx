@@ -11,6 +11,15 @@ import { href, navigate } from './router';
 
 export type Pick = { kind: 'profile'; profileId: string } | { kind: 'guest'; guestName: string };
 
+/** Eindeutiger Schlüssel eines ausgewählten Spielers, z. B. für sein Handicap. */
+export const pickKey = (p: Pick) => (p.kind === 'profile' ? `p:${p.profileId}` : `g:${p.guestName}`);
+
+/** Anzeigename eines ausgewählten Spielers. */
+export function usePickName(): (p: Pick) => string {
+  const profiles = useActiveProfiles();
+  return (p) => (p.kind === 'guest' ? `${p.guestName} (Gast)` : (profiles.find((x) => x.profileId === p.profileId)?.name ?? '?'));
+}
+
 const RACE_KIND: { value: Race['kind']; label: string }[] = [
   { value: 'firstTo', label: 'first to' },
   { value: 'bestOf', label: 'best of' },
@@ -75,8 +84,7 @@ export function PlayerPicker({ picks, onChange }: { picks: Pick[]; onChange: (up
       return next;
     });
 
-  const pickName = (p: Pick) =>
-    p.kind === 'guest' ? `${p.guestName} (Gast)` : (profiles.find((x) => x.profileId === p.profileId)?.name ?? '?');
+  const pickName = usePickName();
 
   return (
     <section class="card">
@@ -214,9 +222,13 @@ export function StartMethodSetting({
  */
 export function useStartGame() {
   const { append } = useAppData();
-  return async (picks: Pick[], mode: CreatedWithoutIds, start: StartMethod = 'asEntered') => {
+  /** startScores: Handicap je Spieler (Schlüssel aus `pickKey`), nur bei X01. */
+  return async (picks: Pick[], mode: CreatedWithoutIds, start: StartMethod = 'asEntered', startScores?: Record<string, number>) => {
     const gameId = uuidv7();
-    const participants: Participant[] = picks.map((p, slot) => ({ slot, ...p }));
+    const participants: Participant[] = picks.map((p, slot) => {
+      const own = startScores?.[pickKey(p)];
+      return { slot, ...p, ...(own ? { startScore: own } : {}) };
+    });
     const method: StartMethod = picks.length < 2 ? 'asEntered' : start;
     await append([
       { type: 'game.created', payload: { ...mode, gameId, participants, seed: Date.now(), start: method } as GameCreatedPayload },

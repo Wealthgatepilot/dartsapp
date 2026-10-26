@@ -1,7 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_CRICKET } from '../../src/engine/cricket';
 import { DEFAULT_DOUBLES } from '../../src/engine/doubles';
-import { cricketRules, doublesRules, x01Rules } from '../../src/engine/rules';
+import {
+  countUpRules,
+  countUpVariants,
+  cricketRules,
+  cricketVariants,
+  doublesRules,
+  doublesVariants,
+  shanghaiVariants,
+  x01Rules,
+  x01Variants,
+} from '../../src/engine/rules';
 import { formatAverage, legNumbers, matchNumbers } from '../../src/engine/stats';
 import { X01Game } from './helpers';
 
@@ -79,5 +89,41 @@ describe('Regeltext (SPEC 5.4)', () => {
     const sets = x01Rules({ ...base, legs: { count: 3, kind: 'firstTo' }, sets: { count: 2, kind: 'firstTo' } }).join(' ');
     expect(sets).toContain('Wer zuerst 3 Legs gewinnt, gewinnt ein Set');
     expect(sets).toContain('Wer zuerst 2 Sets gewinnt, gewinnt das Spiel');
+  });
+});
+
+describe('Varianten im Überblick (Wunsch Gianluca)', () => {
+  const names = (v: { name: string }[]) => v.map((x) => x.name);
+
+  it('Cricket erklärt Standard und Cut-Throat, egal was gewählt ist', () => {
+    const v = cricketVariants();
+    expect(names(v)).toEqual(expect.arrayContaining(['Standard', 'Cut-Throat', 'Zielzahlen', 'Treffer bis zu']));
+    expect(v.find((x) => x.name === 'Cut-Throat')!.text).toContain('alle Gegner');
+  });
+
+  it('X01 erklärt alle In- und Out-Arten, Legs/Sets, Checkout-Hilfe und Handicap', () => {
+    expect(names(x01Variants())).toEqual(
+      expect.arrayContaining(['Single-In', 'Double-In', 'Master-In', 'Single-Out', 'Double-Out', 'Master-Out', 'Best of', 'Sets', 'Handicap']),
+    );
+  });
+
+  it('jeder Modus erklärt, wer beginnt', () => {
+    for (const v of [x01Variants(), cricketVariants(), shanghaiVariants(), doublesVariants(), countUpVariants()]) {
+      expect(names(v)).toContain('Wer beginnt: Ausbullen');
+    }
+  });
+});
+
+describe('Regeltexte Phase 3', () => {
+  it('Count-Up nennt Runden und Sieger', () => {
+    const t = countUpRules({ rounds: 8 }).join(' ');
+    expect(t).toContain('8 Runden');
+    expect(t).toContain('meisten Punkte');
+  });
+
+  it('X01 mit Handicap nennt die eigenen Startwerte', () => {
+    const s = { startScore: 501, inMode: 'single', outMode: 'double', legs: { count: 1, kind: 'firstTo' }, sets: null } as const;
+    expect(x01Rules(s, [{ name: 'Gian', start: 501 }, { name: 'Jörn', start: 301 }])[0]).toContain('Jörn startet mit 301');
+    expect(x01Rules(s, [{ name: 'Gian', start: 501 }, { name: 'Jörn', start: 501 }])[0]).toContain('Jeder Spieler startet mit 501');
   });
 });

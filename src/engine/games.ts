@@ -1,5 +1,6 @@
 // Spiele aus Ereignissen: Liste, Reihenfolge, laufendes Spiel (SPEC 5).
 
+import { computeCountUp, type CountUpSetup, type CountUpState } from './countup';
 import { computeCricket, type CricketSetup, type CricketState } from './cricket';
 import { computeDoubles, type DoublesSetup, type DoublesState } from './doubles';
 import { computeShanghai, type ShanghaiSetup, type ShanghaiState } from './shanghai';
@@ -83,11 +84,18 @@ export function doublesSetupOf(game: GameInfo): DoublesSetup {
   return { gameId: c.gameId, settings: c.settings, order: game.order, seed: c.seed };
 }
 
+export function countUpSetupOf(game: GameInfo): CountUpSetup {
+  const c = game.created;
+  if (c.mode !== 'countup') throw new Error('Kein Count-Up-Spiel');
+  return { gameId: c.gameId, settings: c.settings, order: game.order };
+}
+
 export type AnyGameState =
   | { mode: 'x01'; state: X01State }
   | { mode: 'cricket'; state: CricketState }
   | { mode: 'shanghai'; state: ShanghaiState }
-  | { mode: 'doubles'; state: DoublesState };
+  | { mode: 'doubles'; state: DoublesState }
+  | { mode: 'countup'; state: CountUpState };
 
 /** Spielstand eines beliebigen Spiels. */
 export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGameState {
@@ -101,6 +109,8 @@ export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGam
       return { mode: 'shanghai', state: computeShanghai(shanghaiSetupOf(game), evs) };
     case 'doubles':
       return { mode: 'doubles', state: computeDoubles(doublesSetupOf(game), evs) };
+    case 'countup':
+      return { mode: 'countup', state: computeCountUp(countUpSetupOf(game), evs) };
   }
 }
 
@@ -117,5 +127,7 @@ export function gameTitle(c: GameCreatedPayload): string {
       return 'Shanghai';
     case 'doubles':
       return 'Doppelfeld-Training';
+    case 'countup':
+      return `Count-Up · ${c.settings.rounds} Runden`;
   }
 }

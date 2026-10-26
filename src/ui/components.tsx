@@ -59,6 +59,40 @@ export function Stepper({
   );
 }
 
+/**
+ * Regelansicht (SPEC 5.4): oben die Regeln für die gewählten Einstellungen, darunter alle Varianten
+ * des Modus im Überblick (Wunsch Gianluca).
+ */
+export function RulesModal({
+  title,
+  rules,
+  variants,
+  onClose,
+}: {
+  title: string;
+  rules: string[];
+  variants: { name: string; text: string }[];
+  onClose: () => void;
+}) {
+  return (
+    <Modal title={title} onClose={onClose}>
+      <h3 class="subhead">So spielt ihr mit diesen Einstellungen</h3>
+      {rules.map((p) => (
+        <p key={p}>{p}</p>
+      ))}
+      <h3 class="subhead">Alle Varianten im Überblick</h3>
+      <dl class="variants">
+        {variants.map((v) => (
+          <div key={v.name}>
+            <dt>{v.name}</dt>
+            <dd>{v.text}</dd>
+          </div>
+        ))}
+      </dl>
+    </Modal>
+  );
+}
+
 export function Modal({
   title,
   onClose,

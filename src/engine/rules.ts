@@ -2,6 +2,7 @@
 
 import type { CricketSettings } from './cricket';
 import { targetsOf, type DoublesSettings } from './doubles';
+import type { CountUpSettings } from './countup';
 import { targetOfRound, type ShanghaiSettings } from './shanghai';
 import { winsNeeded, type InOut, type Race, type X01Settings } from './x01';
 
@@ -115,9 +116,13 @@ export function doublesRules(s: DoublesSettings): string[] {
   return out;
 }
 
-export function x01Rules(s: X01Settings): string[] {
+/** handicaps: eigener Startwert je Spieler (SPEC 7.1), nur wenn Handicap an ist. */
+export function x01Rules(s: X01Settings, handicaps?: { name: string; start: number }[]): string[] {
+  const own = handicaps?.filter((h) => h.start !== s.startScore) ?? [];
   const out = [
-    `Jeder Spieler startet mit ${s.startScore} Punkten und wirft pro Aufnahme 3 Darts. Die Punkte werden abgezogen.`,
+    own.length
+      ? `Mit Handicap: ${handicaps!.map((h) => `${h.name} startet mit ${h.start}`).join(', ')} Punkten. Jeder wirft pro Aufnahme 3 Darts, die Punkte werden abgezogen.`
+      : `Jeder Spieler startet mit ${s.startScore} Punkten und wirft pro Aufnahme 3 Darts. Die Punkte werden abgezogen.`,
     IN_TEXT[s.inMode],
     OUT_TEXT[s.outMode],
     BUST_TEXT[s.outMode],
@@ -131,4 +136,132 @@ export function x01Rules(s: X01Settings): string[] {
   }
   out.push('Der Anwurf wechselt von Leg zu Leg.');
   return out;
+}
+
+// ---------- Varianten im Überblick (Wunsch Gianluca) ----------
+// Neben den Regeln für die gewählten Einstellungen erklärt jede Regelansicht alle Varianten des Modus,
+// damit man sieht, was sich z. B. bei Cut-Throat gegenüber Standard ändert.
+
+export interface Variant {
+  name: string;
+  text: string;
+}
+
+const START_VARIANTS: Variant[] = [
+  {
+    name: 'Wer beginnt: Ausbullen',
+    text: 'Jeder wirft einen Dart aufs Bull und markiert ihn. Wer am nächsten am Mittelpunkt liegt, beginnt; danach folgen die anderen nach Abstand.',
+  },
+  { name: 'Wer beginnt: Münzwurf', text: 'Der Zufall legt fest, wer beginnt (bei mehr als 2 Spielern die ganze Reihenfolge).' },
+  { name: 'Wer beginnt: wie eingetragen', text: 'Es geht in der Reihenfolge los, in der die Spieler ausgewählt wurden.' },
+];
+
+const MATCH_VARIANTS: Variant[] = [
+  { name: 'First to', text: 'Wer zuerst die eingestellte Zahl Legs gewinnt, gewinnt das Spiel. „First to 3“ heißt: 3 gewonnene Legs.' },
+  { name: 'Best of', text: 'Gespielt wird höchstens die eingestellte Zahl Legs (immer ungerade). „Best of 5“ heißt: Wer zuerst 3 gewinnt.' },
+  {
+    name: 'Sets',
+    text: 'Mit Sets zählt jedes gewonnene Leg für ein Set; wer genug Legs hat, gewinnt das Set. Das Spiel gewinnt, wer genug Sets gewinnt.',
+  },
+];
+
+export function x01Variants(): Variant[] {
+  return [
+    {
+      name: 'Startwert 301, 501, 701 oder frei',
+      text: 'Bestimmt, wie lang ein Leg dauert. 501 ist der übliche Wert, 301 geht schneller, 701 dauert länger.',
+    },
+    { name: 'Single-In', text: IN_TEXT.single },
+    { name: 'Double-In', text: IN_TEXT.double.replace(/^Double-In: /, '') },
+    { name: 'Master-In', text: IN_TEXT.master.replace(/^Master-In: /, '') },
+    { name: 'Single-Out', text: OUT_TEXT.single.replace(/^Single-Out: /, '') },
+    { name: 'Double-Out', text: OUT_TEXT.double.replace(/^Double-Out: /, '') + ' Das ist die übliche Variante.' },
+    { name: 'Master-Out', text: OUT_TEXT.master.replace(/^Master-Out: /, '') },
+    ...MATCH_VARIANTS,
+    {
+      name: 'Checkout-Vorschläge: Experte',
+      text: 'Die App zeigt die Wege, die Profis werfen würden: möglichst wenige Darts und ein gutes Double am Ende (z. B. D20, D16).',
+    },
+    {
+      name: 'Checkout-Vorschläge: Einsteiger',
+      text: 'Die App bevorzugt leichte Felder (große Singles) vor wenigen Darts, auch wenn es dafür einen Dart mehr braucht.',
+    },
+    { name: 'Checkout-Vorschläge: Aus', text: 'Es werden keine Wege angezeigt.' },
+    {
+      name: 'Handicap',
+      text: 'Jeder Spieler kann einen eigenen Startwert bekommen, z. B. 501 gegen 301. So haben unterschiedlich starke Spieler eine faire Chance. Die Statistik vergleicht jeden nur mit Spielen vom selben Startwert.',
+    },
+    ...START_VARIANTS,
+  ];
+}
+
+export function cricketVariants(): Variant[] {
+  return [
+    {
+      name: 'Standard',
+      text: 'Triffst du eine Zahl, die bei dir schon zu ist, bekommst du die Punkte – solange ein Gegner sie noch offen hat. Gewonnen hat, wer alles zu hat und mindestens so viele Punkte wie jeder Gegner. Punkte sind gut.',
+    },
+    {
+      name: 'Cut-Throat',
+      text: 'Umgekehrt: Triffst du eine Zahl, die bei dir zu ist, bekommen alle Gegner die Punkte, die sie noch offen haben. Gewonnen hat, wer alles zu hat und höchstens so viele Punkte wie jeder Gegner. Punkte sind schlecht – du „drückst“ sie den anderen auf.',
+    },
+    {
+      name: 'Zielzahlen',
+      text: 'Üblich sind 15 bis 20 und Bull. Du kannst beliebige Zahlen wählen, z. B. nur 20 und Bull für ein kurzes Spiel.',
+    },
+    {
+      name: 'Treffer bis zu',
+      text: 'Wie oft eine Zahl getroffen werden muss, bis sie zu ist. Üblich ist 3; mehr macht das Spiel länger, weniger kürzer.',
+    },
+    ...MATCH_VARIANTS,
+    ...START_VARIANTS,
+  ];
+}
+
+export function shanghaiVariants(): Variant[] {
+  return [
+    { name: 'Startzahl', text: 'Mit welcher Zahl Runde 1 beginnt. Danach geht es Runde für Runde eine Zahl höher, nach der 20 kommt das Bull.' },
+    { name: 'Runden', text: 'Wie viele Runden gespielt werden. Üblich sind 20 (1 bis 20) oder 7 (1 bis 7).' },
+    {
+      name: 'Shanghai beendet das Spiel: ja',
+      text: 'Nach einem Shanghai ist „Spiel beenden“ vorausgewählt: Wer es wirft, gewinnt sofort. Du kannst trotzdem „Weiterspielen“ wählen.',
+    },
+    {
+      name: 'Shanghai beendet das Spiel: nein',
+      text: 'Nach einem Shanghai ist „Weiterspielen“ vorausgewählt: Es wird vermerkt, am Ende zählen nur die Punkte.',
+    },
+    ...START_VARIANTS,
+  ];
+}
+
+export function doublesVariants(): Variant[] {
+  return [
+    { name: 'Jeder seine eigene Zielfolge', text: 'Jeder Spieler bekommt die Ziele in einer anderen zufälligen Reihenfolge.' },
+    { name: 'Alle dieselbe Zielfolge', text: 'Alle werfen die Ziele in derselben Reihenfolge – gut zum direkten Vergleich.' },
+    {
+      name: 'Bis zum Treffer',
+      text: 'Ein Ziel bleibt, bis es getroffen ist. Es gewinnt, wer alle Ziele mit den wenigsten Darts schafft.',
+    },
+    {
+      name: 'Feste Zahl Darts',
+      text: 'Auf jedes Ziel gehen gleich viele Darts, egal ob getroffen. Es gewinnt, wer die meisten Treffer hat.',
+    },
+    { name: 'Ziele', text: 'Du kannst alle Doubles und das Bullseye üben oder nur einzelne, z. B. D16 und D20.' },
+    ...START_VARIANTS,
+  ];
+}
+
+export function countUpRules(s: CountUpSettings): string[] {
+  return [
+    `Gespielt werden ${s.rounds === 1 ? '1 Runde' : `${s.rounds} Runden`}. Pro Runde wirft jeder 3 Darts.`,
+    'Jeder Dart zählt seine Punkte: Zahl mal Ring (Double doppelt, Triple dreifach), Single-Bull 25, Bullseye 50. Es wird nichts abgezogen.',
+    'Nach der letzten Runde gewinnt, wer die meisten Punkte hat. Bei Gleichstand teilen sich die Spieler den Sieg.',
+  ];
+}
+
+export function countUpVariants(): Variant[] {
+  return [
+    { name: 'Runden', text: 'Wie viele Runden gespielt werden (1–50). Üblich sind 8 Runden, also 24 Darts.' },
+    ...START_VARIANTS,
+  ];
 }

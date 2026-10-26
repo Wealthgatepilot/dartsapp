@@ -1,9 +1,9 @@
 // Shanghai-Setup (SPEC 7.3): Spieler, Startzahl, Rundenzahl, „Shanghai beendet das Spiel“, Regeln.
 
 import { useState } from 'preact/hooks';
-import { shanghaiRules } from '../../engine/rules';
+import { shanghaiRules, shanghaiVariants } from '../../engine/rules';
 import { DEFAULT_SHANGHAI, maxRounds, validateShanghai, type ShanghaiSettings } from '../../engine/shanghai';
-import { Modal, Segmented, Stepper, TopBar } from '../components';
+import { RulesModal, Segmented, Stepper, TopBar } from '../components';
 import { href } from '../router';
 import { PlayerPicker, StartMethodSetting, useSavedSetup, useStartGame, type Pick } from '../setup';
 import type { StartMethod } from '../../engine/events';
@@ -86,11 +86,12 @@ export function ShanghaiSetup() {
       <StartButton errors={errors} onStart={go} />
 
       {showRules && (
-        <Modal title="Regeln: Shanghai" onClose={() => setShowRules(false)}>
-          {shanghaiRules(s).map((p) => (
-            <p key={p}>{p}</p>
-          ))}
-        </Modal>
+        <RulesModal
+          title="Regeln: Shanghai"
+          rules={shanghaiRules(s)}
+          variants={shanghaiVariants()}
+          onClose={() => setShowRules(false)}
+        />
       )}
     </div>
   );

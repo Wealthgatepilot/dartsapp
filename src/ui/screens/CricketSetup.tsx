@@ -2,9 +2,9 @@
 
 import { useState } from 'preact/hooks';
 import { DEFAULT_CRICKET, validateCricket, type CricketSettings } from '../../engine/cricket';
-import { cricketRules } from '../../engine/rules';
+import { cricketRules, cricketVariants } from '../../engine/rules';
 import { BULL } from '../../engine/types';
-import { Modal, Segmented, Stepper, TopBar } from '../components';
+import { RulesModal, Segmented, Stepper, TopBar } from '../components';
 import { href } from '../router';
 import { LegsSets, PlayerPicker, StartMethodSetting, useSavedSetup, useStartGame, type Pick } from '../setup';
 import type { StartMethod } from '../../engine/events';
@@ -99,11 +99,12 @@ export function CricketSetup() {
       <StartButton errors={errors} onStart={go} />
 
       {showRules && (
-        <Modal title="Regeln: Cricket" onClose={() => setShowRules(false)}>
-          {cricketRules(s).map((p) => (
-            <p key={p}>{p}</p>
-          ))}
-        </Modal>
+        <RulesModal
+          title="Regeln: Cricket"
+          rules={cricketRules(s)}
+          variants={cricketVariants()}
+          onClose={() => setShowRules(false)}
+        />
       )}
     </div>
   );

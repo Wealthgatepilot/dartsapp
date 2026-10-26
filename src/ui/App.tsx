@@ -4,6 +4,7 @@ import { PwaProvider } from './pwa';
 import { useRoute } from './router';
 import { CricketSetup } from './screens/CricketSetup';
 import { DoublesSetup } from './screens/DoublesSetup';
+import { CountUpSetup } from './screens/CountUpSetup';
 import { Game } from './screens/Game';
 import { Home } from './screens/Home';
 import { Profiles } from './screens/Profiles';
@@ -37,6 +38,8 @@ function Screens() {
       return <ShanghaiSetup />;
     case 'doubles':
       return <DoublesSetup />;
+    case 'countup':
+      return <CountUpSetup />;
     case 'stats':
       return <Stats />;
     case 'game':

@@ -1270,3 +1270,26 @@ button.pill-x {
     width: min(960px, 100%);
   }
 }
+
+/* Regelansicht: Varianten im Überblick */
+.variants {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.variants dt {
+  font-weight: 700;
+}
+.variants dd {
+  margin: 2px 0 0;
+  line-height: 1.45;
+  color: var(--muted);
+}
+/* Startseite: Modi zweispaltig, damit die Liste bei vielen Modi kurz bleibt */
+.menu {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+.menu-main strong {
+  font-size: 20px;
+}

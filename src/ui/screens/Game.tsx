@@ -8,6 +8,7 @@ import { TopBar } from '../components';
 import { useAppData } from '../data';
 import { participantColor, participantName } from '../names';
 import { href } from '../router';
+import { CountUpGame } from './CountUpGame';
 import { CricketGame } from './CricketGame';
 import { DoublesGame } from './DoublesGame';
 import { ShanghaiGame } from './ShanghaiGame';
@@ -54,5 +55,7 @@ export function Game({ gameId }: { gameId: string }) {
       return <ShanghaiGame {...props} />;
     case 'doubles':
       return <DoublesGame {...props} />;
+    case 'countup':
+      return <CountUpGame {...props} />;
   }
 }

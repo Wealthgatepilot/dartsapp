@@ -2,13 +2,14 @@
 // Jede Funktion kann auch nur die ersten `limit` Darts auswerten: Das braucht der Vergleich
 // „Stand nach gleich vielen Darts“ (SPEC 12).
 
+import type { CountUpState } from './countup';
 import type { CricketLeg, CricketTurn } from './cricket';
 import type { DoublesState } from './doubles';
 import type { ShanghaiState, ShanghaiTurn } from './shanghai';
 import { BULL, fieldLabel } from './types';
 import type { InOut, Leg as X01Leg, Turn as X01Turn } from './x01';
 
-export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles';
+export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup';
 
 /** Würfe und Treffer je Double (Schlüssel D1 … D20, DB). */
 export type DoubleTally = Record<string, { darts: number; hits: number }>;
@@ -192,6 +193,28 @@ export function shanghaiMetrics(state: ShanghaiState, slot: number, limit = Infi
     }
   }
   m.mpr = ratio(m.marks * 3, m.darts);
+  return m;
+}
+
+// ---------- Count-Up (SPEC 7.10) ----------
+
+export interface CountUpMetrics {
+  darts: number;
+  points: number;
+  /** 3-Dart-Average = Punkte / Darts × 3 */
+  avg: number | null;
+}
+
+export function countUpMetrics(state: CountUpState, slot: number, limit = Infinity): CountUpMetrics {
+  const m: CountUpMetrics = { darts: 0, points: 0, avg: null };
+  outer: for (const t of state.legs[0].turns.filter((x) => x.slot === slot)) {
+    for (const d of t.darts) {
+      if (m.darts >= limit) break outer;
+      m.darts++;
+      m.points += d.scored;
+    }
+  }
+  m.avg = ratio(m.points * 3, m.darts);
   return m;
 }
 

@@ -2,8 +2,8 @@
 
 import { useState } from 'preact/hooks';
 import { DEFAULT_DOUBLES, validateDoubles, type DoublesSettings } from '../../engine/doubles';
-import { doublesRules } from '../../engine/rules';
-import { Modal, Segmented, Stepper, TopBar } from '../components';
+import { doublesRules, doublesVariants } from '../../engine/rules';
+import { RulesModal, Segmented, Stepper, TopBar } from '../components';
 import { href } from '../router';
 import { PlayerPicker, StartMethodSetting, useSavedSetup, useStartGame, type Pick } from '../setup';
 import type { StartMethod } from '../../engine/events';
@@ -120,11 +120,12 @@ export function DoublesSetup() {
       <StartButton errors={errors} onStart={go} />
 
       {showRules && (
-        <Modal title="Regeln: Doppelfeld-Training" onClose={() => setShowRules(false)}>
-          {doublesRules(s).map((p) => (
-            <p key={p}>{p}</p>
-          ))}
-        </Modal>
+        <RulesModal
+          title="Regeln: Doppelfeld-Training"
+          rules={doublesRules(s)}
+          variants={doublesVariants()}
+          onClose={() => setShowRules(false)}
+        />
       )}
     </div>
   );

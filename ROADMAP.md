@@ -151,6 +151,22 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 - Computergegner Stufe 1–10 (Kalibrierung per Simulation)
 - Optik verfeinern
 
+**Plan Phase 3 (freigegeben 26.10.2026)**
+
+1. Count-Up und Handicap bei X01
+2. Around the Clock
+3. Bob's 27
+4. Halve-It – **Haltepunkt D:** Gianluca spielt die vier Modi und Handicap am Board
+5. 121
+6. Killer
+7. Statistik und Bestleistung für die neuen Modi
+8. Computergegner mit Simulation der Stufen – **Haltepunkt E:** Stufen-Tabelle und Spiel gegen den Computer
+9. Sprachausgabe
+10. Optik: nur Vorschläge zur Auswahl; „lassen wir erst einmal so“ ist ausdrücklich möglich (Wunsch Gianluca) – **Haltepunkt F**
+11. Handy-Tests, ROADMAP – **Haltepunkt G:** Test am Board auf iPhone und Android
+
+Annahmen aus dem Plan: Computer in allen Modi (bei Killer „selbst wählen“ bekommt er eine zufällige freie Zahl); in Treffer/Falsch-Modi zielt er auf das Double und das Board entscheidet; Spiele gegen den Computer zählen fürs Profil, sind in der Statistik filterbar; Killer „selbst wählen“: Zahl vor dem Start auf dem Board antippen, keine doppelt; Sprachausgabe standardmäßig an, „Game Shot“ englisch; Handicap nur bei X01.
+
 ## Phase 4 – Turnier
 
 - K.-o. mit Freilosen, Jeder gegen jeden, Gruppen + K.-o.

@@ -273,6 +273,8 @@ Siehe 6.4.
 
 Jeder Modus hat einen Regeltext aus Bausteinen. Die Bausteine werden nach den gewählten Einstellungen zusammengesetzt, z. B. bei X01 mit Double-In: „Deine Punkte zählen erst, wenn du ein Double triffst. Das Double selbst zählt schon.“ Die Texte stehen in Kapitel 7 je Modus unter „Regeltext“.
 
+Darunter erklärt die Regelansicht **alle Varianten des Modus im Überblick**, nicht nur die gewählte – z. B. bei Cricket, was sich bei Cut-Throat gegenüber Standard ändert, bei X01 alle In- und Out-Arten, Legs/Sets, Checkout-Hilfe und Handicap; in jedem Modus auch, wie bestimmt wird, wer beginnt (Wunsch Gianluca, 26.10.2026).
+
 ---
 
 ## 6. Profile, Gäste, Spielerreihenfolge
@@ -516,7 +518,9 @@ Regeln: Je Ziel eine Aufnahme. Treffer aufs Ziel zählen Zahl × Multiplikator (
 |---|---|
 | Runden | **8** (1–50) |
 
-Regeln: Jede Aufnahme zählt ihre Punkte. Nach der letzten Runde gewinnen die meisten Punkte. Kennzahl: Punkte, 3-Dart-Average.
+Regeln: Jede Aufnahme zählt ihre Punkte (Single-Bull 25, Bullseye 50). Nach der letzten Runde gewinnen die meisten Punkte, bei Gleichstand teilen sich die Spieler den Sieg. Kennzahlen: Endpunkte, 3-Dart-Average (Vergleichsgruppe: Rundenzahl).
+
+**Regeltext:** Rundenzahl; Punkte je Dart; Sieger.
 
 ---
 
@@ -745,6 +749,9 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G36 | Undo über Weiter | A bestätigt, B noch nichts | Rückgängig hebt erst Weiter auf, dann A's Dart 3 |
 | G37 | Undo nach Checkout | letzter Dart war Checkout | Leg wieder offen, Legs-Zähler −1 |
 | G38 | Runde bearbeiten erzeugt früheren Checkout | — | Warnung, spätere Darts werden nach Bestätigung verworfen |
+| G39 | Count-Up, 2 Runden, A und B | A: T20 T20 T20, dann 0 0 0; B: S20 S20 S20, dann D20 D20 D20 | A 180, B 180 → Gleichstand, beide Sieger, erst nach Bs letzter Aufnahme |
+| G40 | Count-Up, 1 Runde | A: DB T19 0 | A 107 Punkte, 3-Dart-Average 107 |
+| G41 | X01 501 mit Handicap B = 301 | B: T20 T20 T20 | B Rest 121, A unverändert 501 |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

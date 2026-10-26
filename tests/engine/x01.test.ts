@@ -373,3 +373,12 @@ describe('Unmögliche Darts (SPEC 3.5)', () => {
     expect(g.state.remaining[A]).toBe(498);
   });
 });
+
+describe('Handicap (SPEC 7.1)', () => {
+  it('G41: 501 mit Handicap B = 301 → B nach T20 T20 T20 bei 121, A bleibt 501', () => {
+    const g = X01Game.create({});
+    const handicap = new X01Game({ ...g.setup, startScores: { 1: 301 } });
+    handicap.turn('0', '0', '0').throw('T20', 'T20', 'T20');
+    expect(handicap.state.remaining).toEqual({ 0: 501, 1: 121 });
+  });
+});

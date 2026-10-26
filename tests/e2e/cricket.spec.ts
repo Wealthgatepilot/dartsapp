@@ -12,6 +12,8 @@ test('ganzes Cricket-Spiel bis zum Sieg', async ({ page }) => {
   await page.getByRole('button', { name: 'Jörn' }).click();
   await page.getByRole('button', { name: 'Regeln' }).click();
   await expect(page.getByRole('dialog')).toContainText('Gespielt wird auf 20, 19, 18, 17, 16, 15 und Bull');
+  // Auch die nicht gewählte Variante ist erklärt (Wunsch Gianluca)
+  await expect(page.getByRole('dialog').locator('dt', { hasText: 'Cut-Throat' })).toBeVisible();
   await page.getByRole('button', { name: 'Schließen' }).click();
   await page.getByRole('button', { name: 'Spiel starten' }).click();
   await expect(page.locator('.topbar h1')).toHaveText('Cricket');

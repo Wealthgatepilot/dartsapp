@@ -4,6 +4,7 @@
 import type { AppEvent } from './events';
 import { computeGame, listGames, type GameInfo } from './games';
 import {
+  countUpMetrics,
   cricketLegMetrics,
   doublesMetrics,
   heatKey,
@@ -69,6 +70,10 @@ export const METRICS: Record<Mode, MetricDef[]> = {
     { key: 'points', label: 'Endpunkte', better: 'higher', digits: 0 },
   ],
   doubles: [{ key: 'hitRate', label: 'Trefferquote', better: 'higher', digits: 1, unit: '%' }],
+  countup: [
+    { key: 'points', label: 'Endpunkte', better: 'higher', digits: 0 },
+    { key: 'avg', label: '3-Dart-Average', better: 'higher', digits: 2 },
+  ],
 };
 
 /** Ein Leg (bzw. Durchgang) eines Profils. */
@@ -127,6 +132,8 @@ export function groupOf(game: GameInfo, slot: number): { group: string; label: s
         label: `Training · ${c.settings.mode.kind === 'fixed' ? `${c.settings.mode.darts} Darts/Feld` : 'bis Treffer'} · ${targets} Ziele`,
       };
     }
+    case 'countup':
+      return { group: `countup|${c.settings.rounds}`, label: `Count-Up · ${c.settings.rounds} Runden` };
   }
 }
 
@@ -226,7 +233,24 @@ export function legRecords(events: readonly AppEvent[]): LegRecord[] {
           doubles: {},
           heat: heatOf(s.legs[0].turns, p.slot),
         });
-      } else {
+      } else if (computed.mode === 'countup') {
+        const s = computed.state;
+        const m = countUpMetrics(s, p.slot);
+        if (!m.darts) continue;
+        const values: LegRecord['values'] = { points: m.points };
+        if (m.avg !== null) values.avg = m.avg;
+        out.push({
+          ...base,
+          mode: 'countup',
+          leg: 1,
+          complete: s.finished,
+          won: !!s.matchWinners?.includes(p.slot),
+          darts: m.darts,
+          values,
+          doubles: {},
+          heat: heatOf(s.legs[0].turns, p.slot),
+        });
+      } else if (computed.mode === 'doubles') {
         const s = computed.state;
         const m = doublesMetrics(s, p.slot);
         if (!m.darts) continue;
@@ -355,7 +379,11 @@ export function metricsAt(
     const m = shanghaiMetrics(c.state, slot, limit);
     put('mpr', m.mpr);
     v.points = m.points;
-  } else {
+  } else if (c.mode === 'countup') {
+    const m = countUpMetrics(c.state, slot, limit);
+    put('avg', m.avg);
+    v.points = m.points;
+  } else if (c.mode === 'doubles') {
     put('hitRate', doublesMetrics(c.state, slot, limit).hitRate);
   }
   return v;
