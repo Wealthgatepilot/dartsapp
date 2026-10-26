@@ -19,9 +19,13 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Ein normaler Lauf dauert 3–4 Minuten, bei langsamen Paket-Servern auch mal eine Stunde.
-    # Ohne Grenze wartet GitHub bei einem echten Hänger 6 Stunden und hält alle späteren Veröffentlichungen auf.
-    timeout-minutes: 90
+    # Fertiges Paket von Playwright mit Test-Browsern und allen Systempaketen. Früher wurden die Pakete bei
+    # jedem Lauf heruntergeladen; am 26.10.2026 dauerte das zweimal über 40 Minuten. Die Version muss zu
+    # @playwright/test in package.json passen.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    # Ein normaler Lauf dauert wenige Minuten; ohne Grenze wartet GitHub bei einem Hänger 6 Stunden.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,14 +35,6 @@ jobs:
       - run: npm ci
       - run: npm test
       # Handy-Durchläufe (iPhone = WebKit, Android = Chromium) vor jeder Veröffentlichung
-      # Das Herunterladen der Browser kann bei langsamen Paket-Servern lange dauern (26.10.2026: über 45 Minuten).
-      # Erst nach 40 Minuten gilt es als Hänger; dann ein zweiter Versuch.
-      - run: |
-          for i in 1 2; do
-            timeout 2400 npx playwright install --with-deps webkit chromium && exit 0
-            echo "Versuch $i hing oder schlug fehl, neuer Versuch …"
-          done
-          exit 1
       - run: npm run e2e
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
