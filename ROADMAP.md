@@ -189,7 +189,9 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 - [x] Killer „selbst wählen“: Der Computer bekommt beim Start eine zufällige freie Zahl
 - [x] GitHub-Ablauf testet im fertigen Playwright-Paket (vorher hing der Browser-Download zweimal über 40 Minuten)
 - [x] Optik-Vorschläge (Haltepunkt F): Gianluca wählt Design 6 „Kreidegrau & Orange“, dazu Spielerblöcke nach seinem iPad-Foto (nur Rand für den aktiven Spieler) und flachere Treffer/Falsch-Knöpfe; das bisherige dunkle Aussehen bleibt als Schalter (SPEC 5.6); Handy und iPad von Gianluca geprüft, passt (26.10.2026)
-- [ ] **Haltepunkt G: Test am Board auf iPhone und Android** (`docs/PRUEFLISTE-PHASE3.md`)
+- [x] **Haltepunkt G: Test am Board auf iPhone und Android** (`docs/PRUEFLISTE-PHASE3.md`) – laut Gianluca alles in Ordnung (26.10.2026)
+
+**Phase 3 abgeschlossen am 26.10.2026.**
 
 **Annahmen ohne Rückfrage (Phase 3)**
 
