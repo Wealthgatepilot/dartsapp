@@ -1133,3 +1133,12 @@ button.pill-x {
   height: 10px;
   border-radius: 5px;
 }
+.subhead {
+  margin: 8px 0 0;
+  font-size: 15px;
+}
+.table-compact th,
+.table-compact td {
+  padding: 6px 2px;
+  font-size: 13px;
+}

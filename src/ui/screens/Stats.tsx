@@ -188,7 +188,7 @@ function Overview({ records, defs }: { records: LegRecord[]; defs: MetricDef[] }
           </tr>
         </thead>
         <tbody>
-          {defs.map((d) => {
+          {defs.filter((d) => !COUNT_KEYS.includes(d.key)).map((d) => {
             const vals = sorted.map((r) => r.values[d.key]).filter((v): v is number => v !== undefined);
             if (!vals.length) return null;
             const best = bestRecord(records, d);
@@ -196,7 +196,7 @@ function Overview({ records, defs }: { records: LegRecord[]; defs: MetricDef[] }
               <tr key={d.key}>
                 <td>{d.label}</td>
                 <td>{fmtMetric(d, vals[vals.length - 1])}</td>
-                {/* Schnitt von Zählwerten mit einer Nachkommastelle, sonst wird 0,5 zu „1“ */}
+                {/* Schnitt mit einer Nachkommastelle, auch bei ganzen Zahlen wie „Darts bis zum Finish“ */}
                 <td>{fmtMetric({ ...d, digits: Math.max(d.digits, 1) }, vals.reduce((s, v) => s + v, 0) / vals.length)}</td>
                 <td>
                   {fmtMetric(d, best?.values[d.key])}
@@ -207,7 +207,52 @@ function Overview({ records, defs }: { records: LegRecord[]; defs: MetricDef[] }
           })}
         </tbody>
       </table>
+      {defs.some((d) => d.key === 'highestCheckout') && (
+        <p class="muted small">
+          Höchster Checkout: der größte Rest, den du in einer Aufnahme ausgemacht hast (möglich sind 2 bis 170).
+        </p>
+      )}
+      {defs.some((d) => COUNT_KEYS.includes(d.key)) && <ScoreCounts records={records} defs={defs} />}
     </section>
+  );
+}
+
+/** Zählwerte (Aufnahmen 80–99 … 180): zusammengezählt und das beste Leg – ein Schnitt je Leg wäre irreführend. */
+const COUNT_KEYS: MetricKey[] = ['s80', 's100', 's120', 's140', 's160', 's180'];
+
+function ScoreCounts({ records, defs }: { records: LegRecord[]; defs: MetricDef[] }) {
+  const counts = defs.filter((d) => COUNT_KEYS.includes(d.key));
+  const sum = (k: MetricKey) => records.reduce((s, r) => s + (r.values[k] ?? 0), 0);
+  const best = (k: MetricKey) => Math.max(0, ...records.map((r) => r.values[k] ?? 0));
+  const short = (d: MetricDef) => d.label.replace('Aufnahmen ', '');
+  return (
+    <>
+      <h3 class="subhead">Aufnahmen nach Punkten</h3>
+      <table class="table table-compact">
+        <thead>
+          <tr>
+            <th />
+            {counts.map((d) => (
+              <th key={d.key}>{short(d)}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>gesamt</td>
+            {counts.map((d) => (
+              <td key={d.key}>{sum(d.key)}</td>
+            ))}
+          </tr>
+          <tr>
+            <td>bestes Leg</td>
+            {counts.map((d) => (
+              <td key={d.key}>{best(d.key)}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </>
   );
 }
 
