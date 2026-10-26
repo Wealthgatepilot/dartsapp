@@ -173,7 +173,7 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 - [x] Bob's 27 (G45–G47), Treffer zählen in die Doppelquote aus dem Training
 - [x] Halve-It (G48–G51)
 - [x] Statistik und Bestleistung für die vier neuen Modi gleich mit eingebaut
-- [ ] **Haltepunkt D** (`docs/PRUEFLISTE-HALTEPUNKT-D.md`)
+- [x] **Haltepunkt D** (`docs/PRUEFLISTE-HALTEPUNKT-D.md`) – laut Gianluca alles in Ordnung (26.10.2026); Frage zu den Sprüngen bei Around the Clock geklärt
 
 Annahmen aus dem Plan: Computer in allen Modi (bei Killer „selbst wählen“ bekommt er eine zufällige freie Zahl); in Treffer/Falsch-Modi zielt er auf das Double und das Board entscheidet; Spiele gegen den Computer zählen fürs Profil, sind in der Statistik filterbar; Killer „selbst wählen“: Zahl vor dem Start auf dem Board antippen, keine doppelt; Sprachausgabe standardmäßig an, „Game Shot“ englisch; Handicap nur bei X01.
 
