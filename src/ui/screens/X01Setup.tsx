@@ -6,6 +6,7 @@ import { x01Rules, x01Variants } from '../../engine/rules';
 import { validateSettings, type InOut, type X01Settings } from '../../engine/x01';
 import { RulesModal, Segmented, TopBar } from '../components';
 import { href } from '../router';
+import { unlockSpeech } from '../speech';
 import { LegsSets, PlayerPicker, StartMethodSetting, pickKey, usePickName, useSavedSetup, useStartGame, type Pick } from '../setup';
 import type { StartMethod } from '../../engine/events';
 
@@ -192,7 +193,14 @@ export function StartButton({ errors, onStart }: { errors: string[]; onStart: ()
           ))}
         </ul>
       )}
-      <button class="btn btn-primary btn-wide" disabled={errors.length > 0} onClick={onStart}>
+      <button
+        class="btn btn-primary btn-wide"
+        disabled={errors.length > 0}
+        onClick={() => {
+          unlockSpeech(); // iPhone: Sprache erst nach einer Berührung (SPEC 10)
+          onStart();
+        }}
+      >
         Spiel starten
       </button>
     </>

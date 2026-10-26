@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import type { CoreState, DartView, EditPlan, TurnBase } from '../../engine/core';
 import { BOT_DELAY_MS, planAim, throwAtPoint, type Point } from '../../engine/bot';
 import { botAim, botSigma, sameField } from '../../engine/botaim';
+import { matchCallout, turnCallout } from '../../engine/callout';
 import type { DartPayload, GameEvent, NewAppEvent, NewEvent } from '../../engine/events';
 import type { AnyGameState, GameInfo } from '../../engine/games';
 import { gameTitle } from '../../engine/games';
@@ -13,6 +14,7 @@ import { MISS, type Field } from '../../engine/types';
 import { uuidv7 } from '../../data/ids';
 import { Board } from '../board/Board';
 import { TopBar } from '../components';
+import { speak, speechSupported, useSpeechEnabled } from '../speech';
 import { useAppData } from '../data';
 import { href, navigate } from '../router';
 import { BestCompare } from './BestCompare';
@@ -83,6 +85,15 @@ export function GameShell(p: ShellProps) {
 
   useWakeLock();
   useNoPinchZoom();
+  const [speechOn, setSpeechOn] = useSpeechEnabled();
+
+  // Am Spielende den Sieger ansagen – nur wenn das Spiel gerade eben endet, nicht beim Öffnen eines fertigen Spiels.
+  const wasFinished = useRef(state.finished);
+  useEffect(() => {
+    if (state.finished && !wasFinished.current) speak(matchCallout({ mode: game.created.mode, state } as AnyGameState, p.nameOf));
+    wasFinished.current = state.finished;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.finished]);
 
   // Computergegner (SPEC 9): Ist er dran, wirft er Dart für Dart mit kurzer Pause. „Weiter“ tippt der Mensch.
   const bot = game.created.participants.find((x) => x.slot === state.next?.slot && x.kind === 'bot');
@@ -186,6 +197,15 @@ export function GameShell(p: ShellProps) {
           right={
             <span class="row topbar-actions">
               {p.topActions}
+              {speechSupported() && (
+                <button
+                  class="btn btn-small"
+                  onClick={() => setSpeechOn(!speechOn)}
+                  aria-label={speechOn ? 'Sprachausgabe aus' : 'Sprachausgabe an'}
+                >
+                  {speechOn ? '🔊' : '🔇'}
+                </button>
+              )}
               {!p.noBest && (
                 <button class="btn btn-small" onClick={() => setShowBest(true)} aria-label="Bestleistung">
                   🏆
@@ -246,7 +266,11 @@ export function GameShell(p: ShellProps) {
           <button
             class={state.awaitingConfirm ? 'btn btn-primary grow' : 'btn grow'}
             disabled={busy || !turn || turn.confirmed || state.finished || p.blockConfirm}
-            onClick={() => act(p.confirm())}
+            onClick={() => {
+              // Ansage aus der Aufnahme vor dem Bestätigen (SPEC 10)
+              const text = turnCallout({ mode: game.created.mode, state } as AnyGameState, state.currentTurn, p.nameOf);
+              act(p.confirm()).then(() => speak(text));
+            }}
           >
             Weiter →
           </button>

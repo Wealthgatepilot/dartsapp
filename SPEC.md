@@ -615,6 +615,15 @@ Jede Partie ist ein normales Spiel mit eigener `gameId` und `tournamentMatchId`.
 - Angesagt wird nach jedem Weiter: Punkte der Aufnahme („Einhundertvierzig“), bei X01 der Rest, wenn ≤ 170 („Du brauchst zweiunddreißig“), „Bust“, „Game Shot“ bzw. „Leg gewonnen“, bei Cricket/Shanghai die Marks bzw. Punkte.
 - Auf dem iPhone startet Sprache erst nach einer Berührung; die App aktiviert sie beim ersten Tippen auf „Spiel starten“.
 
+**Umsetzung (26.10.2026)**
+
+- An/aus wird je Gerät gemerkt (Browser-Speicher); 🔊/🔇 oben im Spiel und „Sprachausgabe“ in den Einstellungen schalten dasselbe.
+- Ansage nach „Weiter“ (Text aus der Aufnahme vor dem Bestätigen):
+  - X01: Punkte der Aufnahme bzw. „Bust“; steht der nächste Spieler auf einem Finish (Rest 2–170, mit 3 Darts checkbar), dazu „Name, du brauchst Rest“ (allein: „Du brauchst …“). Leg gewonnen: „Game Shot“.
+  - Cricket: „Keine Marks“, „Ein Mark“, „4 Marks“. Shanghai: Punkte bzw. „Shanghai“. Count-Up: Punkte. Halve-It: Punkte bzw. „Halbiert“. Bob's 27: „Plus 14“ / „Minus 14“. Training: Treffer. Around the Clock: Treffer und nächstes Ziel. Killer: wer Killer wurde, wer raus ist, genommene Leben. 121: „Geschafft“, „Bust“, „Nicht geschafft“ oder Punkte.
+- Am Spielende: X01 „Game Shot und das Match. Name gewinnt“, sonst „Name gewinnt“ bzw. „Gleichstand: …“ – nur wenn das Spiel gerade endet, nicht beim Öffnen eines fertigen Spiels.
+- Zahlen werden als Ziffern übergeben; die deutsche Stimme liest sie als Wörter.
+
 ---
 
 ## 11. Statistik und Kennzahlen

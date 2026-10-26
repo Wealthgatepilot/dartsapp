@@ -1,7 +1,8 @@
 import { isInstalled } from '../../data/persist';
-import { TopBar } from '../components';
+import { Segmented, TopBar } from '../components';
 import { useAppData } from '../data';
 import { href } from '../router';
+import { speechSupported, useSpeechEnabled } from '../speech';
 import { BackupCard } from './BackupCard';
 
 const PERSIST_TEXT = {
@@ -13,6 +14,7 @@ const PERSIST_TEXT = {
 export function Settings() {
   const { events, store, persist } = useAppData();
   const installed = isInstalled();
+  const [speechOn, setSpeechOn] = useSpeechEnabled();
   return (
     <div class="page">
       <TopBar title="Einstellungen" back={href({ name: 'home' })} />
@@ -34,6 +36,27 @@ export function Settings() {
       </section>
 
       <BackupCard />
+
+      <section class="card">
+        <h2>Sprachausgabe</h2>
+        <div class="setting">
+          <span>Punkte ansagen</span>
+          <Segmented
+            label="Sprachausgabe"
+            value={speechOn ? 'an' : 'aus'}
+            options={[
+              { value: 'an', label: 'an' },
+              { value: 'aus', label: 'aus' },
+            ]}
+            onChange={(v) => setSpeechOn(v === 'an')}
+          />
+        </div>
+        <p class="muted small">
+          {speechSupported()
+            ? 'Nach jedem „Weiter“ sagt das Gerät die Punkte an, bei X01 auch, was der Nächste zum Checken braucht. Im Spiel schaltet 🔊 oben die Ansagen an oder aus.'
+            : 'Dieser Browser kann nicht sprechen.'}
+        </p>
+      </section>
 
       <section class="card">
         <h2>Board</h2>
