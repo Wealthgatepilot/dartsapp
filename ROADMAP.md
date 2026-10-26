@@ -99,7 +99,9 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 - [x] Bestleistungs-Vergleich im Spiel (🏆)
 - [x] Zusätzlich gewünscht: Leg-Übersicht mit Average je Leg, kein Browser-Zoom in der Spielansicht
 - [x] Handy-Tests für alle Modi in 5 Varianten; 210 Unit-Tests, 89 Handy-Tests grün
-- [ ] **Haltepunkt C: Test am Board auf iPhone und Android** (`docs/PRUEFLISTE-PHASE2.md`)
+- [x] **Haltepunkt C: Test am Board auf iPhone und Android** (`docs/PRUEFLISTE-PHASE2.md`) – Rückmeldungen umgesetzt (Spielstand ganz sichtbar, graue Zahlen gesperrt, Shanghai-Rückgängig, Training-Tabelle ohne Scrollen, 80+ je Leg, Heatmap als Wärmebild), danach laut Gianluca alles in Ordnung (26.10.2026)
+
+**Phase 2 abgeschlossen am 26.10.2026.**
 
 **Bekanntes Problem (nicht in der App):** Auf einem Xiaomi-Handy von Gianluca melden Chrome und Firefox „bereits installiert“, obwohl keine App zu finden ist. Bei Nuzlocke passiert dasselbe, seit das Symbol beim Verschieben verschwand. Ausgeschlossen: Überschneidung mit anderen Apps, Website-Daten, Startbildschirm-Daten, neue App-Kennung. Vermutlich hängt eine halb installierte Web-App im System. Vorerst wird Darts dort im Chrome-Tab benutzt (gleiche Daten wie eine installierte App).
 
@@ -118,6 +120,9 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 11. Die Leg-Übersicht erscheint ab dem zweiten Leg und zeigt das laufende Leg mit dem bisherigen Stand.
 12. In der Spielansicht ist das Zoomen mit zwei Fingern abgefangen (iPad hielt sich nicht an die Viewport-Angabe).
 13. Das Manifest hat eine feste App-Kennung `/dartsapp/` (gleich dem bisherigen Standardwert).
+14. Spielansicht im Hochformat: Die Anzeige oben ist so hoch wie nötig, das Board füllt den Rest; Mindestgröße 68 % der Breite (Cricket kleiner, damit die Tafel passt). Rechenzeile und Checkout-Vorschlag teilen sich eine Zeile fester Höhe.
+15. Der Knopf zur Leg-Übersicht („Legs“) sitzt in der Kopfzeile, damit er immer sichtbar ist.
+16. Training-Ergebnis: bei mehr als 6 Feldern in bis zu drei Teilen; im Hochformat untereinander wie eine Tabelle, im Querformat nebeneinander.
 
 **Verworfene Alternativen (Phase 2)**
 
@@ -129,6 +134,9 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 | „Shanghai beendet das Spiel“ nur als feste Einstellung | Gianluca möchte nach jedem Shanghai selbst entscheiden. |
 | Aufnahmen 80+ nur als Schnitt je Leg („0,5 Aufnahmen“) | Missverständlich; Summe, Schnitt und bestes Leg nebeneinander sind klarer. |
 | Neue App-Kennung gegen „bereits installiert“ | Half auf dem Xiaomi-Handy nicht; die Ursache liegt am Gerät. Zurückgenommen. |
+| Graue Zahlen antippbar lassen | Vertipper zwischen Zielzahlen trugen falsche Felder ein; Gianluca hat sich für Sperren entschieden (Heatmap zeigt solche Darts als „Daneben“). |
+| Feste Board-Größe mit festem Platz darüber | Spielstand wurde abgeschnitten, sobald Checkout-Vorschlag oder Darts dazukamen. |
+| Heatmap in einer Farbe (erst blau, dann rot) | Gianluca wünscht ein Wärmebild: blau – weiß – rot. |
 
 **Ideen für später (Optik und Komfort, nach der Funktion)**
 
