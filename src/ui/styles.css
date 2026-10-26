@@ -1304,3 +1304,7 @@ button.pill-x {
   flex-wrap: wrap;
   gap: 2px;
 }
+/* Killer: ausgeschiedene Spieler blass */
+.score-card.killer-out {
+  opacity: 0.45;
+}

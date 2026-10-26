@@ -8,6 +8,7 @@ import type { CountUpSettings } from './countup';
 import type { CricketSettings } from './cricket';
 import type { DoublesSettings } from './doubles';
 import type { HalveItSettings } from './halveit';
+import type { KillerSettings } from './killer';
 import type { One21Settings } from './one21';
 import type { ShanghaiSettings } from './shanghai';
 import type { Field } from './types';
@@ -116,7 +117,8 @@ export type GameCreatedPayload =
   | (GameCreatedBase & { mode: 'atc'; settings: AtcSettings })
   | (GameCreatedBase & { mode: 'bobs'; settings: BobsSettings })
   | (GameCreatedBase & { mode: 'halveit'; settings: HalveItSettings })
-  | (GameCreatedBase & { mode: 'one21'; settings: One21Settings });
+  | (GameCreatedBase & { mode: 'one21'; settings: One21Settings })
+  | (GameCreatedBase & { mode: 'killer'; settings: KillerSettings });
 
 export type GameMode = GameCreatedPayload['mode'];
 

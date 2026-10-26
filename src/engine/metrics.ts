@@ -13,7 +13,7 @@ import type { ShanghaiState, ShanghaiTurn } from './shanghai';
 import { BULL, fieldLabel } from './types';
 import type { InOut, Leg as X01Leg, Turn as X01Turn } from './x01';
 
-export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup' | 'atc' | 'bobs' | 'halveit' | 'one21';
+export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup' | 'atc' | 'bobs' | 'halveit' | 'one21' | 'killer';
 
 /** Würfe und Treffer je Double (Schlüssel D1 … D20, DB). */
 export type DoubleTally = Record<string, { darts: number; hits: number }>;

@@ -157,6 +157,10 @@ export function Home() {
           <strong>Halve-It</strong>
           <span class="muted">Daneben halbiert die Punkte</span>
         </a>
+        <a class="menu-item menu-main" href={href({ name: 'killer' })}>
+          <strong>Killer</strong>
+          <span class="muted">Eigene Zahl, Leben nehmen</span>
+        </a>
       </nav>
 
       <h2 class="section-title">Training</h2>

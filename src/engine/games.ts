@@ -4,6 +4,7 @@ import { computeBobs, type BobsSetup, type BobsState } from './bobs';
 import { atcVariantLabel, computeAtc, type AtcSetup, type AtcState } from './atc';
 import { computeCountUp, type CountUpSetup, type CountUpState } from './countup';
 import { computeCricket, type CricketSetup, type CricketState } from './cricket';
+import { computeKiller, type KillerSetup, type KillerState } from './killer';
 import { computeOne21, type One21Setup, type One21State } from './one21';
 import { computeHalveIt, type HalveItSetup, type HalveItState } from './halveit';
 import { computeDoubles, type DoublesSetup, type DoublesState } from './doubles';
@@ -118,6 +119,12 @@ export function one21SetupOf(game: GameInfo): One21Setup {
   return { gameId: c.gameId, settings: c.settings, order: game.order };
 }
 
+export function killerSetupOf(game: GameInfo): KillerSetup {
+  const c = game.created;
+  if (c.mode !== 'killer') throw new Error('Kein Killer-Spiel');
+  return { gameId: c.gameId, settings: c.settings, order: game.order };
+}
+
 export type AnyGameState =
   | { mode: 'x01'; state: X01State }
   | { mode: 'cricket'; state: CricketState }
@@ -127,7 +134,8 @@ export type AnyGameState =
   | { mode: 'atc'; state: AtcState }
   | { mode: 'bobs'; state: BobsState }
   | { mode: 'halveit'; state: HalveItState }
-  | { mode: 'one21'; state: One21State };
+  | { mode: 'one21'; state: One21State }
+  | { mode: 'killer'; state: KillerState };
 
 /** Spielstand eines beliebigen Spiels. */
 export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGameState {
@@ -151,6 +159,8 @@ export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGam
       return { mode: 'halveit', state: computeHalveIt(halveItSetupOf(game), evs) };
     case 'one21':
       return { mode: 'one21', state: computeOne21(one21SetupOf(game), evs) };
+    case 'killer':
+      return { mode: 'killer', state: computeKiller(killerSetupOf(game), evs) };
   }
 }
 
@@ -177,5 +187,7 @@ export function gameTitle(c: GameCreatedPayload): string {
       return 'Halve-It';
     case 'one21':
       return '121';
+    case 'killer':
+      return 'Killer';
   }
 }

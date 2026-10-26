@@ -29,6 +29,10 @@ export interface ShellProps {
   colorOf: (slot: number) => string;
   /** Zusätzliche Knöpfe in der Kopfzeile vor 🏆, z. B. die Leg-Übersicht. */
   topActions?: ComponentChildren;
+  /** Modus ohne Kennzahlen (Killer): kein Bestleistungs-Knopf. */
+  noBest?: boolean;
+  /** Einstellungen für die Revanche anpassen, z. B. neue Zufallszahlen bei Killer. */
+  prepareRematch?: (created: GameInfo['created']) => GameInfo['created'];
   /** Stand aller Spieler (Karten, Tafel …). */
   scoreboard: ComponentChildren;
   /** Unter den Pills: Rechenzeile, Checkout-Vorschlag, Hinweise. */
@@ -114,7 +118,8 @@ export function GameShell(p: ShellProps) {
     if (rematch) {
       // Revanche mit Ausbullen oder Münzwurf lost die Reihenfolge neu aus; sonst gleiche Reihenfolge.
       const redecide = game.created.start === 'bull' || game.created.start === 'coin';
-      evs.push({ type: 'game.created', payload: { ...game.created, gameId: newId, seed: Date.now() } });
+      const created = p.prepareRematch ? p.prepareRematch(game.created) : game.created;
+      evs.push({ type: 'game.created', payload: { ...created, gameId: newId, seed: Date.now() } });
       if (!redecide) {
         evs.push({ type: 'game.orderDecided', payload: { gameId: newId, order: game.order, method: 'asEntered' } });
       }
@@ -139,9 +144,11 @@ export function GameShell(p: ShellProps) {
           right={
             <span class="row topbar-actions">
               {p.topActions}
-              <button class="btn btn-small" onClick={() => setShowBest(true)} aria-label="Bestleistung">
-                🏆
-              </button>
+              {!p.noBest && (
+                <button class="btn btn-small" onClick={() => setShowBest(true)} aria-label="Bestleistung">
+                  🏆
+                </button>
+              )}
               <button class="btn btn-small" onClick={abandon}>
                 Abbrechen
               </button>

@@ -100,6 +100,8 @@ export const METRICS: Record<Mode, MetricDef[]> = {
     { key: 'successes', label: 'Erfolge', better: 'higher', digits: 0 },
     { key: 'successRate', label: 'Erfolgsquote', better: 'higher', digits: 1, unit: '%' },
   ],
+  // Killer hat keine Kennzahlen (SPEC 7.6), nur Sieger.
+  killer: [],
 };
 
 /** Ein Leg (bzw. Durchgang) eines Profils. */
@@ -186,6 +188,8 @@ export function groupOf(game: GameInfo, slot: number): { group: string; label: s
         }`,
       };
     }
+    case 'killer':
+      return { group: 'killer', label: 'Killer' };
   }
 }
 

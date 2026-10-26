@@ -3,6 +3,7 @@
 import type { CricketSettings } from './cricket';
 import { targetsOf, type DoublesSettings } from './doubles';
 import { halveTargetName, type HalveItSettings } from './halveit';
+import type { KillerSettings } from './killer';
 import type { One21Settings } from './one21';
 import type { AtcSettings } from './atc';
 import type { BobsSettings } from './bobs';
@@ -389,6 +390,39 @@ export function one21Variants(): Variant[] {
     { name: 'Nach Fehlschlag: gleiches Ziel', text: 'Du versuchst dasselbe Ziel noch einmal.' },
     { name: 'Nach Fehlschlag: Ziel −1', text: 'Das Ziel geht 1 runter, aber nie unter das Startziel – so bleibst du im Bereich, den du schaffst.' },
     { name: 'Versuche', text: 'Wie viele Versuche jeder Spieler hat (1–50).' },
+    ...START_VARIANTS,
+  ];
+}
+
+export function killerRules(s: KillerSettings): string[] {
+  const zone = s.zone === 'double' ? 'das Double deiner Zahl' : 'irgendein Feld deiner Zahl (Single, Double oder Triple)';
+  const times = s.hitsToKiller === 1 ? 'einmal' : `${s.hitsToKiller}-mal`;
+  return [
+    s.assignment === 'random'
+      ? 'Jeder bekommt eine eigene Zahl von 1 bis 20, zufällig verteilt. Jede Zahl gibt es nur einmal.'
+      : 'Jeder wählt vor dem Start eine eigene Zahl von 1 bis 20. Jede Zahl gibt es nur einmal.',
+    `Jeder startet mit ${s.lives === 1 ? '1 Leben' : `${s.lives} Leben`}. Pro Aufnahme 3 Darts.`,
+    `Triffst du ${times} ${zone}, wirst du Killer. Vorher zählen Treffer auf fremde Zahlen nichts.`,
+    `Als Killer nimmst du mit jedem Treffer auf ${
+      s.zone === 'double' ? 'das Double der Zahl eines Gegners' : 'die Zahl eines Gegners'
+    } diesem ein Leben – auch ein Triple kostet nur 1 Leben.`,
+    s.selfHit === 'lose'
+      ? 'Triffst du als Killer deine eigene Zahl, verlierst du selbst ein Leben.'
+      : 'Triffst du als Killer deine eigene Zahl, passiert nichts.',
+    'Wer keine Leben mehr hat, scheidet aus. Der Letzte mit Leben gewinnt.',
+  ];
+}
+
+export function killerVariants(): Variant[] {
+  return [
+    { name: 'Zahlen zufällig', text: 'Die App verteilt die Zahlen beim Start – niemand sucht sich eine bequeme Zahl aus.' },
+    { name: 'Zahlen selbst wählen', text: 'Jeder sucht sich im Setup seine Zahl aus. Keine Zahl darf doppelt vorkommen.' },
+    { name: 'Leben', text: 'Mit mehr Leben (bis 9) dauert das Spiel länger, mit 1 Leben reicht ein Treffer.' },
+    { name: 'Treffer bis Killer', text: 'Wie oft du deine eigene Zahl treffen musst, bevor du angreifen darfst (1–3).' },
+    { name: 'Trefferzone nur Double', text: 'Die übliche Form: Nur der schmale Double-Ring zählt – schwer, aber spannend.' },
+    { name: 'Trefferzone ganzes Segment', text: 'Jedes Feld der Zahl zählt – deutlich leichter, gut für Einsteiger.' },
+    { name: 'Eigentreffer kostet ein Leben', text: 'Als Killer musst du deine eigene Zahl meiden.' },
+    { name: 'Eigentreffer zählt nicht', text: 'Als Killer passiert nichts, wenn du deine eigene Zahl triffst.' },
     ...START_VARIANTS,
   ];
 }

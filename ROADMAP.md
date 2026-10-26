@@ -174,6 +174,9 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 - [x] Halve-It (G48–G51)
 - [x] Statistik und Bestleistung für die vier neuen Modi gleich mit eingebaut
 - [x] **Haltepunkt D** (`docs/PRUEFLISTE-HALTEPUNKT-D.md`) – laut Gianluca alles in Ordnung (26.10.2026); Frage zu den Sprüngen bei Around the Clock geklärt
+- [x] 121 (G52–G55) mit Checkout-Vorschlag und Statistik
+- [x] Killer (G56–G59); keine Kennzahlen laut SPEC, daher ohne Statistik und 🏆
+- [x] Statistik und Bestleistung für die neuen Modi (Schritt 7) – mit den Modi gleich eingebaut
 
 Annahmen aus dem Plan: Computer in allen Modi (bei Killer „selbst wählen“ bekommt er eine zufällige freie Zahl); in Treffer/Falsch-Modi zielt er auf das Double und das Board entscheidet; Spiele gegen den Computer zählen fürs Profil, sind in der Statistik filterbar; Killer „selbst wählen“: Zahl vor dem Start auf dem Board antippen, keine doppelt; Sprachausgabe standardmäßig an, „Game Shot“ englisch; Handicap nur bei X01.
 

@@ -487,6 +487,12 @@ Regeln:
 3. Ein Killer nimmt mit jedem Treffer auf die Zahl eines Gegners diesem ein Leben (Triple bei Zone „ganzes Segment“: 1 Leben; bei Zone Double: 1 Leben je Double).
 4. Wer 0 Leben hat, scheidet aus. Der letzte Spieler mit Leben gewinnt.
 5. Treffer vor dem Killer-Status auf fremde Zahlen zählen nichts.
+6. Ein Killer, der seine eigene Zahl trifft, verliert bei „kostet ein Leben“ ein Leben; scheidet er dabei aus, endet seine Aufnahme.
+7. Bleibt nur ein Spieler mit Leben übrig, gewinnt er sofort.
+
+Genauer (Annahmen Phase 3): Die Zahlen werden beim Start festgelegt und mit dem Spiel gespeichert – „zufällig“ verteilt die App sie, bei „selbst wählen“ wählt jeder im Setup seine Zahl (keine doppelt). Auf dem Board sind für Nicht-Killer nur die eigene Zahl farbig, für Killer die Zahlen aller Spieler, die noch im Spiel sind. Killer hat keine Kennzahlen und keinen Bestleistungs-Vergleich; das Spiel erscheint in „Letzte Spiele“ mit Sieger.
+
+**Regeltext:** Zahlen; Killer werden; Leben nehmen; Eigentreffer; Ausscheiden und Sieg.
 
 ### 7.7 121 (Phase 3)
 
@@ -776,6 +782,10 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G53 | 121, Ziel 121 | T20, T11, D14 | Checkout → Erfolg, nächstes Ziel 122 |
 | G54 | 121, 9 Darts, Ziel 125, „Nach Fehlschlag: −1“ | 3 Aufnahmen ohne Checkout | nächstes Ziel 124; bei Ziel 121 bleibt es 121 (nicht unter das Startziel) |
 | G55 | 121, 1 Versuch, 2 Spieler | A checkt, B nicht | Spielende nach Bs letztem Versuch, A gewinnt (höchstes Ziel, dann Erfolge) |
+| G56 | Killer, Zone Double, 1 Treffer bis Killer, A hat 20, B hat 5 | A: D5, S20, D20 | D5 zählt nicht (noch kein Killer), S20 zählt nicht (kein Double), D20 → A ist Killer |
+| G57 | Killer, A ist Killer, B hat 3 Leben | A: D5 bzw. bei Zone „ganzes Segment“: T5 | B 2 Leben (auch das Triple kostet nur 1 Leben) |
+| G58 | Killer, A Killer, B 1 Leben, nur noch A und B | A: D5 | B scheidet aus, A gewinnt sofort |
+| G59 | Killer, A Killer mit 3 Leben | A: D20 (eigene Zahl) | „kostet ein Leben“ → A 2 Leben; „zählt nicht“ → A 3 Leben |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

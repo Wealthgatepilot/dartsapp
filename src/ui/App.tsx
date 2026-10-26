@@ -7,6 +7,7 @@ import { DoublesSetup } from './screens/DoublesSetup';
 import { AtcSetup } from './screens/AtcSetup';
 import { BobsSetup } from './screens/BobsSetup';
 import { HalveItSetup } from './screens/HalveItSetup';
+import { KillerSetup } from './screens/KillerSetup';
 import { One21Setup } from './screens/One21Setup';
 import { CountUpSetup } from './screens/CountUpSetup';
 import { Game } from './screens/Game';
@@ -52,6 +53,8 @@ function Screens() {
       return <HalveItSetup />;
     case 'one21':
       return <One21Setup />;
+    case 'killer':
+      return <KillerSetup />;
     case 'stats':
       return <Stats />;
     case 'game':
