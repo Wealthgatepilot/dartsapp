@@ -1781,3 +1781,135 @@ button.pill-x {
     justify-content: space-between;
   }
 }
+/* Tablet quer, Feinschliff nach Gianlucas iPad-Fotos: Tafel und Karten füllen die Höhe, Inhalt wächst mit. */
+@media (orientation: landscape) and (min-height: 600px) {
+  /* Cricket: Die Tafel reicht bis zur Aufnahme, die Zeilen teilen sich die Höhe. */
+  .screen-game .panel-scroll > .tafel-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .tafel-wrap .tafel {
+    height: 100%;
+  }
+  .tafel td {
+    height: auto;
+    font-size: min(48px, 5vh);
+  }
+  .tafel tbody th {
+    font-size: min(36px, 4vh);
+  }
+  .tafel-points {
+    font-size: min(48px, 5vh);
+  }
+  .tafel .score-name {
+    font-size: 22px;
+  }
+  .tafel .score-meta {
+    font-size: 16px;
+  }
+
+  /* Spielerkarten: je weniger Spieler, desto größer die Zahl. */
+  .scoreboard .score-rest {
+    font-size: min(160px, 16vh);
+  }
+  .scoreboard:not(:has(> :nth-child(2))) .score-rest {
+    font-size: min(280px, 28vh);
+  }
+  .scoreboard:not(:has(> :nth-child(2))) .score-name {
+    font-size: 30px;
+  }
+  .scoreboard:not(:has(> :nth-child(2))) .score-meta {
+    font-size: 24px;
+  }
+  .scoreboard:has(> :nth-child(3)) .score-rest {
+    font-size: min(80px, 8vh);
+  }
+
+  /* Aufnahme und Knopfleiste in Tablet-Größe */
+  .screen-game .turnbox {
+    font-size: 18px;
+    padding: 8px 12px;
+  }
+  .screen-game .turnbox .pill {
+    min-height: 44px;
+    padding: 6px 14px;
+    font-size: 20px;
+  }
+  .screen-game .turnbox .pills {
+    min-height: 44px;
+  }
+  .screen-game .calc {
+    font-size: 26px;
+  }
+  .screen-game .checkout-main {
+    font-size: 28px;
+  }
+  .screen-game .checkout-alt {
+    font-size: 16px;
+  }
+  .screen-game .actions .btn {
+    min-height: 68px;
+    min-width: 68px;
+    padding: 0 12px;
+    font-size: 19px;
+    white-space: nowrap;
+  }
+  .screen-game .actions .btn[aria-label='Rückgängig'] {
+    font-size: 30px;
+  }
+  .screen-game .actions .btn:disabled {
+    opacity: 0.55;
+  }
+  .screen-game .topbar h1 {
+    font-size: 21px;
+  }
+}
+/* Tablet quer: Die Zahl darf auch vierstellig nicht breiter als die Karte werden. */
+@media (orientation: landscape) and (min-height: 600px) {
+  @supports (width: 1cqw) {
+    .scoreboard .score-card {
+      container-type: inline-size;
+    }
+    .scoreboard .score-rest {
+      font-size: min(160px, 16vh, 36cqw);
+    }
+    .scoreboard:not(:has(> :nth-child(2))) .score-rest {
+      font-size: min(280px, 28vh, 36cqw);
+    }
+    .scoreboard:has(> :nth-child(3)) .score-rest {
+      font-size: min(80px, 8vh, 36cqw);
+    }
+  }
+}
+/* Tablet quer, X01/Training/Bob's: Die Zahl richtet sich nach dem Platz, den die Blöcke wirklich haben. */
+@media (orientation: landscape) and (min-height: 600px) {
+  @supports (height: 1cqh) {
+    .screen-game .panel-scroll > .blocks {
+      container-type: size;
+    }
+    .screen-game .panel-scroll > .blocks .block-big {
+      font-size: clamp(56px, calc((100cqh - 310px) / 2), 170px);
+    }
+    .screen-game .panel-scroll > .blocks-1 .block-big {
+      font-size: min(280px, 30cqh, 36cqw);
+    }
+    .screen-game .panel-scroll > .blocks-many .block-big {
+      font-size: min(90px, 7cqh, 15cqw);
+    }
+  }
+}
+/* Kleinere Tablets: Kennzahlen etwas kleiner, damit die Zahl mehr Platz bekommt. */
+@media (orientation: landscape) and (min-height: 600px) and (max-height: 900px) {
+  .block-stats {
+    font-size: 15px;
+    gap: 2px;
+  }
+  .block-initial {
+    width: 30px;
+    height: 30px;
+  }
+  .block-badge {
+    min-width: 30px;
+    height: 30px;
+  }
+}
