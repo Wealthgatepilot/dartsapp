@@ -3,6 +3,7 @@
 import { useMemo } from 'preact/hooks';
 import { alternativeCheckout, formatCheckout, suggestCheckout, type AdviceLevel } from '../../engine/checkout';
 import { x01SetupOf } from '../../engine/games';
+import { x01LegMetrics } from '../../engine/metrics';
 import { formatAverage, legNumbers, matchNumbers, turnScore } from '../../engine/stats';
 import { fieldLabel, points } from '../../engine/types';
 import { computeX01, confirmTurn, planEdit, throwDart, undo, type Turn, type X01State } from '../../engine/x01';
@@ -120,10 +121,69 @@ function CheckoutHint({ state, advice }: { state: X01State; advice: AdviceLevel 
   );
 }
 
+/** Aufnahmen 80–99 … 180 je Spieler über das ganze Match (Wunsch Gianluca). */
+const BUCKETS = [
+  { key: 's80', label: '80+' },
+  { key: 's100', label: '100+' },
+  { key: 's120', label: '120+' },
+  { key: 's140', label: '140+' },
+  { key: 's160', label: '160+' },
+  { key: 's180', label: '180' },
+] as const;
+
+function MatchCounts({ state, order, nameOf }: { state: X01State; order: number[]; nameOf: (s: number) => string }) {
+  const totals = (slot: number) => {
+    const t = { s80: 0, s100: 0, s120: 0, s140: 0, s160: 0, s180: 0 };
+    for (const leg of state.legs) {
+      const m = x01LegMetrics(leg, slot, state.setup.settings.outMode);
+      for (const b of BUCKETS) t[b.key] += m[b.key];
+    }
+    return t;
+  };
+  return (
+    <>
+      <h3 class="subhead">Aufnahmen im Match</h3>
+      <table class="table table-compact match-counts">
+        <thead>
+          <tr>
+            <th>Spieler</th>
+            {BUCKETS.map((b) => (
+              <th key={b.key}>{b.label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {order.map((slot) => {
+            const t = totals(slot);
+            return (
+              <tr key={slot}>
+                <td>{nameOf(slot)}</td>
+                {BUCKETS.map((b) => (
+                  <td key={b.key}>{t[b.key]}</td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <p class="muted small">80+ heißt 80–99, 100+ heißt 100–119 usw.; jede Aufnahme zählt in genau einem Bereich.</p>
+    </>
+  );
+}
+
 function EndTable({ state, order, nameOf }: { state: X01State; order: number[]; nameOf: (s: number) => string }) {
+  return (
+    <>
+      <MatchTable state={state} order={order} nameOf={nameOf} />
+      <MatchCounts state={state} order={order} nameOf={nameOf} />
+    </>
+  );
+}
+
+function MatchTable({ state, order, nameOf }: { state: X01State; order: number[]; nameOf: (s: number) => string }) {
   const sets = state.setup.settings.sets;
   return (
-    <table class="table">
+    <table class="table match-table">
       <thead>
         <tr>
           <th>Spieler</th>

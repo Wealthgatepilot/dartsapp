@@ -64,11 +64,14 @@ test('ganzes Leg 501 Double-Out mit Bust, Rückgängig, Neuladen und Runde bearb
   await dart(page, 'D12');
   const end = page.getByRole('dialog', { name: 'Spielende' });
   await expect(end).toContainText('Gian gewinnt');
-  const gian = end.locator('tr', { hasText: 'Gian' });
+  const gian = end.locator('.match-table tr', { hasText: 'Gian' });
   // 501 Punkte in 12 Darts (Bust-Aufnahme zählt 3 Darts) = 125,25; höchster Checkout 141
   await expect(gian).toContainText('125,25');
   await expect(gian.locator('td').nth(3)).toHaveText('12');
   await expect(gian.locator('td').nth(4)).toHaveText('141');
+  // Aufnahmen im Match: zwei 180er, eine 141 (140+); Spalten 80+, 100+, 120+, 140+, 160+, 180
+  const counts = end.locator('.match-counts tr', { hasText: 'Gian' }).locator('td');
+  await expect(counts).toHaveText(['Gian', '0', '0', '0', '1', '0', '2']);
 
   await end.getByRole('button', { name: 'Fertig' }).click();
   await expect(page.locator('.list-row', { hasText: '🏆 Gian' })).toBeVisible();

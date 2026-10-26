@@ -32,8 +32,9 @@ test('Statistik nach einem X01-Leg', async ({ page }) => {
   await expect(row('Darts bis zum Finish')).toContainText('6');
   await expect(row('Höchster Checkout')).toContainText('81');
 
-  // Aufnahmen: eigene Tabelle mit gesamt und bestem Leg, kein Schnitt
+  // Aufnahmen: eigene Tabelle mit Schnitt je Leg, gesamt und bestem Leg
   await expect(page.locator('.table-compact tr', { hasText: 'gesamt' })).toBeVisible();
+  await expect(page.locator('.table-compact tr', { hasText: 'Ø je Leg' })).toBeVisible();
 
   // Verlauf: Diagramm und Tabelle
   await expect(page.locator('.chart-svg')).toBeVisible();

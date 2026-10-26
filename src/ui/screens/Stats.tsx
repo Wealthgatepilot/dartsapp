@@ -217,13 +217,15 @@ function Overview({ records, defs }: { records: LegRecord[]; defs: MetricDef[] }
   );
 }
 
-/** Zählwerte (Aufnahmen 80–99 … 180): zusammengezählt und das beste Leg – ein Schnitt je Leg wäre irreführend. */
+/** Zählwerte (Aufnahmen 80–99 … 180): Schnitt je Leg, zusammengezählt und das beste Leg (Wunsch Gianluca). */
 const COUNT_KEYS: MetricKey[] = ['s80', 's100', 's120', 's140', 's160', 's180'];
 
 function ScoreCounts({ records, defs }: { records: LegRecord[]; defs: MetricDef[] }) {
   const counts = defs.filter((d) => COUNT_KEYS.includes(d.key));
   const sum = (k: MetricKey) => records.reduce((s, r) => s + (r.values[k] ?? 0), 0);
   const best = (k: MetricKey) => Math.max(0, ...records.map((r) => r.values[k] ?? 0));
+  const perLeg = (k: MetricKey) =>
+    records.length ? (sum(k) / records.length).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
   const short = (d: MetricDef) => d.label.replace('Aufnahmen ', '');
   return (
     <>
@@ -238,6 +240,12 @@ function ScoreCounts({ records, defs }: { records: LegRecord[]; defs: MetricDef[
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td>Ø je Leg</td>
+            {counts.map((d) => (
+              <td key={d.key}>{perLeg(d.key)}</td>
+            ))}
+          </tr>
           <tr>
             <td>gesamt</td>
             {counts.map((d) => (
