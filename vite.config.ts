@@ -18,15 +18,14 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png', 'icon.svg'],
       manifest: {
-        // Fester Ausweis der App, an dem Android sie erkennt. Bewusst neu (vorher '/dartsapp/'): Auf einem
-        // Xiaomi-Handy blockierte ein unsichtbarer Rest der alten Installation jede neue („bereits installiert“).
-        // Die Daten hängen an der Adresse, nicht am Ausweis, und bleiben erhalten.
-        id: '/dartsapp/?app',
+        // Fester Ausweis der App: Android erkennt sie daran, auch wenn sich start_url später ändert.
+        // Entspricht dem bisherigen Standardwert, bestehende Installationen bleiben also gültig.
+        id: '/dartsapp/',
         name: 'Darts',
         short_name: 'Darts',
         description: 'Darts-Scorer für Familie und Freunde',
         lang: 'de',
-        start_url: '/dartsapp/?app',
+        start_url: '/dartsapp/',
         scope: '/dartsapp/',
         display: 'standalone',
         orientation: 'any',

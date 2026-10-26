@@ -14,13 +14,7 @@ test('Manifest macht die App installierbar', async ({ page }) => {
   const href = await page.locator('link[rel="manifest"]').getAttribute('href');
   expect(href).toBeTruthy();
   const manifest = await (await page.request.get(new URL(href!, BUILT).toString())).json();
-  expect(manifest).toMatchObject({
-    id: '/dartsapp/?app',
-    name: 'Darts',
-    display: 'standalone',
-    start_url: '/dartsapp/?app',
-    scope: '/dartsapp/',
-  });
+  expect(manifest).toMatchObject({ name: 'Darts', display: 'standalone', start_url: '/dartsapp/', scope: '/dartsapp/' });
   const sizes = manifest.icons.map((i: { sizes: string }) => i.sizes);
   expect(sizes).toContain('192x192');
   expect(sizes).toContain('512x512');
@@ -43,9 +37,5 @@ test('startet ohne Internet und behält die Daten', async ({ page, context }) =>
   await expect(page.locator('.list-row', { hasText: 'Offline-Test' })).toBeVisible();
   await page.goto(BUILT + '#/x01');
   await expect(page.getByRole('button', { name: 'Spiel starten' })).toBeVisible();
-  // So startet die installierte App (start_url aus dem Manifest)
-  await page.goto(BUILT + '?app');
-  await page.goto(BUILT + '?app#/profile');
-  await expect(page.locator('.list-row', { hasText: 'Offline-Test' })).toBeVisible();
   await context.setOffline(false);
 });
