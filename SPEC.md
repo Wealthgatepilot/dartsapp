@@ -266,6 +266,7 @@ Siehe 6.4.
 - Wer dran ist, ist deutlich hervorgehoben.
 - Bei vielen Spielern: Liste scrollt, der aktive Spieler bleibt sichtbar.
 - Knopf **„Bestleistung“** (Kapitel 12).
+- X01 mit mehr als einem Leg: Knopf **„Leg-Übersicht“** unter dem Spielstand. Tabelle je Leg mit dem 3-Dart-Average jedes Spielers, seinen Darts und dem Leg-Gewinner (✔), unten der Average über das Match. Das laufende Leg erscheint mit dem bisherigen Stand. Dieselbe Tabelle steht am Spielende, dazu die Aufnahmen 80+ … 180 im Match (Wunsch Gianluca, 26.10.2026).
 - Bildschirm bleibt an, solange ein Spiel läuft (Screen Wake Lock, wo unterstützt).
 
 ### 5.4 Regelerklärung
