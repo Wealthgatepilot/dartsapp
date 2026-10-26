@@ -1156,3 +1156,17 @@ button.pill-x {
 .dev-bad {
   color: #e66767;
 }
+.legs-button {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+.leg-overview td {
+  vertical-align: top;
+}
+.leg-won {
+  font-weight: 800;
+}
+.leg-total td {
+  font-weight: 800;
+  border-top: 2px solid #3a434c;
+}

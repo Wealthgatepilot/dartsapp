@@ -1,17 +1,19 @@
 // X01-Ansicht (SPEC 7.1): Reste, Rechenzeile, Bust, Checkout-Vorschlag.
 
-import { useMemo } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
 import { alternativeCheckout, formatCheckout, suggestCheckout, type AdviceLevel } from '../../engine/checkout';
 import { x01SetupOf } from '../../engine/games';
 import { x01LegMetrics } from '../../engine/metrics';
 import { formatAverage, legNumbers, matchNumbers, turnScore } from '../../engine/stats';
 import { fieldLabel, points } from '../../engine/types';
 import { computeX01, confirmTurn, planEdit, throwDart, undo, type Turn, type X01State } from '../../engine/x01';
+import { Modal } from '../components';
 import type { ModeViewProps } from './Game';
 import { GameShell } from './GameShell';
 
 export function X01Game({ game, gameEvents, nameOf, colorOf }: ModeViewProps) {
   const state = useMemo(() => computeX01(x01SetupOf(game), gameEvents), [game, gameEvents]);
+  const [showLegs, setShowLegs] = useState(false);
   if (game.created.mode !== 'x01') return null;
   const advice = game.created.advice;
   const turn = state.currentTurn;
@@ -26,7 +28,21 @@ export function X01Game({ game, gameEvents, nameOf, colorOf }: ModeViewProps) {
       state={state}
       nameOf={nameOf}
       colorOf={colorOf}
-      scoreboard={<Scoreboard state={state} order={game.order} activeSlot={activeSlot} nameOf={nameOf} colorOf={colorOf} />}
+      scoreboard={
+        <>
+          <Scoreboard state={state} order={game.order} activeSlot={activeSlot} nameOf={nameOf} colorOf={colorOf} />
+          {state.legs.length > 1 && (
+            <button class="btn btn-small legs-button" onClick={() => setShowLegs(true)}>
+              Leg-Übersicht ({state.legs.filter((l) => l.winner !== null).length} gespielt)
+            </button>
+          )}
+          {showLegs && (
+            <Modal title="Leg-Übersicht" onClose={() => setShowLegs(false)} wide>
+              <LegOverview state={state} order={game.order} nameOf={nameOf} />
+            </Modal>
+          )}
+        </>
+      }
       turnDetails={
         <>
           <TurnLine turn={turn} state={state} />
@@ -171,10 +187,69 @@ function MatchCounts({ state, order, nameOf }: { state: X01State; order: number[
   );
 }
 
+/**
+ * Leg-Übersicht (Wunsch Gianluca): je Leg der 3-Dart-Average jedes Spielers, wer gewonnen hat und mit wie vielen Darts.
+ * Unten der Average über das ganze Match. Ein laufendes Leg erscheint mit dem bisherigen Stand.
+ */
+export function LegOverview({ state, order, nameOf }: { state: X01State; order: number[]; nameOf: (s: number) => string }) {
+  const out = state.setup.settings.outMode;
+  const legs = state.legs.filter((l) => l.turns.length > 0);
+  const sets = state.setup.settings.sets;
+  return (
+    <div class="results-scroll">
+      <table class="table table-compact leg-overview">
+        <thead>
+          <tr>
+            <th>Leg</th>
+            {order.map((slot) => (
+              <th key={slot}>{nameOf(slot)}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {legs.map((leg) => (
+            <tr key={leg.leg}>
+              <td>
+                {leg.leg}
+                {sets ? <span class="muted"> · S{leg.set}</span> : null}
+                {leg.winner === null ? <span class="muted"> läuft</span> : null}
+              </td>
+              {order.map((slot) => {
+                const m = x01LegMetrics(leg, slot, out);
+                const won = leg.winner === slot;
+                return (
+                  <td key={slot} class={won ? 'leg-won' : ''}>
+                    {formatAverage(m.avg)}
+                    <div class="muted small">
+                      {won ? `✔ ${m.darts} Darts` : `${m.darts} Darts`}
+                    </div>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+          <tr class="leg-total">
+            <td>Match</td>
+            {order.map((slot) => (
+              <td key={slot}>{formatAverage(matchNumbers(state.legs, slot).average)}</td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function EndTable({ state, order, nameOf }: { state: X01State; order: number[]; nameOf: (s: number) => string }) {
   return (
     <>
       <MatchTable state={state} order={order} nameOf={nameOf} />
+      {state.legs.length > 1 && (
+        <>
+          <h3 class="subhead">Average je Leg</h3>
+          <LegOverview state={state} order={order} nameOf={nameOf} />
+        </>
+      )}
       <MatchCounts state={state} order={order} nameOf={nameOf} />
     </>
   );
