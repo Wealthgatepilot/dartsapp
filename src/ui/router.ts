@@ -17,6 +17,8 @@ export type Route =
   | { name: 'one21' }
   | { name: 'killer' }
   | { name: 'stats' }
+  | { name: 'history' }
+  | { name: 'review'; gameId: string }
   | { name: 'game'; gameId: string }
   | { name: 'settings' }
   | { name: 'boardtest' };
@@ -48,6 +50,8 @@ export function parseRoute(hash: string): Route {
       return { name: 'killer' };
     case 'statistik':
       return { name: 'stats' };
+    case 'verlauf':
+      return parts[1] ? { name: 'review', gameId: decodeURIComponent(parts[1]) } : { name: 'history' };
     case 'spiel':
       return parts[1] ? { name: 'game', gameId: decodeURIComponent(parts[1]) } : { name: 'home' };
     case 'einstellungen':
@@ -87,6 +91,10 @@ export function href(r: Route): string {
       return '#/killer';
     case 'stats':
       return '#/statistik';
+    case 'history':
+      return '#/verlauf';
+    case 'review':
+      return `#/verlauf/${encodeURIComponent(r.gameId)}`;
     case 'game':
       return `#/spiel/${encodeURIComponent(r.gameId)}`;
     case 'settings':

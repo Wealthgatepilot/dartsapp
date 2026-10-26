@@ -1315,3 +1315,53 @@ button.pill-x {
   font-size: 14px;
   margin-left: auto;
 }
+
+/* Spielverlauf und Rückblick (Wunsch Gianluca) */
+.game-row {
+  padding: 0;
+}
+.game-row a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  color: inherit;
+  text-decoration: none;
+}
+.game-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.review-favs {
+  margin-top: 8px;
+}
+.review-turns {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.review-turns li {
+  display: grid;
+  grid-template-columns: minmax(80px, 30%) 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 0;
+  border-bottom: 1px solid #313a43;
+  font-size: 14px;
+}
+.review-who {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.review .scoreboard {
+  margin-bottom: 8px;
+}

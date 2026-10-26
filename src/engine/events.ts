@@ -129,7 +129,9 @@ export type MatchEvent =
   | EventOf<'game.created', GameCreatedPayload>
   | EventOf<'game.orderDecided', { gameId: string; order: number[]; method: 'bull' | 'coin' | 'asEntered' }>
   | EventOf<'game.ended', { gameId: string; reason: 'finished' | 'abandoned' }>
-  | EventOf<'game.hidden', { gameId: string }>;
+  | EventOf<'game.hidden', { gameId: string }>
+  /** Ein Profil markiert ein Spiel als Favorit (bzw. nimmt die Markierung zurück); das letzte Ereignis zählt. */
+  | EventOf<'game.favorite', { gameId: string; profileId: string; favorite: boolean }>;
 
 /** Alle Ereignisse der App. */
 export type AppEvent = GameEvent | ProfileEvent | MatchEvent;

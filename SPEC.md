@@ -136,6 +136,7 @@ Statt „Spielstand 351“ speichert die App nur, **was passiert ist**: „Dart 
 | `event.voided` | `gameId`, `targetId`, `reason` (`undo` / `edit`) | Rückgängig oder Runde bearbeiten |
 | `game.ended` | `gameId`, `reason` (`finished` / `abandoned`) | Spielende (Ergebnis wird berechnet, nicht gespeichert) |
 | `game.hidden` | `gameId` | Spiel aus Listen und Statistik ausblenden (nur mit Freigabe, nie echtes Löschen) |
+| `game.favorite` | `gameId`, `profileId`, `favorite` | Profil markiert ein Spiel als Favorit (bzw. nimmt es zurück); das letzte Ereignis zählt |
 | `tournament.created`, `tournament.matchAssigned` | siehe Kapitel 8 | Turnier (Phase 4) |
 | `profile.linked` | `fromProfileId`, `toProfileId` | Gleiche Person auf zwei Geräten zusammenführen (Phase 5) |
 
@@ -274,6 +275,13 @@ Siehe 6.4.
 Jeder Modus hat einen Regeltext aus Bausteinen. Die Bausteine werden nach den gewählten Einstellungen zusammengesetzt, z. B. bei X01 mit Double-In: „Deine Punkte zählen erst, wenn du ein Double triffst. Das Double selbst zählt schon.“ Die Texte stehen in Kapitel 7 je Modus unter „Regeltext“.
 
 Darunter erklärt die Regelansicht **alle Varianten des Modus im Überblick**, nicht nur die gewählte – z. B. bei Cricket, was sich bei Cut-Throat gegenüber Standard ändert, bei X01 alle In- und Out-Arten, Legs/Sets, Checkout-Hilfe und Handicap; in jedem Modus auch, wie bestimmt wird, wer beginnt (Wunsch Gianluca, 26.10.2026).
+
+### 5.5 Spielverlauf und Favoriten (Wunsch Gianluca, 26.10.2026)
+
+- Startseite: „Letzte Spiele“ zeigt nur die 3 neuesten beendeten Spiele, dazu „Alle Spiele im Spielverlauf“ und im Menü „Spielverlauf“.
+- Spielverlauf: alle Spiele (auch abgebrochene und laufende, ohne ausgeblendete), neueste zuerst, je 30, „Mehr anzeigen“. Filter: Modus, Spieler (Profil), „★ Favoriten“ (mit Spieler: nur dessen Favoriten).
+- Ein Spiel antippen öffnet den Rückblick: Ergebnis wie am Spielende, Kennzahlen je Profil (je Leg; Kennzahlen als Zeilen, Spieler als Spalten), alle Aufnahmen mit Darts und Summe. Kein Board, kein Computer, keine Ansagen. Ein laufendes Spiel hat „Weiterspielen“.
+- Favoriten: Im Rückblick hat jedes beteiligte Profil einen Stern; antippen setzt bzw. nimmt den Favoriten zurück (Ereignis `game.favorite`). Favoriten stehen mit ★ in den Listen.
 
 ---
 

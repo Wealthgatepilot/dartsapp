@@ -2,7 +2,7 @@
 // Knöpfe, Board, Runde bearbeiten und Spielende. Der Modus liefert Stand, Regeln und Texte.
 
 import type { ComponentChildren } from 'preact';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import type { CoreState, DartView, EditPlan, TurnBase } from '../../engine/core';
 import { BOT_DELAY_MS, planAim, throwAtPoint, type Point } from '../../engine/bot';
 import { botAim, botSigma, sameField } from '../../engine/botaim';
@@ -17,7 +17,9 @@ import { TopBar } from '../components';
 import { speak, speechSupported, useSpeechEnabled } from '../speech';
 import { useAppData } from '../data';
 import { href, navigate } from '../router';
+import { ReviewContext } from '../review';
 import { BestCompare } from './BestCompare';
+import { GameReview } from './GameReview';
 import { EditRound } from './EditRound';
 import { MatchEnd } from './MatchEnd';
 
@@ -82,6 +84,8 @@ export function GameShell(p: ShellProps) {
   const busyRef = useRef(false);
   const [editing, setEditing] = useState(false);
   const [showBest, setShowBest] = useState(false);
+  // Rückblick aus dem Spielverlauf: keine Eingabe, kein Computer, keine Ansagen
+  const review = useContext(ReviewContext);
 
   useWakeLock();
   useNoPinchZoom();
@@ -90,7 +94,7 @@ export function GameShell(p: ShellProps) {
   // Am Spielende den Sieger ansagen – nur wenn das Spiel gerade eben endet, nicht beim Öffnen eines fertigen Spiels.
   const wasFinished = useRef(state.finished);
   useEffect(() => {
-    if (state.finished && !wasFinished.current) speak(matchCallout({ mode: game.created.mode, state } as AnyGameState, p.nameOf));
+    if (state.finished && !wasFinished.current && !review) speak(matchCallout({ mode: game.created.mode, state } as AnyGameState, p.nameOf));
     wasFinished.current = state.finished;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.finished]);
@@ -101,7 +105,7 @@ export function GameShell(p: ShellProps) {
   const botStuck = useRef<{ key: string; points: Point[] }>({ key: '', points: [] });
   const nextKey = state.next ? `${state.next.leg}|${state.next.slot}|${state.next.turnIndex}|${state.next.dartIndex}` : '';
   useEffect(() => {
-    if (!bot || state.finished || editing || p.blockConfirm || !state.next || busy) return;
+    if (review || !bot || state.finished || editing || p.blockConfirm || !state.next || busy) return;
     const timer = setTimeout(() => {
       const g = { mode: game.created.mode, state } as AnyGameState;
       const wanted = botAim(g);
@@ -180,6 +184,8 @@ export function GameShell(p: ShellProps) {
     await append(evs);
     navigate(rematch ? { name: 'game', gameId: newId } : { name: 'home' }, true);
   };
+
+  if (review) return <GameReview shell={p} act={act} />;
 
   const turn: TurnBase | null = state.currentTurn;
   const activeSlot = state.next?.slot ?? turn?.slot ?? game.order[0];

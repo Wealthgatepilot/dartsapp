@@ -58,6 +58,7 @@ const KNOWN_TYPES = new Set<string>([
   'game.orderDecided',
   'game.ended',
   'game.hidden',
+  'game.favorite',
   'dart.thrown',
   'turn.confirmed',
   'event.voided',
@@ -109,9 +110,12 @@ export function checkEvent(e: unknown): string | null {
         ? null
         : 'Ausbullen-Wurf unvollständig';
     case 'game.decision':
-      return isStr(p.gameId) && isNum(p.slot) && isNum(p.turnIndex) && typeof p.end === 'boolean'
+      // Shanghai: Spiel beenden ja/nein; 121: Zahl überspringen
+      return isStr(p.gameId) && isNum(p.slot) && isNum(p.turnIndex) && (p.kind === 'skip' || typeof p.end === 'boolean')
         ? null
         : 'Entscheidung unvollständig';
+    case 'game.favorite':
+      return isStr(p.gameId) && isStr(p.profileId) && typeof p.favorite === 'boolean' ? null : 'Favorit unvollständig';
   }
   return null;
 }

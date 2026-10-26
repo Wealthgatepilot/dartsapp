@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'preact/hooks';
-import { computeGame, gameTitle, listGames, unfinishedGame } from '../../engine/games';
+import { gameTitle, listGames, unfinishedGame } from '../../engine/games';
 import { listProfiles } from '../../engine/profiles';
 import { isInstalled } from '../../data/persist';
 import { BACKUP_REMINDER_DAYS, daysSince, exportBackup } from '../backup';
@@ -8,6 +8,8 @@ import { participantName } from '../names';
 import { usePwa } from '../pwa';
 import { href, navigate } from '../router';
 import { lastBackupText } from './BackupCard';
+import { GameRow } from './History';
+import { favoritesOf } from '../../engine/favorites';
 
 function isIos(): boolean {
   return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.userAgent.includes('Mac') && navigator.maxTouchPoints > 1);
@@ -27,7 +29,8 @@ export function Home() {
   });
   const profiles = useMemo(() => listProfiles(events), [events]);
   const running = useMemo(() => unfinishedGame(events), [events]);
-  const recent = useMemo(() => listGames(events).filter((g) => g.ended === 'finished' && !g.hidden).slice(0, 5), [events]);
+  const favorites = useMemo(() => favoritesOf(events), [events]);
+  const recent = useMemo(() => listGames(events).filter((g) => g.ended === 'finished' && !g.hidden).slice(0, 3), [events]);
 
   // Erinnerung nach beendeten Spielen, wenn die letzte Sicherung 7 Tage oder länger her ist (SPEC 13.3).
   const age = daysSince(lastBackupAt);
@@ -185,6 +188,10 @@ export function Home() {
           <strong>Statistik</strong>
           <span class="muted">Verlauf, Heatmap, Doppelquote</span>
         </a>
+        <a class="menu-item" href={href({ name: 'history' })}>
+          <strong>Spielverlauf</strong>
+          <span class="muted">Alle Spiele, Favoriten</span>
+        </a>
         <a class="menu-item" href={href({ name: 'profiles' })}>
           <strong>Profile</strong>
           <span class="muted">{profiles.filter((p) => !p.archived).length} Spieler</span>
@@ -195,21 +202,13 @@ export function Home() {
         <section>
           <h2 class="section-title">Letzte Spiele</h2>
           <ul class="list">
-            {recent.map((g) => {
-              const winners = computeGame(g, events).state.matchWinners ?? [];
-              const names = g.created.participants
-                .filter((p) => winners.includes(p.slot))
-                .map((p) => participantName(p, profiles));
-              return (
-                <li key={g.created.gameId} class="list-row">
-                  <span>
-                    {gameTitle(g.created)} · {g.created.participants.map((p) => participantName(p, profiles)).join(', ')}
-                  </span>
-                  <span class="muted">{names.length ? `🏆 ${names.join(', ')}` : ''}</span>
-                </li>
-              );
-            })}
+            {recent.map((g) => (
+              <GameRow key={g.created.gameId} game={g} profiles={profiles} favorite={!!favorites.get(g.created.gameId)?.size} />
+            ))}
           </ul>
+          <a class="btn" href={href({ name: 'history' })}>
+            Alle Spiele im Spielverlauf
+          </a>
         </section>
       )}
     </div>

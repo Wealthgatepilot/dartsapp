@@ -199,3 +199,16 @@ describe('Beschädigte oder fremde Dateien ändern nichts', () => {
     expect(r.ok).toBe(false);
   });
 });
+
+describe('Neue Ereignisarten in der Sicherung', () => {
+  it('121-„Überspringen“ und Favoriten lassen sich sichern und wieder einlesen', async () => {
+    const a = await deviceWithGame();
+    await a.append([
+      { type: 'game.decision', payload: { gameId: 'g1', slot: 0, turnIndex: 2, kind: 'skip' } },
+      { type: 'game.favorite', payload: { gameId: 'g1', profileId: 'p1', favorite: true } },
+    ]);
+    const file = JSON.stringify(await buildBackup(await a.all(), a.deviceId, 'test'));
+    const parsed = await parseBackup(file);
+    expect(parsed.ok).toBe(true);
+  });
+});

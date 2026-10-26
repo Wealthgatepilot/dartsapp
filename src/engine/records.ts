@@ -171,7 +171,7 @@ export function groupOf(game: GameInfo, slot: number): { group: string; label: s
       };
     }
     case 'countup':
-      return { group: `countup|${c.settings.rounds}`, label: `Count-Up · ${c.settings.rounds} Runden` };
+      return { group: `countup|${c.settings.rounds}`, label: `Count-Up · ${c.settings.rounds === 1 ? '1 Runde' : `${c.settings.rounds} Runden`}` };
     case 'atc':
       return {
         group: `atc|${c.settings.withBull}|${c.settings.ring}|${c.settings.ring === 'any' && c.settings.jumps}`,

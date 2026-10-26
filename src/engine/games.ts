@@ -188,7 +188,7 @@ export function gameTitle(c: GameCreatedPayload): string {
     case 'doubles':
       return 'Doppelfeld-Training';
     case 'countup':
-      return `Count-Up · ${c.settings.rounds} Runden`;
+      return `Count-Up · ${c.settings.rounds === 1 ? '1 Runde' : `${c.settings.rounds} Runden`}`;
     case 'atc':
       return `Around the Clock${atcVariantLabel(c.settings)}`;
     case 'bobs':

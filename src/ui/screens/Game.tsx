@@ -7,6 +7,7 @@ import { listProfiles } from '../../engine/profiles';
 import { TopBar } from '../components';
 import { useAppData } from '../data';
 import { participantColor, participantName } from '../names';
+import { ReviewContext } from '../review';
 import { href } from '../router';
 import { AtcGame } from './AtcGame';
 import { BobsGame } from './BobsGame';
@@ -28,7 +29,7 @@ export interface ModeViewProps {
   colorOf: (slot: number) => string;
 }
 
-export function Game({ gameId }: { gameId: string }) {
+export function Game({ gameId, review = false }: { gameId: string; review?: boolean }) {
   const { events } = useAppData();
   const profiles = useMemo(() => listProfiles(events), [events]);
   const game = useMemo(() => listGames(events).find((g) => g.created.gameId === gameId), [events, gameId]);
@@ -51,8 +52,21 @@ export function Game({ gameId }: { gameId: string }) {
     colorOf: (slot) => participantColor(participant(slot), profiles),
   };
   // Erst festlegen, wer beginnt (Ausbullen oder Münzwurf), dann spielen.
-  if (!game.orderDecided) return <StartOrder {...props} />;
-  switch (game.created.mode) {
+  if (!game.orderDecided) {
+    return review ? (
+      <div class="page">
+        <TopBar title="Spiel" back={href({ name: 'history' })} />
+        <p>Bei diesem Spiel stand noch nicht fest, wer beginnt – es gibt nichts anzuzeigen.</p>
+      </div>
+    ) : (
+      <StartOrder {...props} />
+    );
+  }
+  return <ReviewContext.Provider value={review}>{modeView(props)}</ReviewContext.Provider>;
+}
+
+function modeView(props: ModeViewProps) {
+  switch (props.game.created.mode) {
     case 'x01':
       return <X01Game {...props} />;
     case 'cricket':

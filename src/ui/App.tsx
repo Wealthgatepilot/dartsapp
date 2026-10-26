@@ -15,6 +15,7 @@ import { Home } from './screens/Home';
 import { Profiles } from './screens/Profiles';
 import { Settings } from './screens/Settings';
 import { ShanghaiSetup } from './screens/ShanghaiSetup';
+import { History } from './screens/History';
 import { Stats } from './screens/Stats';
 import { X01Setup } from './screens/X01Setup';
 
@@ -58,6 +59,10 @@ function Screens() {
       return <KillerSetup />;
     case 'stats':
       return <Stats />;
+    case 'history':
+      return <History />;
+    case 'review':
+      return <Game key={'r' + route.gameId} gameId={route.gameId} review />;
     case 'game':
       return <Game key={route.gameId} gameId={route.gameId} />;
     case 'settings':
