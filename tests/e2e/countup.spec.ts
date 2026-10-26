@@ -53,7 +53,7 @@ test('Handicap: eigener Startwert je Spieler', async ({ page }) => {
   await page.getByRole('button', { name: 'Schließen' }).click();
   await page.getByRole('button', { name: 'Spiel starten' }).click();
 
-  const rest = (name: string) => page.locator('.score-card', { hasText: name }).locator('.score-rest');
+  const rest = (name: string) => page.locator('.block', { hasText: name }).locator('.block-big');
   await expect(rest('Gian')).toHaveText('501');
   await expect(rest('Jörn')).toHaveText('301');
   await turn(page, 'T20', 'T20', 'T20');

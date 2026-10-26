@@ -27,7 +27,7 @@ test("Bob's 27 bis zum Ausscheiden", async ({ page }) => {
   await page.getByRole('button', { name: 'Schließen' }).click();
   await page.getByRole('button', { name: 'Spiel starten' }).click();
 
-  const score = page.locator('.score-card .score-rest');
+  const score = page.locator('.block .block-big');
   await expect(score).toHaveText('27');
   await expect(page.locator('.hm-hit')).toHaveText('D1');
 

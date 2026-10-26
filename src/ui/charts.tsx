@@ -169,7 +169,7 @@ export function HeatBoard({ counts, total }: { counts: Record<string, number>; t
   const max = Math.max(...Object.values(counts));
   const fill = (key: string) => {
     const c = counts[key] ?? 0;
-    if (!c) return '#2a3138';
+    if (!c) return 'var(--board-miss)';
     return RAMP[Math.min(RAMP.length - 1, Math.floor((c / max) * (RAMP.length - 1)))];
   };
   const share = (key: string) =>
@@ -178,8 +178,7 @@ export function HeatBoard({ counts, total }: { counts: Record<string, number>; t
   const seg = (key: string, d: string) => (
     <path
       d={d}
-      fill={fill(key)}
-      stroke="#14181c"
+      style={{ fill: fill(key), stroke: 'var(--bg)' }}
       stroke-width="0.6"
       class={sel === key ? 'heat-sel' : ''}
       onClick={() => setSel(key)}

@@ -3,6 +3,7 @@ import { Segmented, TopBar } from '../components';
 import { useAppData } from '../data';
 import { href } from '../router';
 import { speechSupported, useSpeechEnabled } from '../speech';
+import { type Theme, useTheme } from '../theme';
 import { BackupCard } from './BackupCard';
 
 const PERSIST_TEXT = {
@@ -15,6 +16,7 @@ export function Settings() {
   const { events, store, persist } = useAppData();
   const installed = isInstalled();
   const [speechOn, setSpeechOn] = useSpeechEnabled();
+  const [theme, setTheme] = useTheme();
   return (
     <div class="page">
       <TopBar title="Einstellungen" back={href({ name: 'home' })} />
@@ -36,6 +38,22 @@ export function Settings() {
       </section>
 
       <BackupCard />
+
+      <section class="card">
+        <h2>Aussehen</h2>
+        <div class="setting">
+          <span>Farben</span>
+          <Segmented
+            label="Aussehen"
+            value={theme}
+            options={[
+              { value: 'kreide', label: 'Kreidegrau' },
+              { value: 'dunkel', label: 'Dunkel' },
+            ]}
+            onChange={(v) => setTheme(v as Theme)}
+          />
+        </div>
+      </section>
 
       <section class="card">
         <h2>Sprachausgabe</h2>

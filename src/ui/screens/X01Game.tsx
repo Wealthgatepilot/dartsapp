@@ -7,6 +7,7 @@ import { x01LegMetrics } from '../../engine/metrics';
 import { formatAverage, legNumbers, matchNumbers, turnScore } from '../../engine/stats';
 import { fieldLabel, points } from '../../engine/types';
 import { computeX01, confirmTurn, planEdit, throwDart, undo, type Turn, type X01State } from '../../engine/x01';
+import { type Block, PlayerBlocks } from '../blocks';
 import { Modal } from '../components';
 import type { ModeViewProps } from './Game';
 import { GameShell } from './GameShell';
@@ -86,30 +87,39 @@ function Scoreboard({
   colorOf: (s: number) => string;
 }) {
   const sets = state.setup.settings.sets;
-  return (
-    <div class="scoreboard">
-      {order.map((slot) => {
-        const match = matchNumbers(state.legs, slot);
-        return (
-          <div
-            key={slot}
-            class={slot === activeSlot ? 'score-card active' : 'score-card'}
-            style={{ borderColor: slot === activeSlot ? colorOf(slot) : undefined }}
-          >
-            <div class="score-name">
-              <span class="dot" style={{ background: colorOf(slot) }} /> {nameOf(slot)}
-            </div>
-            <div class="score-rest">{state.remaining[slot]}</div>
-            <div class="score-meta">
-              {sets ? `Sets ${state.setsWon[slot]} · ` : ''}Legs {sets ? state.legsWonInSet[slot] : state.legsWon[slot]} · Ø{' '}
-              {formatAverage(match.average)}
-            </div>
-            {!state.isIn[slot] && <div class="score-meta">noch nicht drin</div>}
-          </div>
-        );
-      })}
-    </div>
-  );
+  const out = state.setup.settings.outMode;
+  const leg = state.legs[state.legs.length - 1];
+  const blocks: Block[] = order.map((slot) => {
+    const match = matchNumbers(state.legs, slot);
+    const legMetrics = state.legs.map((l) => x01LegMetrics(l, slot, out));
+    const current = legMetrics[legMetrics.length - 1];
+    const attempts = legMetrics.reduce((n, m) => n + m.doubleAttempts, 0);
+    const checkouts = legMetrics.reduce((n, m) => n + m.checkouts, 0);
+    const finishes = legMetrics.flatMap((m) => (m.dartsToFinish === null ? [] : [m.dartsToFinish]));
+    const last = [...leg.turns].reverse().find((t) => t.slot === slot && t.confirmed);
+    return {
+      slot,
+      name: nameOf(slot),
+      color: colorOf(slot),
+      big: String(state.remaining[slot]),
+      badge: sets ? `${state.setsWon[slot]}·${state.legsWonInSet[slot]}` : String(state.legsWon[slot]),
+      badgeLabel: sets ? 'Sets · Legs' : 'Legs',
+      note: !state.isIn[slot] ? 'noch nicht drin' : undefined,
+      pages: [
+        [
+          { label: 'Ø 3 Darts', value: formatAverage(match.average) },
+          { label: 'Letzte Aufnahme', value: last ? (last.bust ? 'Bust' : String(turnScore(last))) : '–' },
+          { label: 'Darts', value: String(current.darts) },
+        ],
+        [
+          { label: 'First 9', value: formatAverage(current.first9) },
+          { label: 'Checkout', value: attempts ? `${Math.round((checkouts / attempts) * 100)} %` : '–' },
+          { label: 'Bestes Leg', value: finishes.length ? `${Math.min(...finishes)} Darts` : '–' },
+        ],
+      ],
+    };
+  });
+  return <PlayerBlocks blocks={blocks} activeSlot={activeSlot} />;
 }
 
 function TurnLine({ turn, state }: { turn: Turn | null; state: X01State }) {

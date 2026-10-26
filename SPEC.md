@@ -230,7 +230,7 @@ Drei große Flächen nebeneinander (Hochformat: untereinander), wie in App 2:
 | **Falsch** | Dart hat das Ziel verfehlt (`hit = false`, `field = null`) |
 | **Treffer**, beschriftet mit dem Ziel (z. B. „D15“) | Dart hat das Ziel getroffen (`hit = true`, `field = Ziel`) |
 
-Darüber die Aufnahme-Leiste mit 3 Plätzen und dem **Weiter**-Knopf. Jede Fläche ist mindestens ein Drittel der Breite und 40 % der Bildschirmhöhe groß.
+Darüber die Aufnahme-Leiste mit 3 Plätzen und dem **Weiter**-Knopf. Die Flächen nehmen höchstens etwa ein Viertel der Bildschirmhöhe ein, mindestens aber 120 Punkte, damit die Anzeige darüber groß bleibt (Wunsch Gianluca, 26.10.2026; vorher 40 %).
 
 ### 4.6 Ausbullen-Eingabe
 
@@ -264,8 +264,9 @@ Siehe 6.4.
 ### 5.3 Anzeige während des Spiels
 
 - Je Spieler: Name, Stand (Rest bzw. Punkte/Marks), Darts, Average bzw. Marks pro Runde, bei X01 Checkout-Vorschlag.
-- Wer dran ist, ist deutlich hervorgehoben.
+- Wer dran ist, ist deutlich hervorgehoben: Rand in seiner Spielerfarbe, die Fläche bleibt in der Kartenfarbe.
 - Bei vielen Spielern: Liste scrollt, der aktive Spieler bleibt sichtbar.
+- **Spielerblöcke** in X01, Doppelfeld-Training und Bob's 27 (Wunsch Gianluca, 26.10.2026): je Spieler ein Block mit Kreis und Anfangsbuchstabe in der Spielerfarbe, Name, dunklem Kästchen (X01: gewonnene Legs, im Set-Modus Sets · Legs; Training: getroffene Felder; Bob's 27: Ziel), großem Stand und Kennzahl-Zeilen. Wischen oder Antippen der Kennzahlen wechselt auf eine zweite Seite (zwei Punkte zeigen die Seite). X01 Seite 1: Ø 3 Darts, letzte Aufnahme, Darts im Leg; Seite 2: First 9, Checkout-Quote, bestes Leg. Hochformat: Blöcke nebeneinander (2 Spieler) bzw. zwei je Zeile; Querformat: untereinander neben dem Board.
 - Knopf **„Bestleistung“** (Kapitel 12).
 - X01 mit mehr als einem Leg: Knopf **„Legs“** in der Kopfzeile (Leg-Übersicht, immer sichtbar). Tabelle je Leg mit dem 3-Dart-Average jedes Spielers, seinen Darts, dem Leg-Gewinner (✔) und den Aufnahmen 80+ … 180 dieses Legs (nur Bereiche, die vorkamen, z. B. „100+ ×2“), unten der Average über das Match. Das laufende Leg erscheint mit dem bisherigen Stand. Dieselbe Tabelle steht am Spielende, dazu die Aufnahmen 80+ … 180 im Match (Wunsch Gianluca, 26.10.2026).
 - Bildschirm bleibt an, solange ein Spiel läuft (Screen Wake Lock, wo unterstützt).
@@ -282,6 +283,24 @@ Darunter erklärt die Regelansicht **alle Varianten des Modus im Überblick**, n
 - Spielverlauf: alle Spiele (auch abgebrochene und laufende, ohne ausgeblendete), neueste zuerst, je 30, „Mehr anzeigen“. Filter: Modus, Spieler (Profil), „★ Favoriten“ (mit Spieler: nur dessen Favoriten).
 - Ein Spiel antippen öffnet den Rückblick: Ergebnis wie am Spielende, Kennzahlen je Profil (je Leg; Kennzahlen als Zeilen, Spieler als Spalten), alle Aufnahmen mit Darts und Summe. Kein Board, kein Computer, keine Ansagen. Ein laufendes Spiel hat „Weiterspielen“.
 - Favoriten: Im Rückblick hat jedes beteiligte Profil einen Stern; antippen setzt bzw. nimmt den Favoriten zurück (Ereignis `game.favorite`). Favoriten stehen mit ★ in den Listen.
+
+### 5.6 Aussehen (Haltepunkt F, Wahl Gianluca 26.10.2026)
+
+Alle Farben stehen an einer Stelle als benannte Werte; jeder Bildschirm nimmt sie von dort. Zwei Farbsätze, umschaltbar unter Einstellungen → Aussehen (je Gerät gemerkt, wie die Sprachausgabe):
+
+| Wert | Kreidegrau (Standard) | Dunkel (bisher) |
+|---|---|---|
+| Hintergrund | #c4c1b8 | #14181c |
+| Karten | #dcd9d1 | #1d2329 |
+| Linien | #a19e95 | #3a434c |
+| Schrift | #1f2328 | #f1f3f5 |
+| Schrift gedämpft | #47453f | #8b96a1 |
+| Akzent (Knöpfe, Auswahl) | #e8590c, Schrift darauf #212529 | #f0b429, Schrift darauf #111 |
+| Akzent als Schrift | #a33a06 | #f0b429 |
+
+- Die Scheibe behält ihre Farben (schwarz, creme, rot, grün); nur der Rand außerhalb der Felder folgt dem Farbsatz.
+- Die Heatmap bleibt blau – weiß – rot.
+- Schrift: Systemschrift des Geräts. Eine schmale Zahlenschrift ist eine Idee für später (ROADMAP).
 
 ---
 

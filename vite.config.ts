@@ -29,8 +29,8 @@ export default defineConfig({
         scope: '/dartsapp/',
         display: 'standalone',
         orientation: 'any',
-        background_color: '#14181c',
-        theme_color: '#14181c',
+        background_color: '#c4c1b8',
+        theme_color: '#c4c1b8',
         icons: [
           { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },

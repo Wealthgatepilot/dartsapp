@@ -6,6 +6,7 @@ import { quote } from '../../engine/doubles';
 import { bobsSetupOf } from '../../engine/games';
 import { bobsMetrics } from '../../engine/metrics';
 import { fieldLabel } from '../../engine/types';
+import { type Block, PlayerBlocks } from '../blocks';
 import type { ModeViewProps } from './Game';
 import { GameShell } from './GameShell';
 
@@ -25,28 +26,31 @@ export function BobsGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps) {
       nameOf={nameOf}
       colorOf={colorOf}
       scoreboard={
-        <div class="scoreboard">
-          {game.order.map((slot) => {
+        <PlayerBlocks
+          activeSlot={activeSlot}
+          blocks={game.order.map((slot): Block => {
             const m = bobsMetrics(state, slot);
             const out = ls.out.includes(slot);
-            return (
-              <div
-                key={slot}
-                class={slot === activeSlot ? 'score-card active' : 'score-card'}
-                style={{ borderColor: slot === activeSlot ? colorOf(slot) : undefined }}
-              >
-                <div class="score-name">
-                  <span class="dot" style={{ background: colorOf(slot) }} /> {nameOf(slot)}
-                </div>
-                <div class="score-rest">{state.score[slot]}</div>
-                <div class="score-meta">
-                  {out ? 'ausgeschieden' : `${Math.min(ls.played[slot], BOBS_TARGETS.length)}/${BOBS_TARGETS.length} Ziele`} · Quote{' '}
-                  {quote(m.hits, m.darts)}
-                </div>
-              </div>
-            );
+            const played = Math.min(ls.played[slot], BOBS_TARGETS.length);
+            const done = played >= BOBS_TARGETS.length;
+            return {
+              slot,
+              name: nameOf(slot),
+              color: colorOf(slot),
+              big: String(state.score[slot]),
+              badge: out ? '✕' : done ? '✓' : fieldLabel(BOBS_TARGETS[played]),
+              badgeLabel: out ? 'ausgeschieden' : 'Ziel',
+              dim: out,
+              pages: [
+                [
+                  { label: 'Ziele', value: out ? 'ausgeschieden' : `${played}/${BOBS_TARGETS.length}` },
+                  { label: 'Getroffen', value: `${m.hits} / ${m.darts}` },
+                  { label: 'Quote', value: quote(m.hits, m.darts) },
+                ],
+              ],
+            };
           })}
-        </div>
+        />
       }
       turnDetails={
         <div class="calc">

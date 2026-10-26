@@ -1,15 +1,73 @@
 /* Schlichte Optik für Phase 1 (SPEC: keine Animationen vor Phase 3). */
 
+/* Farbsätze (SPEC 5.6): Kreidegrau ist Standard, „Dunkel“ ist das bisherige Aussehen.
+   Jede Farbe der App steht hier; die Regeln unten nehmen nur diese Werte. */
 :root {
-  --bg: #14181c;
-  --panel: #1d2329;
-  --text: #f1f3f5;
-  --muted: #8b96a1;
-  --accent: #f0b429;
+  --bg: #c4c1b8;
+  --panel: #dcd9d1;
+  --raised: #e6e3dc;
+  --text: #1f2328;
+  --muted: #47453f;
+  --accent: #e8590c;
+  --on-accent: #212529;
+  --accent-text: #a33a06;
+  --line: #a19e95;
+  --line-soft: #bdbab1;
+  --btn: #cbc8bf;
+  --btn-strong: #b7b4ab;
+  --pill: #b7b4ab;
+  --input-bg: #ece9e2;
+  --danger: #a32d2d;
+  --miss-bg: #f2c4c4;
+  --miss-text: #791f1f;
+  --banner: #c9dfc4;
+  --board-miss: #b3b0a7;
+  --board-miss-active: #9a978e;
+  --board-label: #212529;
+  --board-grey: #9a978e;
+  --board-grey-ring: #8a877f;
+  --chart-grid: #b7b4ab;
+  --chart-cross: #a19e95;
+  --chart-tick: #47453f;
+  --overlay-btn: rgba(220, 217, 209, 0.9);
+  --good: #2b7a0b;
+  --bad: #c92a2a;
   --red: #d64545;
   --green: #2f9e5b;
   --dark: #1b1b1b;
   --light: #efe6cf;
+  color-scheme: light;
+}
+:root[data-theme='dunkel'] {
+  --bg: #14181c;
+  --panel: #1d2329;
+  --raised: #2b3540;
+  --text: #f1f3f5;
+  --muted: #8b96a1;
+  --accent: #f0b429;
+  --on-accent: #111;
+  --accent-text: #f0b429;
+  --line: #3a434c;
+  --line-soft: #2c343c;
+  --btn: #313a43;
+  --btn-strong: #4a5560;
+  --pill: #3a434c;
+  --input-bg: #12161a;
+  --danger: #ff8787;
+  --miss-bg: #5a2a2a;
+  --miss-text: #f1f3f5;
+  --banner: #2f4a37;
+  --board-miss: #2a3138;
+  --board-miss-active: #4a5560;
+  --board-label: #fff;
+  --board-grey: #5c636a;
+  --board-grey-ring: #474d53;
+  --chart-grid: #2c2c2a;
+  --chart-cross: #383835;
+  --chart-tick: #898781;
+  --overlay-btn: rgba(20, 24, 28, 0.85);
+  --good: #0ca30c;
+  --bad: #e66767;
   color-scheme: dark;
 }
 
@@ -117,10 +175,10 @@ button {
 /* ---------- Board-Farben ---------- */
 
 .b-miss {
-  fill: #2a3138;
+  fill: var(--board-miss);
 }
 .b-miss-active {
-  fill: #4a5560;
+  fill: var(--board-miss-active);
 }
 .b-single-dark {
   fill: var(--dark);
@@ -139,13 +197,13 @@ button {
   pointer-events: none;
 }
 .b-label {
-  fill: #fff;
+  fill: var(--board-label);
   font-size: 9px;
   font-weight: 700;
   pointer-events: none;
 }
 .b-label-active {
-  fill: var(--accent);
+  fill: var(--accent-text);
 }
 
 /* ---------- Ring-Leiste ---------- */
@@ -158,6 +216,7 @@ button {
   overflow: hidden;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
   pointer-events: none;
+  color: #fff;
 }
 .ringbar-cancel {
   opacity: 0.35;
@@ -208,7 +267,7 @@ button {
   font-weight: 800;
 }
 .preview-on {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 .preview .muted {
   font-size: 15px;
@@ -226,14 +285,16 @@ button {
   border: 0;
   border-radius: 999px;
   padding: 8px 14px;
-  background: #3a434c;
+  background: var(--pill);
   font-weight: 700;
 }
 .pill.m2 {
   background: var(--green);
+  color: #fff;
 }
 .pill.m3 {
   background: var(--red);
+  color: #fff;
 }
 .pill-x {
   opacity: 0.7;
@@ -253,7 +314,7 @@ button {
   padding: 0 18px;
   border: 0;
   border-radius: 10px;
-  background: #313a43;
+  background: var(--btn);
   font-weight: 700;
 }
 .btn:disabled {
@@ -262,7 +323,7 @@ button {
 .btn-big {
   flex: 1;
   min-width: 56px;
-  background: #4a5560;
+  background: var(--btn-strong);
 }
 
 .setting {
@@ -280,11 +341,11 @@ button {
   min-height: 44px;
   padding: 0 12px;
   border: 0;
-  background: #313a43;
+  background: var(--btn);
 }
 .segmented button.on {
   background: var(--accent);
-  color: #111;
+  color: var(--on-accent);
   font-weight: 700;
 }
 
@@ -393,7 +454,7 @@ a {
   text-decoration: none;
 }
 .menu-main {
-  background: #2b3540;
+  background: var(--raised);
   border: 2px solid var(--accent);
 }
 .menu-main strong {
@@ -444,7 +505,7 @@ a {
 }
 .error,
 .errors {
-  color: #ff8787;
+  color: var(--danger);
   margin: 0;
 }
 .errors {
@@ -465,8 +526,8 @@ input {
   min-height: 44px;
   padding: 0 12px;
   border-radius: 8px;
-  border: 1px solid #3a434c;
-  background: #12161a;
+  border: 1px solid var(--line);
+  background: var(--input-bg);
   min-width: 0;
 }
 input[type='number'] {
@@ -490,7 +551,7 @@ input[type='number'] {
   border: 3px solid transparent;
 }
 .swatch.on {
-  border-color: #fff;
+  border-color: var(--text);
 }
 
 .chips {
@@ -502,12 +563,12 @@ input[type='number'] {
   min-height: 44px;
   padding: 0 14px;
   border-radius: 999px;
-  border: 2px solid #3a434c;
+  border: 2px solid var(--line);
   background: transparent;
 }
 .chip.on {
   border-color: var(--accent);
-  background: #2b3540;
+  background: var(--raised);
   font-weight: 700;
 }
 
@@ -524,7 +585,7 @@ input[type='number'] {
 
 .btn-primary {
   background: var(--accent);
-  color: #111;
+  color: var(--on-accent);
 }
 .btn-wide {
   width: 100%;
@@ -536,7 +597,7 @@ input[type='number'] {
   padding: 0 12px;
   border: 0;
   border-radius: 8px;
-  background: #313a43;
+  background: var(--btn);
   font-weight: 600;
 }
 a.btn {
@@ -551,7 +612,7 @@ a.btn {
   align-items: center;
   border-radius: 8px;
   overflow: hidden;
-  background: #313a43;
+  background: var(--btn);
 }
 .stepper button {
   min-width: 44px;
@@ -640,7 +701,7 @@ a.btn {
 .table td {
   padding: 6px 4px;
   text-align: right;
-  border-bottom: 1px solid #313a43;
+  border-bottom: 1px solid var(--line-soft);
 }
 .table th:first-child,
 .table td:first-child {
@@ -663,7 +724,7 @@ a.btn {
   border: 2px solid transparent;
 }
 .score-card.active {
-  background: #2b3540;
+  background: var(--raised);
 }
 .score-name {
   font-weight: 700;
@@ -682,7 +743,7 @@ a.btn {
 }
 
 .turnbox {
-  border: 2px solid #3a434c;
+  border: 2px solid var(--line);
   border-radius: 12px;
   padding: 8px 10px;
   display: flex;
@@ -701,7 +762,7 @@ a.btn {
   min-height: 26px;
 }
 .calc-bust {
-  color: #ff8787;
+  color: var(--danger);
   font-weight: 800;
 }
 .checkout {
@@ -712,7 +773,7 @@ a.btn {
 .checkout-main {
   font-size: 20px;
   font-weight: 800;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 .checkout-alt {
   font-size: 13px;
@@ -722,7 +783,7 @@ a.btn {
   margin: 0;
   padding: 8px;
   border-radius: 8px;
-  background: #2f4a37;
+  background: var(--banner);
   font-weight: 700;
   text-align: center;
 }
@@ -737,7 +798,7 @@ a.btn {
   font-weight: 700;
 }
 .pill-selected {
-  outline: 3px solid #fff;
+  outline: 3px solid var(--text);
 }
 .actions .btn {
   min-width: 56px;
@@ -757,10 +818,10 @@ button.pill-x {
   min-height: 52px;
 }
 .b-grey {
-  fill: #5c636a;
+  fill: var(--board-grey);
 }
 .b-grey-ring {
-  fill: #474d53;
+  fill: var(--board-grey-ring);
 }
 
 /* ---------- Cricket-Tafel ---------- */
@@ -781,7 +842,7 @@ button.pill-x {
 .tafel td {
   padding: 2px 6px;
   text-align: center;
-  border-bottom: 1px solid #2c343c;
+  border-bottom: 1px solid var(--line-soft);
 }
 .tafel thead th {
   vertical-align: top;
@@ -789,13 +850,13 @@ button.pill-x {
   min-width: 80px;
 }
 .tafel thead th.active {
-  background: #2b3540;
+  background: var(--raised);
 }
 .tafel tbody th {
   width: 44px;
   font-size: 18px;
   font-weight: 800;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 .tafel td {
   font-size: 22px;
@@ -803,7 +864,7 @@ button.pill-x {
   height: 32px;
 }
 .tafel td.active {
-  background: #2b3540;
+  background: var(--raised);
 }
 .tafel tr.dead th,
 .tafel tr.dead td {
@@ -876,7 +937,7 @@ button.pill-x {
   padding: 2px 4px 6px;
 }
 .round-head strong {
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 22px;
 }
 
@@ -912,13 +973,15 @@ button.pill-x {
   opacity: 0.4;
 }
 .hm-undo {
-  background: #313a43;
+  background: var(--btn);
 }
 .hm-miss {
-  background: #5a2a2a;
+  background: var(--miss-bg);
+  color: var(--miss-text);
 }
 .hm-hit {
   background: var(--green);
+  color: #fff;
   font-size: 40px !important;
 }
 @media (orientation: landscape) {
@@ -960,7 +1023,7 @@ button.pill-x {
   border: 2px solid transparent;
 }
 .bull-tile.active {
-  background: #2b3540;
+  background: var(--raised);
 }
 .bull-result {
   font-size: 18px;
@@ -1019,7 +1082,7 @@ button.pill-x {
   min-width: 44px;
   min-height: 44px;
   font-size: 20px;
-  background: rgba(20, 24, 28, 0.85);
+  background: var(--overlay-btn);
 }
 
 /* ---------- Statistik (Diagramm-Richtlinien: Flächenfarbe, Textfarben, dünne Marken) ---------- */
@@ -1035,8 +1098,8 @@ button.pill-x {
   color: inherit;
   min-height: 44px;
   border-radius: 8px;
-  border: 1px solid #3a434c;
-  background: #12161a;
+  border: 1px solid var(--line);
+  background: var(--input-bg);
   padding: 0 10px;
   max-width: 100%;
 }
@@ -1068,15 +1131,15 @@ button.pill-x {
   margin: 0 auto;
 }
 .chart-grid {
-  stroke: #2c2c2a;
+  stroke: var(--chart-grid);
   stroke-width: 1;
 }
 .chart-cross {
-  stroke: #383835;
+  stroke: var(--chart-cross);
   stroke-width: 1;
 }
 .chart-tick {
-  fill: #898781;
+  fill: var(--chart-tick);
   font-size: 11px;
 }
 .chart-dot {
@@ -1096,7 +1159,7 @@ button.pill-x {
   gap: 14px;
   align-items: center;
   flex-wrap: wrap;
-  color: #c3c2b7;
+  color: var(--muted);
   font-size: 13px;
 }
 .chart-legend .btn-small {
@@ -1151,10 +1214,10 @@ button.pill-x {
   font-weight: 700;
 }
 .dev-good {
-  color: #0ca30c;
+  color: var(--good);
 }
 .dev-bad {
-  color: #e66767;
+  color: var(--bad);
 }
 .leg-overview td {
   vertical-align: top;
@@ -1164,7 +1227,7 @@ button.pill-x {
 }
 .leg-total td {
   font-weight: 800;
-  border-top: 2px solid #3a434c;
+  border-top: 2px solid var(--line);
 }
 
 /* Spielansicht im Hochformat (Wunsch Gianluca): Die Anzeige oben ist so hoch, wie sie es braucht,
@@ -1353,7 +1416,7 @@ button.pill-x {
   gap: 8px;
   align-items: baseline;
   padding: 4px 0;
-  border-bottom: 1px solid #313a43;
+  border-bottom: 1px solid var(--line-soft);
   font-size: 14px;
 }
 .review-who {
@@ -1364,4 +1427,169 @@ button.pill-x {
 }
 .review .scoreboard {
   margin-bottom: 8px;
+}
+
+/* ---------- Spielerblöcke (SPEC 5.3): Rand in Spielerfarbe für den aktiven Spieler, Fläche bleibt Kartenfarbe ---------- */
+.blocks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.blocks-1 {
+  grid-template-columns: minmax(0, 1fr);
+}
+.block {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px 6px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 3px solid var(--line);
+}
+.block-dim {
+  opacity: 0.45;
+}
+.block-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.block-initial {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+}
+.block-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.block-badge {
+  flex: 0 0 auto;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 5px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  background: #1f2328;
+  color: #fff;
+}
+.block-big {
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+.blocks-1 .block-big {
+  font-size: 76px;
+}
+.block-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+.block-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  touch-action: pan-y;
+}
+.blocks-1 .block-stats {
+  font-size: 15px;
+}
+.block-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  white-space: nowrap;
+}
+.block-stat span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.block-dots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding-top: 2px;
+}
+.block-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text);
+  opacity: 0.3;
+}
+.block-dots span.on {
+  opacity: 1;
+}
+/* Ab drei Spielern: kleinere Zahlen und nur die erste Kennzahl, damit das Board groß bleibt. */
+.blocks-many .block-big {
+  font-size: 36px;
+}
+.blocks-many .block-stat:nth-child(n + 2) {
+  display: none;
+}
+/* Querformat: Blöcke untereinander neben dem Board (wie auf Gianlucas iPad-Foto). */
+@media (orientation: landscape) {
+  .blocks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Treffer/Falsch im Hochformat (SPEC 4.5): Knöpfe höchstens etwa ein Viertel der Höhe, die Anzeige darüber groß. */
+@media (orientation: portrait) {
+  .screen-hitmiss .panel {
+    flex: 1 1 auto;
+  }
+  .screen-hitmiss .hitmiss {
+    flex: 0 0 auto;
+    height: clamp(120px, 25svh, 240px);
+    min-height: 120px;
+  }
+}
+/* Treffer/Falsch: Die Blöcke füllen den Platz über den Knöpfen, mit größerer Schrift statt einer leeren Lücke. */
+@media (orientation: portrait) {
+  .screen-hitmiss .panel > .panel-scroll {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .screen-hitmiss .blocks {
+    flex: 1 1 auto;
+  }
+  .screen-hitmiss .block {
+    justify-content: space-between;
+    padding: 12px 12px 10px;
+  }
+  .screen-hitmiss .block-big {
+    font-size: 64px;
+  }
+  .screen-hitmiss .blocks-1 .block-big {
+    font-size: 96px;
+  }
+  .screen-hitmiss .block-stats {
+    font-size: 15px;
+    gap: 4px;
+  }
 }

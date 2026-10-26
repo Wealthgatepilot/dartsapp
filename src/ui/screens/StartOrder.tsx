@@ -459,7 +459,7 @@ function ring(r0: number, r1: number, a0: number, a1: number): string {
 function BoardArt() {
   return (
     <g>
-      <rect x={-MAX_HALF * 2} y={-MAX_HALF * 2} width={MAX_HALF * 4} height={MAX_HALF * 4} fill="#14181c" />
+      <rect x={-MAX_HALF * 2} y={-MAX_HALF * 2} width={MAX_HALF * 4} height={MAX_HALF * 4} style={{ fill: 'var(--bg)' }} />
       <circle r={MAX_HALF} class="b-miss" />
       {ORDER.map((n, i) => {
         const a0 = i * 18 - 9;

@@ -5,7 +5,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { createProfiles, dart, throwOn, turn } from './helpers';
 
 const rest = (page: Page, name: string) =>
-  page.locator('.score-card', { hasText: name }).locator('.score-rest');
+  page.locator('.block', { hasText: name }).locator('.block-big');
 
 test('ganzes Leg 501 Double-Out mit Bust, Rückgängig, Neuladen und Runde bearbeiten', async ({ page }) => {
   page.on('dialog', (d) => d.accept());

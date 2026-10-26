@@ -12,8 +12,8 @@ test('X01 gegen den Computer', async ({ page }) => {
   await expect(page.locator('.order')).toContainText('Computer 6');
   await page.getByRole('button', { name: 'Spiel starten' }).click();
 
-  const bot = page.locator('.score-card', { hasText: 'Computer 6' });
-  await expect(bot.locator('.score-rest')).toHaveText('501');
+  const bot = page.locator('.block', { hasText: 'Computer 6' });
+  await expect(bot.locator('.block-big')).toHaveText('501');
   await turn(page, 'T20', 'T20', 'T20'); // Gian 180
 
   // Jetzt wirft der Computer: Board und „Daneben“ sind gesperrt, seine Darts erscheinen nacheinander

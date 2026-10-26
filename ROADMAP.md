@@ -143,6 +143,8 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 - Kompaktere Spielansicht für kleine Handys, damit das Board größer wird – vor allem im Querformat auf dem iPhone scrollen die Spielerkarten noch ein Stück.
 - 121: Statistik je Finish-Bereich (70–79 … 160–170): wie oft geschafft, im wievielten Versuch, mit wie vielen Darts (Daten werden schon gespeichert).
 - Optik verfeinern (Phase 3): Farben, Übergänge, Spielende-Bildschirm.
+- Schmale Zahlenschrift für die großen Zahlen (frei lizenziert, z. B. Oswald oder Bebas Neue, in der App mitgeliefert, damit sie offline geht; etwa eine Stunde Arbeit).
+- Spielerblöcke auch in Count-Up, 121 und den übrigen Modi, wenn sie sich bewähren.
 
 ## Phase 3 – Weitere Modi und Komfort
 
@@ -186,7 +188,7 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 - [x] Fehler behoben: Sicherungen mit 121-„Überspringen“ wären beim Import abgelehnt worden
 - [x] Killer „selbst wählen“: Der Computer bekommt beim Start eine zufällige freie Zahl
 - [x] GitHub-Ablauf testet im fertigen Playwright-Paket (vorher hing der Browser-Download zweimal über 40 Minuten)
-- [ ] Optik-Vorschläge (Haltepunkt F) – auf Wunsch nach dem Abschluss
+- [x] Optik-Vorschläge (Haltepunkt F): Gianluca wählt Design 6 „Kreidegrau & Orange“, dazu Spielerblöcke nach seinem iPad-Foto (nur Rand für den aktiven Spieler) und flachere Treffer/Falsch-Knöpfe; das bisherige dunkle Aussehen bleibt als Schalter (SPEC 5.6)
 - [ ] **Haltepunkt G: Test am Board auf iPhone und Android** (`docs/PRUEFLISTE-PHASE3.md`)
 
 **Annahmen ohne Rückfrage (Phase 3)**
@@ -204,6 +206,10 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 11. Menschliche Schwankungen sind standardmäßig an (Tagesform ±8 %, Streaks ±10 %, Druck beim Checken).
 12. Sprachausgabe: Zahlen als Ziffern an die Stimme; nach „Weiter“ angesagt, der Sieger nur, wenn das Spiel gerade endet; an/aus je Gerät.
 13. Spielverlauf: Startseite zeigt die 3 neuesten Spiele; Rückblick ohne Board; Favoriten je Profil, das letzte Ereignis zählt.
+14. Optik: Kreidegrau ist Standard für alle; „Dunkel“ wird je Gerät gemerkt. Die Statusleiste auf dem iPhone bleibt durchsichtig mit heller Schrift (Umstellen würde das Layout der installierten App ändern).
+15. Spielerblöcke: Die Kennzahl-Seite wechselt für alle Blöcke gemeinsam (Wischen oder Antippen). Ab drei Spielern kleinere Zahlen und nur eine Kennzahl, damit das Board groß bleibt. Training und Bob's 27 haben nur eine Seite.
+16. X01-Kennzahlen im Block: Ø und Checkout-Quote über das ganze Match, Darts und First 9 im laufenden Leg, bestes Leg = wenigste Darts in einem gewonnenen Leg.
+17. Treffer/Falsch: Die Blöcke füllen im Hochformat den Platz über den Knöpfen (statt einer leeren Lücke).
 
 **Verworfene Alternativen (Phase 3)**
 
@@ -217,6 +223,10 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 | Eigene Double-Streuung für den Computer | Quoten liegen schon im realistischen Bereich; bei Bedarf später. |
 | Browser-Download im GitHub-Ablauf mit längeren Grenzen | Hing zweimal über 40 Minuten; fertiges Playwright-Paket ist schneller und stabiler. |
 | Kennzahlen im Rückblick mit Spielern als Zeilen | Bei X01 elf Spalten, zu breit fürs Handy. |
+| Spielerblöcke ganz in der Spielerfarbe (wie im iPad-Foto) | Gianluca möchte nur den Rand in der Spielerfarbe, wie sonst in der App. |
+| Spielerblöcke im Hochformat untereinander | Dann bliebe für das Board zu wenig Platz. |
+| Design 1–5 (Klar, Anzeigetafel, Hell, Dunkel, Nardograu) | Gianluca wählt Kreidegrau; das bisherige Dunkel bleibt als Schalter. |
+| Eigene schmale Zahlenschrift sofort | Erst mit Systemschrift ansehen; als Idee für später notiert. |
 
 Annahmen aus dem Plan: Computer in allen Modi (bei Killer „selbst wählen“ bekommt er eine zufällige freie Zahl); in Treffer/Falsch-Modi zielt er auf das Double und das Board entscheidet; Spiele gegen den Computer zählen fürs Profil, sind in der Statistik filterbar; Killer „selbst wählen“: Zahl im Setup je Spieler auswählen (statt auf dem Board antippen – einfacher und vor dem Start prüfbar), keine doppelt; Sprachausgabe standardmäßig an, „Game Shot“ englisch; Handicap nur bei X01.
 

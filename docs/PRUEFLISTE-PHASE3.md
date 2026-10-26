@@ -35,7 +35,18 @@ Vorher: In der App auf der Startseite „Jetzt neu laden“ tippen. In den Einst
 - [ ] Ein Spiel öffnen: Ergebnis, Kennzahlen je Spieler, alle Aufnahmen.
 - [ ] Stern bei deinem Namen antippen → Spiel erscheint unter „★ Favoriten“.
 
-## 5. Gesamtdurchlauf
+## 5. Aussehen (Kreidegrau)
+
+- [ ] Die App ist überall kreidegrau mit orangen Knöpfen, auch Setup, Statistik, Spielverlauf und Spielende. Ist irgendwo noch etwas dunkel geblieben?
+- [ ] X01: Zwei Spielerblöcke nebeneinander, wer dran ist, hat einen Rand in seiner Farbe. Legs-Kästchen zählt nach einem gewonnenen Leg hoch.
+- [ ] Kennzahlen im Block antippen oder wischen → First 9, Checkout-Quote, bestes Leg; nochmal → zurück.
+- [ ] X01 mit 3 oder 4 Spielern: Passt alles, ist das Board noch groß genug?
+- [ ] Querformat: Blöcke untereinander neben dem Board.
+- [ ] Doppelfeld-Training und Bob's 27: große Anzeige oben, die drei Knöpfe nur noch etwa ein Viertel der Höhe – noch gut zu treffen?
+- [ ] Einstellungen → Aussehen „Dunkel“ → alles wie früher; zurück auf „Kreidegrau“.
+- [ ] iPhone: Ist die Uhrzeit oben in der Statusleiste lesbar?
+
+## 6. Gesamtdurchlauf
 
 - [ ] Je ein kurzes Spiel in jedem Modus, einmal im Hoch-, einmal im Querformat. Spielstand, Knöpfe und Board ganz sichtbar?
 - [ ] Ein X01-Spiel gegen den Computer mit „Schwankungen: an“.

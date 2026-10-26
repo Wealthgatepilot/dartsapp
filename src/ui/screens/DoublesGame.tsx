@@ -13,6 +13,7 @@ import {
 } from '../../engine/doubles';
 import { doublesSetupOf } from '../../engine/games';
 import { fieldLabel } from '../../engine/types';
+import { type Block, PlayerBlocks } from '../blocks';
 import type { ModeViewProps } from './Game';
 import { GameShell } from './GameShell';
 
@@ -57,32 +58,27 @@ function Cards({
   nameOf: (s: number) => string;
   colorOf: (s: number) => string;
 }) {
-  return (
-    <div class="scoreboard">
-      {order.map((slot) => {
-        const p = state.players[slot];
-        const t = currentTarget(p);
-        return (
-          <div
-            key={slot}
-            class={slot === activeSlot ? 'score-card active' : 'score-card'}
-            style={{ borderColor: slot === activeSlot ? colorOf(slot) : undefined }}
-          >
-            <div class="score-name">
-              <span class="dot" style={{ background: colorOf(slot) }} /> {nameOf(slot)}
-            </div>
-            <div class="score-rest">{t ? fieldLabel(t) : '✓'}</div>
-            <div class="score-meta">
-              {p.hits} getroffen · {p.darts - p.hits} falsch · {p.darts} Darts
-            </div>
-            <div class="score-meta">
-              Quote {quote(p.hits, p.darts)} · Ziel {Math.min(p.index + 1, p.sequence.length)}/{p.sequence.length}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
+  const blocks: Block[] = order.map((slot) => {
+    const p = state.players[slot];
+    const t = currentTarget(p);
+    return {
+      slot,
+      name: nameOf(slot),
+      color: colorOf(slot),
+      big: t ? fieldLabel(t) : '✓',
+      badge: String(p.index),
+      badgeLabel: 'Felder geschafft',
+      pages: [
+        [
+          { label: 'Ziel', value: `${Math.min(p.index + 1, p.sequence.length)}/${p.sequence.length}` },
+          { label: 'Getroffen', value: `${p.hits} / ${p.darts}` },
+          { label: 'Falsch', value: String(p.darts - p.hits) },
+          { label: 'Quote', value: quote(p.hits, p.darts) },
+        ],
+      ],
+    };
+  });
+  return <PlayerBlocks blocks={blocks} activeSlot={activeSlot} />;
 }
 
 /** Die letzten Ziele des Spielers mit den nötigen Darts (wie die Verlaufstabelle in App 2). */
