@@ -514,7 +514,9 @@ Regeln: Start mit 27 Punkten. Ziele D1, D2, …, D20, Bullseye; je Ziel eine Auf
 | Zielfolge | **15, 16, beliebiges Double, 17, 18, beliebiges Triple, 19, 20, Bull**, frei zusammenstellbar |
 | Startpunkte | **0** (0–100) |
 
-Regeln: Je Ziel eine Aufnahme. Treffer aufs Ziel zählen Zahl × Multiplikator („beliebiges Double/Triple“: Wert des getroffenen Feldes; Bull: 25/50). Kein Treffer in der Aufnahme: Gesamtpunkte werden halbiert, abgerundet. Meiste Punkte gewinnen.
+Regeln: Je Ziel eine Aufnahme. Treffer aufs Ziel zählen Zahl × Multiplikator („beliebiges Double/Triple“: Wert des getroffenen Feldes; Bull: 25/50). Das Bullseye zählt als beliebiges Double, ein Triple gibt es am Bull nicht. Kein Treffer in der Aufnahme: Gesamtpunkte werden nach dem dritten Dart halbiert, abgerundet („Weiter“ füllt mit Fehlwürfen auf). Meiste Punkte gewinnen, bei Gleichstand teilen sich die Spieler den Sieg. Frei zusammenstellbar: 1 bis 30 Ziele aus 1–20, Bull, beliebiges Double, beliebiges Triple, auch mehrfach. Auf dem Board sind die Felder des aktuellen Ziels farbig (bei „beliebiges Double“ alle Zahlen und Bull, bei „beliebiges Triple“ alle Zahlen). Kennzahl: Endpunkte (Vergleichsgruppe: Zielfolge + Startpunkte).
+
+**Regeltext:** Zielfolge; Punkte je Treffer; Halbieren; Sieger.
 
 ### 7.10 Count-Up (Phase 3)
 
@@ -762,6 +764,10 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G45 | Bob's 27, Ziel D1 | Falsch, Falsch, Falsch | 27 − 2 = 25 |
 | G46 | Bob's 27, Ziel D1 | Treffer, Falsch, Treffer | 27 + 2 + 2 = 31 (kein Abzug, es gab Treffer) |
 | G47 | Bob's 27, „ausscheiden = ja“ | D1 bis D5 nur Falsch | 25, 21, 15, 7, −3 → nach D5 ausgeschieden; bei „nein“ geht es mit D6 weiter |
+| G48 | Halve-It, Ziel 15, Start 0 | T15, S15, S20 | 45 + 15 = 60 (S20 zählt nicht) |
+| G49 | Halve-It, 61 Punkte, Ziel 16 | S20, T19, 0 | kein Treffer → 61 / 2 = 30 (abgerundet) |
+| G50 | Halve-It, Ziel „beliebiges Double“ | D5, D20, DB | 10 + 40 + 50 = 100 (Bullseye zählt als Double) |
+| G51 | Halve-It, Ziel Bull bzw. „beliebiges Triple“ | SB, DB bzw. T7, DB | 25 + 50 = 75 bzw. 21 (am Bull gibt es kein Triple) |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

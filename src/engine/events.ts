@@ -7,6 +7,7 @@ import type { AdviceLevel } from './checkout';
 import type { CountUpSettings } from './countup';
 import type { CricketSettings } from './cricket';
 import type { DoublesSettings } from './doubles';
+import type { HalveItSettings } from './halveit';
 import type { ShanghaiSettings } from './shanghai';
 import type { Field } from './types';
 import type { X01Settings } from './x01';
@@ -112,7 +113,8 @@ export type GameCreatedPayload =
   | (GameCreatedBase & { mode: 'doubles'; settings: DoublesSettings })
   | (GameCreatedBase & { mode: 'countup'; settings: CountUpSettings })
   | (GameCreatedBase & { mode: 'atc'; settings: AtcSettings })
-  | (GameCreatedBase & { mode: 'bobs'; settings: BobsSettings });
+  | (GameCreatedBase & { mode: 'bobs'; settings: BobsSettings })
+  | (GameCreatedBase & { mode: 'halveit'; settings: HalveItSettings });
 
 export type GameMode = GameCreatedPayload['mode'];
 

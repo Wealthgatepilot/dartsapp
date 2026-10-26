@@ -6,6 +6,7 @@ import { CricketSetup } from './screens/CricketSetup';
 import { DoublesSetup } from './screens/DoublesSetup';
 import { AtcSetup } from './screens/AtcSetup';
 import { BobsSetup } from './screens/BobsSetup';
+import { HalveItSetup } from './screens/HalveItSetup';
 import { CountUpSetup } from './screens/CountUpSetup';
 import { Game } from './screens/Game';
 import { Home } from './screens/Home';
@@ -46,6 +47,8 @@ function Screens() {
       return <AtcSetup />;
     case 'bobs':
       return <BobsSetup />;
+    case 'halveit':
+      return <HalveItSetup />;
     case 'stats':
       return <Stats />;
     case 'game':

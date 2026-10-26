@@ -23,7 +23,11 @@ const MODES: { value: Mode; label: string }[] = [
   { value: 'x01', label: 'X01' },
   { value: 'cricket', label: 'Cricket' },
   { value: 'shanghai', label: 'Shanghai' },
+  { value: 'countup', label: 'Count-Up' },
+  { value: 'atc', label: 'Around the Clock' },
+  { value: 'halveit', label: 'Halve-It' },
   { value: 'doubles', label: 'Training' },
+  { value: 'bobs', label: "Bob's 27" },
 ];
 
 const PERIODS = [
@@ -118,7 +122,12 @@ export function Stats() {
       </div>
 
       <div class="filters">
-        <Segmented value={mode} options={MODES} onChange={(m) => (setMode(m), setGroupSel(null), setMetricSel(null))} />
+        <Segmented
+          className="segmented-wrap"
+          value={mode}
+          options={MODES}
+          onChange={(m) => (setMode(m), setGroupSel(null), setMetricSel(null))}
+        />
         <Segmented value={period} options={PERIODS} onChange={setPeriod} />
         {groups.length > 1 && (
           <select class="select" value={group} onChange={(e) => setGroupSel((e.target as HTMLSelectElement).value)}>
@@ -154,7 +163,7 @@ export function Stats() {
         </>
       )}
 
-      {mode !== 'doubles' && inMode.length > 0 && (
+      {mode !== 'doubles' && mode !== 'bobs' && inMode.length > 0 && (
         <section class="card">
           <h2>Treffer-Heatmap</h2>
           <p class="muted small">Alle {MODES.find((m) => m.value === mode)!.label}-Spiele im Zeitraum, nur Eingaben über das Board.</p>
@@ -162,7 +171,7 @@ export function Stats() {
         </section>
       )}
 
-      {(mode === 'x01' || mode === 'doubles') && (
+      {(mode === 'x01' || mode === 'doubles' || mode === 'bobs') && (
         <DoubleTable records={mine.filter((r) => r.doublesSource)} />
       )}
     </div>

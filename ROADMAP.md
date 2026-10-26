@@ -165,6 +165,16 @@ Jede Phase beginnt mit einem Plan, den Gianluca freigibt, und endet mit einem Ab
 10. Optik: nur Vorschläge zur Auswahl; „lassen wir erst einmal so“ ist ausdrücklich möglich (Wunsch Gianluca) – **Haltepunkt F**
 11. Handy-Tests, ROADMAP – **Haltepunkt G:** Test am Board auf iPhone und Android
 
+**Stand Phase 3 (26.10.2026)**
+
+- [x] Count-Up (G39–G40), Handicap bei X01 (G41)
+- [x] Varianten in jeder Regelansicht (Wunsch Gianluca)
+- [x] Around the Clock (G42–G44)
+- [x] Bob's 27 (G45–G47), Treffer zählen in die Doppelquote aus dem Training
+- [x] Halve-It (G48–G51)
+- [x] Statistik und Bestleistung für die vier neuen Modi gleich mit eingebaut
+- [ ] **Haltepunkt D** (`docs/PRUEFLISTE-HALTEPUNKT-D.md`)
+
 Annahmen aus dem Plan: Computer in allen Modi (bei Killer „selbst wählen“ bekommt er eine zufällige freie Zahl); in Treffer/Falsch-Modi zielt er auf das Double und das Board entscheidet; Spiele gegen den Computer zählen fürs Profil, sind in der Statistik filterbar; Killer „selbst wählen“: Zahl vor dem Start auf dem Board antippen, keine doppelt; Sprachausgabe standardmäßig an, „Game Shot“ englisch; Handicap nur bei X01.
 
 ## Phase 4 – Turnier

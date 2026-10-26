@@ -1293,3 +1293,14 @@ button.pill-x {
 .menu-main strong {
   font-size: 20px;
 }
+/* Halve-It: Zielfolge als nummerierte Liste von Chips */
+.halve-sequence {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 6px;
+}
+/* Viele Optionen (z. B. Modi in der Statistik): umbrechen statt aus dem Bild laufen */
+.segmented-wrap {
+  flex-wrap: wrap;
+  gap: 2px;
+}

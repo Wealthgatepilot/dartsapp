@@ -5,13 +5,14 @@
 import type { AtcState } from './atc';
 import type { BobsState } from './bobs';
 import type { CountUpState } from './countup';
+import type { HalveItState } from './halveit';
 import type { CricketLeg, CricketTurn } from './cricket';
 import type { DoublesState } from './doubles';
 import type { ShanghaiState, ShanghaiTurn } from './shanghai';
 import { BULL, fieldLabel } from './types';
 import type { InOut, Leg as X01Leg, Turn as X01Turn } from './x01';
 
-export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup' | 'atc' | 'bobs';
+export type Mode = 'x01' | 'cricket' | 'shanghai' | 'doubles' | 'countup' | 'atc' | 'bobs' | 'halveit';
 
 /** Würfe und Treffer je Double (Schlüssel D1 … D20, DB). */
 export type DoubleTally = Record<string, { darts: number; hits: number }>;
@@ -269,6 +270,31 @@ export function bobsMetrics(state: BobsState, slot: number, limit = Infinity): B
     }
     // Abgerechnet wird nach dem dritten Dart (SPEC 7.8)
     if (m.darts <= limit) m.points += t.change;
+  }
+  m.hitRate = ratio(m.hits * 100, m.darts);
+  return m;
+}
+
+// ---------- Halve-It (SPEC 7.9) ----------
+
+export interface HalveItMetrics {
+  darts: number;
+  hits: number;
+  hitRate: number | null;
+  /** Punkte nach den ausgewerteten Darts, mit Halbierungen. */
+  points: number;
+}
+
+export function halveItMetrics(state: HalveItState, slot: number, limit = Infinity): HalveItMetrics {
+  const m: HalveItMetrics = { darts: 0, hits: 0, hitRate: null, points: state.setup.settings.startPoints };
+  outer: for (const t of state.legs[0].turns.filter((x) => x.slot === slot)) {
+    for (const d of t.darts) {
+      if (m.darts >= limit) break outer;
+      m.darts++;
+      if (d.scored) m.hits++;
+      m.points += d.scored;
+    }
+    if (t.halved) m.points = Math.floor(m.points / 2);
   }
   m.hitRate = ratio(m.hits * 100, m.darts);
   return m;

@@ -2,6 +2,7 @@
 
 import type { CricketSettings } from './cricket';
 import { targetsOf, type DoublesSettings } from './doubles';
+import { halveTargetName, type HalveItSettings } from './halveit';
 import type { AtcSettings } from './atc';
 import type { BobsSettings } from './bobs';
 import type { CountUpSettings } from './countup';
@@ -328,6 +329,33 @@ export function bobsVariants(): Variant[] {
     {
       name: 'Bei 0 oder weniger ausscheiden: nein',
       text: 'Jeder spielt alle 21 Ziele durch, auch mit Minuspunkten – gut zum Üben aller Doubles.',
+    },
+    ...START_VARIANTS,
+  ];
+}
+
+export function halveItRules(s: HalveItSettings): string[] {
+  const names = s.targets.map((t) => (t === 'D' ? 'beliebiges Double' : t === 'T' ? 'beliebiges Triple' : halveTargetName(t)));
+  return [
+    `Gespielt wird ${names.length === 1 ? '1 Runde' : `${names.length} Runden`} mit diesen Zielen: ${names.join(', ')}.${
+      s.startPoints ? ` Jeder startet mit ${s.startPoints} Punkten.` : ''
+    }`,
+    'Pro Runde wirft jeder 3 Darts auf das Ziel. Es zählt die Zahl mal Ring, beim Bull 25 bzw. 50. Bei „beliebiges Double“ zählt jedes Double mit seinem Wert (auch das Bullseye), bei „beliebiges Triple“ jedes Triple.',
+    'Triffst du in einer Runde gar nicht, werden deine Gesamtpunkte halbiert (abgerundet).',
+    'Nach der letzten Runde gewinnt, wer die meisten Punkte hat. Bei Gleichstand teilen sich die Spieler den Sieg.',
+  ];
+}
+
+export function halveItVariants(): Variant[] {
+  return [
+    {
+      name: 'Zielfolge',
+      text: 'Üblich ist 15, 16, beliebiges Double, 17, 18, beliebiges Triple, 19, 20, Bull. Du kannst sie frei zusammenstellen, auch mit Zielen mehrfach.',
+    },
+    { name: 'Beliebiges Double / Triple', text: 'Jedes Double bzw. Triple zählt mit seinem Wert – du suchst dir aus, worauf du zielst.' },
+    {
+      name: 'Startpunkte',
+      text: 'Mit Startpunkten (z. B. 40) hat ein früher Fehlwurf weniger Gewicht, weil es schon etwas zu halbieren gibt.',
     },
     ...START_VARIANTS,
   ];

@@ -4,6 +4,7 @@ import { computeBobs, type BobsSetup, type BobsState } from './bobs';
 import { atcVariantLabel, computeAtc, type AtcSetup, type AtcState } from './atc';
 import { computeCountUp, type CountUpSetup, type CountUpState } from './countup';
 import { computeCricket, type CricketSetup, type CricketState } from './cricket';
+import { computeHalveIt, type HalveItSetup, type HalveItState } from './halveit';
 import { computeDoubles, type DoublesSetup, type DoublesState } from './doubles';
 import { computeShanghai, type ShanghaiSetup, type ShanghaiState } from './shanghai';
 import { gameEventsOf, type AppEvent, type GameCreatedPayload } from './events';
@@ -104,6 +105,12 @@ export function bobsSetupOf(game: GameInfo): BobsSetup {
   return { gameId: c.gameId, settings: c.settings, order: game.order };
 }
 
+export function halveItSetupOf(game: GameInfo): HalveItSetup {
+  const c = game.created;
+  if (c.mode !== 'halveit') throw new Error('Kein Halve-It-Spiel');
+  return { gameId: c.gameId, settings: c.settings, order: game.order };
+}
+
 export type AnyGameState =
   | { mode: 'x01'; state: X01State }
   | { mode: 'cricket'; state: CricketState }
@@ -111,7 +118,8 @@ export type AnyGameState =
   | { mode: 'doubles'; state: DoublesState }
   | { mode: 'countup'; state: CountUpState }
   | { mode: 'atc'; state: AtcState }
-  | { mode: 'bobs'; state: BobsState };
+  | { mode: 'bobs'; state: BobsState }
+  | { mode: 'halveit'; state: HalveItState };
 
 /** Spielstand eines beliebigen Spiels. */
 export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGameState {
@@ -131,6 +139,8 @@ export function computeGame(game: GameInfo, events: readonly AppEvent[]): AnyGam
       return { mode: 'atc', state: computeAtc(atcSetupOf(game), evs) };
     case 'bobs':
       return { mode: 'bobs', state: computeBobs(bobsSetupOf(game), evs) };
+    case 'halveit':
+      return { mode: 'halveit', state: computeHalveIt(halveItSetupOf(game), evs) };
   }
 }
 
@@ -153,5 +163,7 @@ export function gameTitle(c: GameCreatedPayload): string {
       return `Around the Clock${atcVariantLabel(c.settings)}`;
     case 'bobs':
       return "Bob's 27";
+    case 'halveit':
+      return 'Halve-It';
   }
 }

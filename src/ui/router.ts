@@ -13,6 +13,7 @@ export type Route =
   | { name: 'countup' }
   | { name: 'atc' }
   | { name: 'bobs' }
+  | { name: 'halveit' }
   | { name: 'stats' }
   | { name: 'game'; gameId: string }
   | { name: 'settings' }
@@ -37,6 +38,8 @@ export function parseRoute(hash: string): Route {
       return { name: 'atc' };
     case 'bobs-27':
       return { name: 'bobs' };
+    case 'halve-it':
+      return { name: 'halveit' };
     case 'statistik':
       return { name: 'stats' };
     case 'spiel':
@@ -70,6 +73,8 @@ export function href(r: Route): string {
       return '#/around-the-clock';
     case 'bobs':
       return '#/bobs-27';
+    case 'halveit':
+      return '#/halve-it';
     case 'stats':
       return '#/statistik';
     case 'game':

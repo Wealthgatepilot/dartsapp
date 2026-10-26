@@ -9,6 +9,7 @@ import {
   countUpMetrics,
   cricketLegMetrics,
   doublesMetrics,
+  halveItMetrics,
   heatKey,
   shanghaiMetrics,
   x01LegMetrics,
@@ -17,6 +18,7 @@ import {
 } from './metrics';
 import { atcVariantLabel } from './atc';
 import { targetsOf } from './doubles';
+import { halveTargetName } from './halveit';
 
 /** Kennzahlen, die sich über die Zeit vergleichen lassen. */
 export type MetricKey =
@@ -82,6 +84,10 @@ export const METRICS: Record<Mode, MetricDef[]> = {
     { key: 'hitRate', label: 'Trefferquote', better: 'higher', digits: 1, unit: '%' },
   ],
   bobs: [
+    { key: 'points', label: 'Endpunkte', better: 'higher', digits: 0 },
+    { key: 'hitRate', label: 'Trefferquote', better: 'higher', digits: 1, unit: '%' },
+  ],
+  halveit: [
     { key: 'points', label: 'Endpunkte', better: 'higher', digits: 0 },
     { key: 'hitRate', label: 'Trefferquote', better: 'higher', digits: 1, unit: '%' },
   ],
@@ -155,6 +161,13 @@ export function groupOf(game: GameInfo, slot: number): { group: string; label: s
         group: `bobs|${c.settings.dieAtZero}`,
         label: `Bob's 27${c.settings.dieAtZero ? '' : ' · ohne Ausscheiden'}`,
       };
+    case 'halveit': {
+      const list = c.settings.targets.map(halveTargetName).join(', ');
+      return {
+        group: `halveit|${c.settings.targets.join(',')}|${c.settings.startPoints}`,
+        label: `Halve-It · ${list}${c.settings.startPoints ? ` · Start ${c.settings.startPoints}` : ''}`,
+      };
+    }
   }
 }
 
@@ -308,6 +321,23 @@ export function legRecords(events: readonly AppEvent[]): LegRecord[] {
           doublesSource: 'training',
           heat: {},
         });
+      } else if (computed.mode === 'halveit') {
+        const s = computed.state;
+        const m = halveItMetrics(s, p.slot);
+        if (!m.darts) continue;
+        const values: LegRecord['values'] = { points: m.points };
+        if (m.hitRate !== null) values.hitRate = m.hitRate;
+        out.push({
+          ...base,
+          mode: 'halveit',
+          leg: 1,
+          complete: s.finished,
+          won: !!s.matchWinners?.includes(p.slot),
+          darts: m.darts,
+          values,
+          doubles: {},
+          heat: heatOf(s.legs[0].turns, p.slot),
+        });
       } else if (computed.mode === 'doubles') {
         const s = computed.state;
         const m = doublesMetrics(s, p.slot);
@@ -445,6 +475,10 @@ export function metricsAt(
     put('hitRate', atcMetrics(c.state, slot, limit).hitRate);
   } else if (c.mode === 'bobs') {
     const m = bobsMetrics(c.state, slot, limit);
+    put('hitRate', m.hitRate);
+    v.points = m.points;
+  } else if (c.mode === 'halveit') {
+    const m = halveItMetrics(c.state, slot, limit);
     put('hitRate', m.hitRate);
     v.points = m.points;
   } else if (c.mode === 'doubles') {

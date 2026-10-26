@@ -153,6 +153,10 @@ export function Home() {
           <strong>Around the Clock</strong>
           <span class="muted">1 bis 20 der Reihe nach</span>
         </a>
+        <a class="menu-item menu-main" href={href({ name: 'halveit' })}>
+          <strong>Halve-It</strong>
+          <span class="muted">Daneben halbiert die Punkte</span>
+        </a>
       </nav>
 
       <h2 class="section-title">Training</h2>

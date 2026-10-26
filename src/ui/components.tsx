@@ -7,14 +7,17 @@ export function Segmented<T extends string | number>({
   options,
   onChange,
   label,
+  className,
 }: {
   value: T;
   options: readonly { value: T; label: string }[];
   onChange: (v: T) => void;
   label?: string;
+  /** Zusätzliche Klasse, z. B. „segmented-wrap“ für viele Optionen. */
+  className?: string;
 }) {
   return (
-    <div class="segmented" role="radiogroup" aria-label={label}>
+    <div class={className ? 'segmented ' + className : 'segmented'} role="radiogroup" aria-label={label}>
       {options.map((o) => (
         <button
           key={String(o.value)}

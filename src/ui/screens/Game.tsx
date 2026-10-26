@@ -10,6 +10,7 @@ import { participantColor, participantName } from '../names';
 import { href } from '../router';
 import { AtcGame } from './AtcGame';
 import { BobsGame } from './BobsGame';
+import { HalveItGame } from './HalveItGame';
 import { CountUpGame } from './CountUpGame';
 import { CricketGame } from './CricketGame';
 import { DoublesGame } from './DoublesGame';
@@ -63,5 +64,7 @@ export function Game({ gameId }: { gameId: string }) {
       return <AtcGame {...props} />;
     case 'bobs':
       return <BobsGame {...props} />;
+    case 'halveit':
+      return <HalveItGame {...props} />;
   }
 }
