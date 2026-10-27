@@ -69,13 +69,14 @@ export function x01SetupOf(game: GameInfo): X01Setup {
     settings: c.settings,
     order: game.order,
     ...(Object.keys(startScores).length ? { startScores } : {}),
+    playOn: !!c.playOn,
   };
 }
 
 export function cricketSetupOf(game: GameInfo): CricketSetup {
   const c = game.created;
   if (c.mode !== 'cricket') throw new Error('Kein Cricket-Spiel');
-  return { gameId: c.gameId, settings: c.settings, order: game.order };
+  return { gameId: c.gameId, settings: c.settings, order: game.order, playOn: !!c.playOn };
 }
 
 export function shanghaiSetupOf(game: GameInfo): ShanghaiSetup {
@@ -99,7 +100,7 @@ export function countUpSetupOf(game: GameInfo): CountUpSetup {
 export function atcSetupOf(game: GameInfo): AtcSetup {
   const c = game.created;
   if (c.mode !== 'atc') throw new Error('Kein Around-the-Clock-Spiel');
-  return { gameId: c.gameId, settings: c.settings, order: game.order };
+  return { gameId: c.gameId, settings: c.settings, order: game.order, playOn: !!c.playOn };
 }
 
 export function bobsSetupOf(game: GameInfo): BobsSetup {

@@ -18,6 +18,7 @@ import { finishSetupOf } from '../../engine/games';
 import { finishMetrics } from '../../engine/metrics';
 import { fieldLabel, points } from '../../engine/types';
 import type { ModeViewProps } from './Game';
+import { EndQuestion, firstDoneQuestion } from './EndQuestion';
 import { GameShell } from './GameShell';
 
 export function FinishGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps) {
@@ -84,7 +85,7 @@ export function FinishGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps)
       overlay={(act) =>
         state.askEnd ? (
           <EndQuestion
-            done={game.order.filter((slot) => state.players[slot].round >= s.rounds).map(nameOf)}
+            {...firstDoneQuestion(game.order.filter((slot) => state.players[slot].round >= s.rounds).map(nameOf))}
             onEnd={() => act(decideFinishEnd(state, true))}
             onContinue={() => act(decideFinishEnd(state, false))}
             onUndo={() => act(undoFinish(state, gameEvents))}
@@ -93,31 +94,6 @@ export function FinishGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps)
       }
       endTable={<Results state={state} order={game.order} nameOf={nameOf} />}
     />
-  );
-}
-
-/** Der Erste ist fertig: weiterspielen, bis alle fertig sind, oder das Spiel jetzt beenden. */
-function EndQuestion({ done, onEnd, onContinue, onUndo }: { done: string[]; onEnd: () => void; onContinue: () => void; onUndo: () => void }) {
-  return (
-    <div class="modal-backdrop">
-      <div class="modal" role="dialog" aria-label="Weiterspielen?">
-        <header class="modal-head">
-          <h2>✓ {done.join(', ')} {done.length > 1 ? 'sind' : 'ist'} fertig</h2>
-        </header>
-        <div class="modal-body">
-          <p>Weiterspielen, bis alle fertig sind, oder das Spiel jetzt beenden? Beim Beenden zählt, was bis jetzt geschafft ist.</p>
-          <button class="btn btn-primary" onClick={onContinue}>
-            Weiterspielen
-          </button>
-          <button class="btn" onClick={onEnd}>
-            Spiel beenden
-          </button>
-          <button class="btn" onClick={onUndo}>
-            ↶ Rückgängig (Dart falsch eingegeben)
-          </button>
-        </div>
-      </div>
-    </div>
   );
 }
 

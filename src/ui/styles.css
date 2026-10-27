@@ -1993,3 +1993,13 @@ button.pill-x {
   background: var(--accent);
   color: var(--on-accent);
 }
+
+/* Plätze nach dem Weiterspielen (SPEC 5.0) */
+.places {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  font-size: 17px;
+}

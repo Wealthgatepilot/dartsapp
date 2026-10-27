@@ -5,6 +5,7 @@ import {
   computeDoubles,
   confirmDoublesTurn,
   currentTarget,
+  decideDoublesEnd,
   quote,
   targetsOf,
   throwDoublesDart,
@@ -14,6 +15,7 @@ import {
 import { doublesSetupOf } from '../../engine/games';
 import { fieldLabel } from '../../engine/types';
 import { type Block, PlayerBlocks } from '../blocks';
+import { EndQuestion, firstDoneQuestion } from './EndQuestion';
 import type { ModeViewProps } from './Game';
 import { GameShell } from './GameShell';
 
@@ -34,7 +36,18 @@ export function DoublesGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps
       turnDetails={<History state={state} slot={activeSlot} />}
       pillText={(d) => (d.hit ? `${fieldLabel(d.field)} ✓` : 'Falsch')}
       confirm={() => confirmDoublesTurn(state)}
-      undo={() => undoDoubles(state)}
+      undo={() => undoDoubles(state, gameEvents)}
+      blockConfirm={state.askEnd}
+      overlay={(act) =>
+        state.askEnd ? (
+          <EndQuestion
+            {...firstDoneQuestion(game.order.filter((slot) => !currentTarget(state.players[slot])).map(nameOf))}
+            onEnd={() => act(decideDoublesEnd(state, true))}
+            onContinue={() => act(decideDoublesEnd(state, false))}
+            onUndo={() => act(undoDoubles(state, gameEvents))}
+          />
+        ) : null
+      }
       hitMiss={{
         targetLabel: target ? fieldLabel(target) : '—',
         onHit: (input) => throwDoublesDart(state, true, input),

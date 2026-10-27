@@ -39,6 +39,8 @@ export interface X01Setup {
   order: number[];
   /** Handicap: eigener Startwert je Platz (Phase 3). */
   startScores?: Record<number, number>;
+  /** Um die Plätze weiterspielen erlaubt (neue Spiele, SPEC 5.0). */
+  playOn?: boolean;
 }
 
 /** Zusätzliche Angaben einer X01-Aufnahme. */
@@ -140,7 +142,7 @@ function x01Rules(setup: X01Setup): Rules<X01LegState, X01TurnData> {
       turn.endRemaining = after;
       if (after === 0) {
         turn.checkout = true;
-        ls.winner = turn.slot;
+        ls.winner ??= turn.slot; // beim Ausspielen der Plätze bleibt der Sieger
         return { scored, endsTurn: true };
       }
       return { scored, endsTurn: false };
@@ -155,6 +157,7 @@ function x01Rules(setup: X01Setup): Rules<X01LegState, X01TurnData> {
       ls.isIn[turn.slot] = turn.endIn;
     },
     winners: (ls) => (ls.winner === null ? null : [ls.winner]),
+    ...(setup.playOn ? { finishedAt: (ls: X01LegState, slot: number) => ls.remaining[slot] === 0 } : {}),
   };
 }
 

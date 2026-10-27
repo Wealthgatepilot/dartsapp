@@ -132,7 +132,7 @@ Statt „Spielstand 351“ speichert die App nur, **was passiert ist**: „Dart 
 | `bulloff.throw` | `gameId`, `slot`, `attempt`, `xMm`, `yMm`, `distanceMm` | Ein Ausbullen-Dart |
 | `dart.thrown` | siehe 3.4 | Jeder Dart |
 | `turn.confirmed` | `gameId`, `leg`, `slot`, `turnIndex` | „Weiter“ getippt |
-| `game.decision` | `gameId`, `slot`, `turnIndex`, `kind`, `end` | Antwort auf eine Frage im Spiel (z. B. nach einem Shanghai) |
+| `game.decision` | `gameId`, `slot`, `turnIndex`, `kind`, `end`, bei `playOn` auch `placed` | Antwort auf eine Frage im Spiel (Shanghai; 121: `skip`, `finishEnd`; Doppelfeld: `finishEnd`; um Plätze weiterspielen: `playOn`, 5.0) |
 | `event.voided` | `gameId`, `targetId`, `reason` (`undo` / `edit`) | Rückgängig oder Runde bearbeiten |
 | `game.ended` | `gameId`, `reason` (`finished` / `abandoned`) | Spielende (Ergebnis wird berechnet, nicht gespeichert) |
 | `game.hidden` | `gameId` | Spiel aus Listen und Statistik ausblenden (nur mit Freigabe, nie echtes Löschen) |
@@ -247,6 +247,18 @@ Siehe 6.4.
 5. **Match-Ende**: Ergebnis, Kennzahlen, Knöpfe „Revanche“ (gleiche Einstellungen) und „Fertig“.
 6. **Abbrechen** ist jederzeit möglich (Rückfrage). Abgebrochene Spiele bleiben gespeichert und zählen in Quoten (jeder geworfene Dart ist echt), aber nicht in Bestleistungen (11.1).
 7. Ein laufendes Spiel übersteht Schließen der App, Sperrbildschirm und Neustart: Beim Öffnen fragt die App „Spiel fortsetzen?“.
+
+### 5.0 Um die Plätze weiterspielen (Wunsch Gianluca, 27.10.2026)
+
+Gilt für X01, Cricket und Around the Clock mit **mindestens 3 Spielern**. Steht der Sieger fest, fragt die App: **„Weiterspielen um Platz 2“** oder **„Spiel beenden“**.
+
+- Weiterspielen: Der Sieger wird übersprungen, die Übrigen spielen das **laufende (letzte) Leg** weiter. Wer darin als Nächster fertig ist (X01: Checkout; Cricket: alles zu und Punkte passen gegenüber den Übrigen; Around the Clock: letztes Ziel), bekommt den nächsten Platz. Sind danach noch mindestens 2 übrig, kommt die Frage erneut; der Letzte bekommt seinen Platz automatisch.
+- Spiel beenden: Die Übrigen teilen sich den nächsten Platz.
+- Die Antwort ist ein Ereignis `game.decision` mit `kind = playOn`, `end` (ja/nein) und `placed` (Zahl der schon platzierten Spieler). „Weiterspielen“ bestätigt zugleich die letzte Aufnahme. Rückgängig nimmt die Antwort zurück (nach „Weiterspielen“ zusammen mit diesem Weiter, sodass die Frage sofort wieder erscheint).
+- Alle Darts danach zählen normal in die Statistik (Average, Doppelquote, Checkouts). Spiel- und Leg-Siege zählen nur für den Sieger. Ergebnis und Spielverlauf zeigen die Plätze.
+- Ältere Spiele ändern sich nicht: Ohne Antwort bleibt ein Spiel, das schon beendet ist, beendet.
+
+Doppelfeld-Training und 121 (Zufall) fragen schon ab 2 Spielern, sobald der Erste fertig ist (7.4, 7.7).
 
 ### 5.1 Rückgängig
 
@@ -385,7 +397,7 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 7. **Checkout:** `rest_neu = 0` und der Dart passt zur Out-Regel → Leg gewonnen, sofort, auch mit Dart 1 oder 2.
 8. **Bullseye gilt als Double** (D25) für In und Out. Single-Bull ist kein Double.
 9. Leg gewonnen → Legs-Zähler +1. Erreicht ein Spieler die nötigen Legs, gewinnt er das Set (bzw. das Match ohne Sets). Erreicht er die nötigen Sets, gewinnt er das Match.
-10. Bei mehr als 2 Spielern endet ein Leg mit dem ersten Checkout. Es wird nicht um weitere Plätze gespielt.
+10. Bei mehr als 2 Spielern endet ein Leg mit dem ersten Checkout. Nur im letzten Leg kann um die weiteren Plätze weitergespielt werden (5.0, Wunsch Gianluca 27.10.2026).
 
 **Checkout-Vorschläge**
 
@@ -435,6 +447,7 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 8. **Sieg Cut-Throat:** Ein Spieler gewinnt sofort, wenn er alle Zielzahlen zu hat **und** höchstens so viele Punkte hat wie jeder Gegner (≤).
 9. Hat ein Spieler alles zu, liegt aber bei den Punkten falsch, spielt er weiter und versucht zu punkten (Standard) bzw. wartet, bis Gegner Punkte bekommen (Cut-Throat).
 10. Es gibt keine Rundenbegrenzung.
+11. Ab 3 Spielern kann nach dem Sieg um die weiteren Plätze weitergespielt werden (5.0). Für Platz 2 usw. zählen in Regel 7 und 8 nur die noch nicht platzierten Gegner.
 
 **Anzeige:** Tafel mit Zielzahlen in der Mitte, je Spieler die Marks als Zeichen „/“, „X“, „Ⓧ“ (bei mehr als 3 Treffern bis zu: Zahl der Marks), Punkte, Marks pro Runde.
 
@@ -482,7 +495,8 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 4. **Bis zum Treffer:** Ein Ziel bleibt, bis es getroffen ist. Danach kommt sofort das nächste Ziel, auch mitten in der Aufnahme. Ein Spieler ist fertig, wenn er alle 21 Ziele getroffen hat. Fertige Spieler werden übersprungen. Spielende, wenn alle fertig sind. Platzierung: wenigste Darts.
 5. **Feste Zahl n:** Jedes Ziel bekommt genau n Darts, egal ob getroffen. Nach n Darts wechselt das Ziel, auch mitten in der Aufnahme. Spielende nach 21 × n Darts je Spieler. Platzierung: meiste Treffer, bei Gleichstand gleicher Platz.
 6. Anzeige je Spieler (Block, Wunsch Gianluca 27.10.2026): Ziel (z. B. 5/21), Darts auf das aktuelle Ziel, Darts gesamt, „Bei Treffer“ (Quote auf dem aktuellen Ziel, wenn der nächste Dart trifft: (Treffer + 1) / (Darts + 1) auf dieses Ziel), Quote % gesamt; getroffene Felder im Kästchen. Verlaufstabelle: Ziel und benötigte Darts.
-7. **Ergebnis am Ende**, je Spieler und Feld: Würfe, Treffer, Trefferquote in %; dazu Gesamtwürfe und Gesamtquote.
+7. Ist der Erste fertig und andere nicht, fragt die App einmal: Weiterspielen oder Spiel beenden (wie 121, Regel 6; Wunsch Gianluca 27.10.2026). Beim Beenden gilt: mehr getroffene Ziele vor weniger Darts (bis zum Treffer) bzw. meiste Treffer (feste Zahl).
+8. **Ergebnis am Ende**, je Spieler und Feld: Würfe, Treffer, Trefferquote in %; dazu Gesamtwürfe und Gesamtquote.
 
 **Regeltext:** Ziele; Bull nur Bullseye; Folge gemeinsam/eigen; Modus.
 
@@ -494,7 +508,7 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 | Ring | **beliebig** (S/D/T zählt), nur Doubles, nur Triples |
 | Sprünge | **aus**; an: Double springt 2 Ziele weiter, Triple 3 (nur bei Ring „beliebig“) |
 
-Regeln: Ziele der Reihe nach treffen. Ein Treffer bringt sofort das nächste Ziel, auch mitten in der Aufnahme. Wer das letzte Ziel trifft, gewinnt sofort. Mit Sprüngen über das letzte Ziel hinaus = Ziel erreicht. Am Bull gibt es kein Triple: Bei „nur Triples“ zählt dort das Bullseye, bei „nur Doubles“ ebenfalls das Bullseye, bei „beliebig“ Single-Bull und Bullseye (Sprung immer 1). Auf dem Board ist nur das aktuelle Ziel des Werfers farbig. Kennzahlen: Darts bis Ende, Trefferquote (Vergleichsgruppe: Ziele + Ring + Sprünge).
+Regeln: Ziele der Reihe nach treffen. Ein Treffer bringt sofort das nächste Ziel, auch mitten in der Aufnahme. Wer das letzte Ziel trifft, gewinnt sofort; ab 3 Spielern kann um die weiteren Plätze weitergespielt werden (5.0). Mit Sprüngen über das letzte Ziel hinaus = Ziel erreicht. Am Bull gibt es kein Triple: Bei „nur Triples“ zählt dort das Bullseye, bei „nur Doubles“ ebenfalls das Bullseye, bei „beliebig“ Single-Bull und Bullseye (Sprung immer 1). Auf dem Board ist nur das aktuelle Ziel des Werfers farbig. Kennzahlen: Darts bis Ende, Trefferquote (Vergleichsgruppe: Ziele + Ring + Sprünge).
 
 **Regeltext:** Zielfolge; welcher Ring zählt; Sprünge; Sieg.
 
@@ -929,6 +943,13 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G74 | K.-o. mit Spiel um Platz 3, 4 Teilnehmer | Halbfinals gespielt | Partie `ko-p3` mit den beiden Verlierern |
 | G75 | Computer gegen Computer, 501 | automatisch ausspielen | beendetes Spiel mit genau einem Sieger, nur gültige Darts |
 | G76 | K.-o., X01 first to 2, Finale first to 3 | Finale starten | Finalspiel hat first to 3, alle anderen first to 2 |
+| G79 | 501, 3 Spieler, first to 1 | A checkt | Frage „Weiterspielen um Platz 2“; Beenden → Plätze A, dann B und C geteilt |
+| G80 | 501, 4 Spieler | A checkt, Weiterspielen, C checkt | Frage erneut; Weiterspielen, B checkt → Plätze A, C, B, D (D automatisch) |
+| G81 | 501, 2 Spieler | A checkt | keine Frage, Spiel vorbei |
+| G82 | 501, 3 Spieler, first to 2 | A gewinnt das 1. Leg | keine Frage (nur im letzten Leg) |
+| G83 | Cricket, 3 Spieler | A gewinnt, Weiterspielen; B hat alles zu und mehr Punkte als C | B ist Zweiter, A zählt beim Punktevergleich nicht mehr |
+| G84 | Around the Clock, 3 Spieler | A fertig, Weiterspielen, Rückgängig | die Antwort ist zurückgenommen, die Frage steht wieder an |
+| G85 | Doppelfeld, 2 Spieler | A fertig | Frage; Beenden → A gewinnt (mehr Ziele), B mit offenem Ziel |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

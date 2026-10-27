@@ -6,6 +6,7 @@ import {
   computeDoubles,
   confirmDoublesTurn,
   currentTarget,
+  decideDoublesEnd,
   quote,
   sequenceFor,
   shuffledTargets,
@@ -209,5 +210,32 @@ describe('Ablauf', () => {
     expect(quote(1, 8)).toBe('12,5 %');
     expect(quote(2, 17)).toBe('11,8 %');
     expect(quote(0, 0)).toBe('—');
+  });
+});
+
+describe('Erster fertig: weiterspielen oder beenden (SPEC 7.4 Regel 7)', () => {
+  it('G85: A fertig → Frage; Beenden → A gewinnt mit mehr Zielen, B behält sein offenes Ziel', () => {
+    const g = Training.create({ targets: [16, 20] });
+    g.turn('xx'); // A: beide Ziele getroffen, 2 Darts
+    expect(g.state.askEnd).toBe(true);
+    expect(g.state.finished).toBe(false);
+    g.add(decideDoublesEnd(g.state, true));
+    expect(g.state.finished).toBe(true);
+    expect(g.state.matchWinners).toEqual([A]);
+    expect(g.state.players[B].index).toBe(0);
+    // Rückgängig nimmt das Beenden zurück
+    g.add(undoDoubles(g.state, g.events));
+    expect(g.state.finished).toBe(false);
+    expect(g.state.askEnd).toBe(true);
+  });
+
+  it('Weiterspielen: B spielt zu Ende, die Frage kommt nicht wieder; weniger Darts gewinnt', () => {
+    const g = Training.create({ targets: [16, 20] });
+    g.turn('xx');
+    g.add(decideDoublesEnd(g.state, false));
+    expect(g.state.askEnd).toBe(false);
+    g.turn('xx'); // B: auch 2 Darts
+    expect(g.state.finished).toBe(true);
+    expect(g.state.matchWinners).toEqual([A, B]);
   });
 });

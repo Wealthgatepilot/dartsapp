@@ -59,6 +59,8 @@ export type DecisionPayload = { gameId: string; slot: number; turnIndex: number 
   | { kind: 'skip' }
   /** 121: Der Erste ist fertig – Spiel beenden (true) oder weiterspielen (false), vor der Aufnahme turnIndex. */
   | { kind: 'finishEnd'; end: boolean }
+  /** Sieger steht fest (ab 3 Spielern): um die weiteren Plätze weiterspielen (false) oder beenden (true), SPEC 5.0. */
+  | { kind: 'playOn'; end: boolean; placed: number }
 );
 
 /** Ein Ausbullen-Dart: angetippte Stelle in mm vom Mittelpunkt (x nach rechts, y nach unten), SPEC 6.4. */
@@ -112,6 +114,8 @@ interface GameCreatedBase {
   start?: StartMethod;
   /** Partie eines Turniers (SPEC 8.6). */
   tournament?: { tournamentId: string; matchId: string };
+  /** Ab 27.10.2026: Nach dem Sieg darf um die weiteren Plätze weitergespielt werden (SPEC 5.0). Fehlt bei älteren Spielen. */
+  playOn?: boolean;
 }
 
 export type GameCreatedPayload =

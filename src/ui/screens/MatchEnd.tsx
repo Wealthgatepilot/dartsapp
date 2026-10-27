@@ -4,6 +4,7 @@ import type { ComponentChildren } from 'preact';
 
 export function MatchEnd({
   winners,
+  places,
   nameOf,
   children,
   onUndo,
@@ -12,6 +13,8 @@ export function MatchEnd({
   doneLabel = 'Fertig',
 }: {
   winners: number[];
+  /** Plätze nach dem Weiterspielen (SPEC 5.0); null = keine Platzierung. */
+  places?: number[][] | null;
   nameOf: (slot: number) => string;
   children: ComponentChildren;
   onUndo: () => void;
@@ -33,6 +36,15 @@ export function MatchEnd({
           <h2>{title}</h2>
         </header>
         <div class="modal-body">
+          {places && places.length > 1 && (
+            <ol class="places">
+              {places.map((group, i) => (
+                <li key={i}>
+                  <b>{1 + places.slice(0, i).flat().length}.</b> {group.map(nameOf).join(', ')}
+                </li>
+              ))}
+            </ol>
+          )}
           {children}
           <div class="row">
             <button class="btn" onClick={onUndo}>

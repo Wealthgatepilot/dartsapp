@@ -3,7 +3,7 @@
 
 import type { ComponentChildren } from 'preact';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
-import type { CoreState, DartView, EditPlan, TurnBase } from '../../engine/core';
+import { decidePlayOn, type CoreState, type DartView, type EditPlan, type TurnBase } from '../../engine/core';
 import { BOT_DELAY_MS, planAim, throwAtPoint, type Point } from '../../engine/bot';
 import { botAim, botSigma, sameField } from '../../engine/botaim';
 import { matchCallout, turnCallout } from '../../engine/callout';
@@ -21,6 +21,7 @@ import { ReviewContext } from '../review';
 import { BestCompare } from './BestCompare';
 import { GameReview } from './GameReview';
 import { EditRound } from './EditRound';
+import { EndQuestion } from './EndQuestion';
 import { MatchEnd } from './MatchEnd';
 
 // Die Spielansicht ist für alle Modi gleich; die Leg- und Aufnahmedaten des Modus braucht sie nicht.
@@ -179,7 +180,7 @@ export function GameShell(p: ShellProps) {
       // Revanche mit Ausbullen oder Münzwurf lost die Reihenfolge neu aus; sonst gleiche Reihenfolge.
       const redecide = game.created.start === 'bull' || game.created.start === 'coin';
       const created = p.prepareRematch ? p.prepareRematch(game.created) : game.created;
-      evs.push({ type: 'game.created', payload: { ...created, gameId: newId, seed: Date.now() } });
+      evs.push({ type: 'game.created', payload: { ...created, gameId: newId, seed: Date.now(), playOn: true } });
       if (!redecide) {
         evs.push({ type: 'game.orderDecided', payload: { gameId: newId, order: game.order, method: 'asEntered' } });
       }
@@ -274,7 +275,7 @@ export function GameShell(p: ShellProps) {
           )}
           <button
             class={state.awaitingConfirm ? 'btn btn-primary grow' : 'btn grow'}
-            disabled={busy || !turn || turn.confirmed || state.finished || p.blockConfirm}
+            disabled={busy || !turn || turn.confirmed || state.finished || p.blockConfirm || state.askPlayOn}
             onClick={() => {
               // Ansage aus der Aufnahme vor dem Bestätigen (SPEC 10)
               const text = turnCallout({ mode: game.created.mode, state } as AnyGameState, state.currentTurn, p.nameOf);
@@ -334,9 +335,19 @@ export function GameShell(p: ShellProps) {
 
       {p.overlay?.(act)}
 
+      {state.askPlayOn && state.places && (
+        <EndQuestion
+          {...playOnQuestion(state.places, game.order, p.nameOf)}
+          onEnd={() => act(decidePlayOn(state, true))}
+          onContinue={() => act(decidePlayOn(state, false))}
+          onUndo={() => act(p.undo())}
+        />
+      )}
+
       {state.finished && (
         <MatchEnd
           winners={state.matchWinners ?? []}
+          places={state.places}
           nameOf={p.nameOf}
           onUndo={() => act(p.undo())}
           onRematch={tournamentId ? undefined : () => finish(true)}
@@ -348,6 +359,19 @@ export function GameShell(p: ShellProps) {
       )}
     </div>
   );
+}
+
+/** Texte der Frage „um die weiteren Plätze weiterspielen?“ (SPEC 5.0). */
+function playOnQuestion(places: number[][], order: number[], nameOf: (slot: number) => string) {
+  const placed = places.flat();
+  const next = placed.length + 1;
+  const last = places[places.length - 1].map(nameOf).join(', ');
+  const rest = order.filter((s) => !placed.includes(s)).map(nameOf).join(', ');
+  return {
+    title: places.length === 1 ? `🏆 ${last} gewinnt` : `${places.length}. Platz: ${last}`,
+    text: `Um Platz ${next} weiterspielen oder Spiel beenden? Beim Beenden teilen sich ${rest} Platz ${next}.`,
+    continueLabel: `Weiterspielen um Platz ${next}`,
+  };
 }
 
 /**

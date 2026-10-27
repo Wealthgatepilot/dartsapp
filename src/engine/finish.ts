@@ -5,8 +5,10 @@
 
 import { suggestCheckout } from './checkout';
 import {
+  collectEnd,
   computeCore,
   confirmTurnCore,
+  decideEnd,
   planEditCore,
   throwDartCore,
   undoCore,
@@ -145,21 +147,6 @@ function collectSkips(gameId: string, events: readonly GameEvent[]): Map<string,
   return map;
 }
 
-/** Antworten auf „Weiterspielen oder Spiel beenden?“: beantwortet ja/nein, Platz|Aufnahme des Beendens. */
-function collectEnd(gameId: string, events: readonly GameEvent[]) {
-  const voided = voidedIds(events);
-  let answered = false;
-  let stopAt: string | null = null;
-  const ids: string[] = [];
-  for (const e of events) {
-    if (e.type !== 'game.decision' || voided.has(e.id) || e.payload.gameId !== gameId || e.payload.kind !== 'finishEnd') continue;
-    answered = true;
-    ids.push(e.id);
-    if (e.payload.end) stopAt ??= skipKey(e.payload.slot, e.payload.turnIndex);
-  }
-  return { answered, stopAt, ids };
-}
-
 function finishRules(setup: FinishSetup, skips: Map<string, string[]>, stopAt: string | null): Rules<FinishLegState, FinishTurnData> {
   const { settings: s, order } = setup;
   const seqs = Object.fromEntries(order.map((slot) => [slot, finishSequence(setup, slot)]));
@@ -281,9 +268,7 @@ export function computeFinish(setup: FinishSetup, events: readonly GameEvent[]):
 
 /** Antwort auf „Weiterspielen oder Spiel beenden?“ vor der Aufnahme, die gerade dran ist. */
 export function decideFinishEnd(state: FinishState, end: boolean): NewEvent[] {
-  const pos = state.next;
-  if (!pos || !state.askEnd) return [];
-  return [{ type: 'game.decision', payload: { gameId: state.gameId, slot: pos.slot, turnIndex: pos.turnIndex, kind: 'finishEnd', end } }];
+  return state.askEnd ? decideEnd(state, end) : [];
 }
 
 export function throwFinishDart(state: FinishState, field: Field, input: DartPayload['input'] = 'board'): NewEvent | null {

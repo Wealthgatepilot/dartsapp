@@ -1,8 +1,10 @@
 // Doppelfeld-Training nach SPEC 7.4: D1–D20 und Bullseye in zufälliger Folge, Eingabe Treffer/Falsch.
 
 import {
+  collectEnd,
   computeCore,
   confirmTurnCore,
+  decideEnd,
   throwDartCore,
   undoCore,
   type CoreState,
@@ -102,6 +104,8 @@ export interface DoublesPlayer {
 
 export interface DoublesLegState {
   players: Record<number, DoublesPlayer>;
+  /** „Spiel beenden“, nachdem der Erste fertig war: alle gelten als fertig. */
+  stopped?: boolean;
 }
 
 export interface DoublesTurnData {
@@ -112,16 +116,19 @@ export type DoublesTurn = CoreTurn<DoublesTurnData>;
 export type DoublesState = CoreState<DoublesLegState, DoublesTurnData> & {
   setup: DoublesSetup;
   players: Record<number, DoublesPlayer>;
+  /** Frage „Weiterspielen oder Spiel beenden?“ steht an: der Erste ist fertig, andere nicht, noch nicht beantwortet. */
+  askEnd: boolean;
 };
 
 export function currentTarget(p: DoublesPlayer): Field | null {
   return p.index < p.sequence.length ? p.sequence[p.index] : null;
 }
 
-function doublesRules(setup: DoublesSetup): Rules<DoublesLegState, DoublesTurnData> {
+function doublesRules(setup: DoublesSetup, stopAt: string | null): Rules<DoublesLegState, DoublesTurnData> {
   const { settings: s, order } = setup;
   const fixed = s.mode.kind === 'fixed' ? s.mode.darts : null;
   const done = (p: DoublesPlayer) => p.index >= p.sequence.length;
+  const isDone = (ls: DoublesLegState, slot: number) => !!ls.stopped || done(ls.players[slot]);
 
   return {
     gameId: setup.gameId,
@@ -135,8 +142,12 @@ function doublesRules(setup: DoublesSetup): Rules<DoublesLegState, DoublesTurnDa
         ]),
       ),
     }),
-    newTurn: () => ({ hits: 0 }),
-    isDone: (ls, slot) => done(ls.players[slot]),
+    newTurn: (ls, slot, turnIndex) => {
+      // „Spiel beenden“ vor dieser Aufnahme
+      if (stopAt === `${slot}|${turnIndex}`) ls.stopped = true;
+      return { hits: 0 };
+    },
+    isDone,
     acceptsDart: (d) => typeof d.hit === 'boolean' && (d.field === null || isValidField(d.field)),
     applyDart: (ls, turn, d) => {
       const p = ls.players[turn.slot];
@@ -160,9 +171,11 @@ function doublesRules(setup: DoublesSetup): Rules<DoublesLegState, DoublesTurnDa
       return { scored: d.hit ? 1 : 0, endsTurn: done(p) };
     },
     winners: (ls, at) => {
-      if (!at.afterTurn || !order.every((slot) => done(ls.players[slot]))) return null;
-      // Bis zum Treffer: wenigste Darts. Feste Zahl: meiste Treffer. Gleichstand = geteilter Platz.
-      const score = (slot: number) => (fixed === null ? -ls.players[slot].darts : ls.players[slot].hits);
+      if (!at.afterTurn || !order.every((slot) => isDone(ls, slot))) return null;
+      // Bis zum Treffer: mehr Ziele (nur nach „Spiel beenden“ verschieden), dann wenigste Darts.
+      // Feste Zahl: meiste Treffer. Gleichstand = geteilter Platz.
+      const p = (slot: number) => ls.players[slot];
+      const score = (slot: number) => (fixed === null ? p(slot).index * 1_000_000 - p(slot).darts : p(slot).hits);
       const best = Math.max(...order.map(score));
       return order.filter((slot) => score(slot) === best);
     },
@@ -171,8 +184,18 @@ function doublesRules(setup: DoublesSetup): Rules<DoublesLegState, DoublesTurnDa
 }
 
 export function computeDoubles(setup: DoublesSetup, events: readonly GameEvent[]): DoublesState {
-  const core = computeCore(doublesRules(setup), events);
-  return { ...core, setup, players: core.legs[0].state.players };
+  const end = collectEnd(setup.gameId, events);
+  const core = computeCore(doublesRules(setup, end.stopAt), events);
+  const players = core.legs[0].state.players;
+  const pos = core.next;
+  const finished = setup.order.filter((slot) => players[slot].index >= players[slot].sequence.length).length;
+  const askEnd = !!pos && pos.dartIndex === 1 && !end.answered && finished > 0 && finished < setup.order.length;
+  return { ...core, setup, players, askEnd };
+}
+
+/** Antwort auf „Weiterspielen oder Spiel beenden?“ (SPEC 7.4 Regel 7). */
+export function decideDoublesEnd(state: DoublesState, end: boolean): NewEvent[] {
+  return state.askEnd ? decideEnd(state, end) : [];
 }
 
 /** Treffer oder Falsch für das aktuelle Ziel des Spielers, der dran ist. */
@@ -191,7 +214,15 @@ export function confirmDoublesTurn(state: DoublesState): NewEvent[] {
   return confirmTurnCore(state, { autoMiss: () => ({ field: null, hit: false }) });
 }
 
-export function undoDoubles(state: DoublesState): NewEvent[] {
+/** Rückgängig nimmt das Letzte zurück: eine Antwort auf die Beenden-Frage oder (wie sonst) Dart bzw. Weiter. */
+export function undoDoubles(state: DoublesState, events: readonly GameEvent[] = []): NewEvent[] {
+  const answers = new Set(collectEnd(state.gameId, events).ids);
+  const lastAction = state.actions[state.actions.length - 1]?.id;
+  for (let i = events.length - 1; i >= 0; i--) {
+    const id = events[i].id;
+    if (answers.has(id)) return [{ type: 'event.voided', payload: { gameId: state.gameId, targetId: id, reason: 'undo' } }];
+    if (id === lastAction) break;
+  }
   return undoCore(state);
 }
 

@@ -79,6 +79,12 @@ test('ganzes Doppelfeld-Training bis zum Treffer', async ({ page }) => {
   await expect(card('Jörn').locator('.block-badge')).toHaveText('21');
   await next(page);
 
+  // Jörn ist fertig: Frage weiterspielen oder beenden (SPEC 7.4 Regel 7)
+  const ask = page.getByRole('dialog', { name: 'Weiterspielen?' });
+  await expect(ask).toContainText('Jörn ist fertig');
+  await ask.getByRole('button', { name: 'Weiterspielen' }).click();
+  await expect(ask).toHaveCount(0);
+
   // Gian hat 1 + 18 = 19 Ziele, es fehlen 2
   await tap(page, 'hit');
   await tap(page, 'hit');
@@ -88,4 +94,21 @@ test('ganzes Doppelfeld-Training bis zum Treffer', async ({ page }) => {
   await expect(end.locator('tr', { hasText: 'Gesamt' })).toContainText('21/21 · 100 %');
   await end.getByRole('button', { name: 'Fertig' }).click();
   await expect(page.locator('.list-row', { hasText: 'Doppelfeld-Training' })).toContainText('🏆 Jörn');
+});
+
+test('Doppelfeld: Erster fertig → Spiel beenden', async ({ page }) => {
+  await createProfiles(page, 'Gian', 'Jörn');
+  await page.goto('./#/training');
+  await page.getByRole('button', { name: 'Gian' }).click();
+  await page.getByRole('button', { name: 'Jörn' }).click();
+  await page.getByRole('button', { name: 'Keine' }).click();
+  await page.getByRole('button', { name: 'D16', exact: true }).click();
+  await page.getByRole('radio', { name: 'wie eingetragen' }).click();
+  await page.getByRole('button', { name: 'Spiel starten' }).click();
+
+  await tap(page, 'hit'); // Gian fertig
+  await next(page);
+  const ask = page.getByRole('dialog', { name: 'Weiterspielen?' });
+  await ask.getByRole('button', { name: 'Spiel beenden' }).click();
+  await expect(page.getByRole('dialog', { name: 'Spielende' })).toContainText('Gian gewinnt');
 });

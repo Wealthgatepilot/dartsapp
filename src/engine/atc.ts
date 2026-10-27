@@ -29,6 +29,8 @@ export interface AtcSetup {
   gameId: string;
   settings: AtcSettings;
   order: number[];
+  /** Um die Plätze weiterspielen erlaubt (neue Spiele, SPEC 5.0). */
+  playOn?: boolean;
 }
 
 /** Kurzform der Einstellungen für Titel und Statistik, z. B. „ · Doubles · mit Bull“ (leer = Standard). */
@@ -100,12 +102,13 @@ function atcRules(setup: AtcSetup): Rules<AtcLegState, AtcTurnData> {
       ls.hits[turn.slot]++;
       turn.hits++;
       if (ls.index[turn.slot] >= targets.length) {
-        ls.winner = turn.slot;
+        ls.winner ??= turn.slot; // beim Ausspielen der Plätze bleibt der Sieger
         return { scored: 1, endsTurn: true };
       }
       return { scored: 1, endsTurn: false };
     },
     winners: (ls) => (ls.winner !== null ? [ls.winner] : null),
+    ...(setup.playOn ? { finishedAt: (ls: AtcLegState, slot: number) => ls.index[slot] >= targets.length } : {}),
   };
 }
 

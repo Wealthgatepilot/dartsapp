@@ -96,6 +96,12 @@ export interface CoreState<LS, TD> {
   ignored: { id: string; reason: string }[];
   /** Alle wirksamen Aktionen in Spielreihenfolge, für Rückgängig. */
   actions: { kind: 'dart' | 'confirm'; id: string; turn: Turn<TD> }[];
+  /** Plätze beim Weiterspielen um die Plätze (SPEC 5.0), Platz 1 zuerst; mehrere in einer Gruppe = geteilt. null = keine Platzierung. */
+  places: number[][] | null;
+  /** Frage „Weiterspielen um Platz n oder Spiel beenden?“ steht an. */
+  askPlayOn: boolean;
+  /** Rückgängig nimmt zuerst diese Ereignisse zurück (Antwort auf die Frage, ggf. samt Weiter). */
+  undoFirst: string[];
 }
 
 export interface DartInput {
@@ -123,7 +129,40 @@ export interface Rules<LS, TD> {
   winners(ls: LS, at: { afterTurn: boolean; round: number; lastInRound: boolean }): number[] | null;
   /** Fehlwurf zum Auffüllen bei „Weiter“. Standard: daneben. */
   autoMiss?(turn: Turn<TD>): DartInput;
+  /**
+   * Um die Plätze weiterspielen (SPEC 5.0): Ist dieser Spieler fertig, gemessen an den noch nicht platzierten `remaining`?
+   * Nur Modi mit dieser Funktion bieten ab 3 Spielern das Weiterspielen an.
+   */
+  finishedAt?(ls: LS, slot: number, remaining: number[]): boolean;
 }
+
+/**
+ * Antworten auf „Weiterspielen oder Spiel beenden?“, wenn der Erste fertig ist (121, Doppelfeld):
+ * beantwortet ja/nein, Platz|Aufnahme des Beendens, alle gültigen Antworten.
+ */
+export function collectEnd(gameId: string, events: readonly GameEvent[]) {
+  const voided = voidedIds(events);
+  let answered = false;
+  let stopAt: string | null = null;
+  const ids: string[] = [];
+  for (const e of events) {
+    if (e.type !== 'game.decision' || voided.has(e.id) || e.payload.gameId !== gameId || e.payload.kind !== 'finishEnd') continue;
+    answered = true;
+    ids.push(e.id);
+    if (e.payload.end) stopAt ??= `${e.payload.slot}|${e.payload.turnIndex}`;
+  }
+  return { answered, stopAt, ids };
+}
+
+/** Antwort auf „Weiterspielen oder Spiel beenden?“ vor der Aufnahme, die gerade dran ist. */
+export function decideEnd<LS, TD>(state: CoreState<LS, TD>, end: boolean): NewEvent[] {
+  const pos = state.next;
+  if (!pos) return [];
+  return [{ type: 'game.decision', payload: { gameId: state.gameId, slot: pos.slot, turnIndex: pos.turnIndex, kind: 'finishEnd', end } }];
+}
+
+/** Ab so vielen Spielern wird nach dem Sieg gefragt, ob um die weiteren Plätze weitergespielt wird. */
+export const PLAY_ON_MIN_PLAYERS = 3;
 
 const defaultAccepts = (d: DartInput) => d.field !== null && isValidField(d.field);
 
@@ -159,10 +198,17 @@ export function computeCore<LS, TD>(rules: Rules<LS, TD>, events: readonly GameE
     const r: Rank = [leg, turnIndex, idx];
     if (!maxRank || compareRank(r, maxRank) > 0) maxRank = r;
   };
+  /** Antworten auf „Weiterspielen um die Plätze?“ je Zahl schon platzierter Spieler (erste gültige zählt). */
+  const playOn = new Map<number, { end: boolean; id: string }>();
+  const position = new Map<string, number>();
 
-  for (const e of events) {
+  for (const [i, e] of events.entries()) {
+    position.set(e.id, i);
     if (voided.has(e.id)) continue;
-    if (e.type === 'dart.thrown') {
+    if (e.type === 'game.decision') {
+      const p = e.payload;
+      if (p.gameId === gameId && p.kind === 'playOn' && !playOn.has(p.placed)) playOn.set(p.placed, { end: p.end, id: e.id });
+    } else if (e.type === 'dart.thrown') {
       const p = e.payload;
       if (p.gameId !== gameId) continue;
       if (!accepts({ field: p.field, hit: p.hit }) || p.dartIndex < 1 || p.dartIndex > 3 || !order.includes(p.slot)) {
@@ -202,6 +248,57 @@ export function computeCore<LS, TD>(rules: Rules<LS, TD>, events: readonly GameE
     awaitingConfirm: false,
     ignored,
     actions: [],
+    places: null,
+    askPlayOn: false,
+    undoFirst: [],
+  };
+
+  // Um die Plätze weiterspielen (SPEC 5.0)
+  const canPlayOn = !!rules.finishedAt && order.length >= PLAY_ON_MIN_PLAYERS;
+  const placed = new Set<number>();
+  /** Das letzte Leg läuft nach dem Sieg weiter, um die Plätze. */
+  let placing = false;
+  const usedAnswers: string[] = [];
+  /** Nach einem neuen Platz: Ist das Spiel vorbei, steht die Frage an oder geht es weiter? */
+  const afterPlace = () => {
+    const places = state.places!;
+    const remaining = order.filter((s) => !placed.has(s));
+    placing = false;
+    state.finished = true;
+    if (remaining.length === 0) return;
+    if (remaining.length === 1) {
+      places.push(remaining);
+      placed.add(remaining[0]);
+      return;
+    }
+    const answer = playOn.get(placed.size);
+    if (!answer) {
+      state.finished = false;
+      state.askPlayOn = true;
+      return;
+    }
+    usedAnswers.push(answer.id);
+    if (answer.end) {
+      places.push(remaining);
+      for (const s of remaining) placed.add(s);
+      return;
+    }
+    state.finished = false;
+    placing = true;
+  };
+  /** Wer ist jetzt neu fertig? Zuerst der Werfer, dann die anderen in Wurfreihenfolge. */
+  const checkPlaces = (ls: LS, thrower: number): boolean => {
+    let any = false;
+    for (const s of [thrower, ...order.filter((x) => x !== thrower)]) {
+      if (placed.has(s)) continue;
+      const remaining = order.filter((x) => !placed.has(x));
+      if (rules.finishedAt!(ls, s, remaining)) {
+        state.places!.push([s]);
+        placed.add(s);
+        any = true;
+      }
+    }
+    return any;
   };
 
   /** Ein Leg ist entschieden: Legs und Sets zählen, prüfen, ob das Spiel vorbei ist. */
@@ -212,6 +309,7 @@ export function computeCore<LS, TD>(rules: Rules<LS, TD>, events: readonly GameE
       state.finished = true;
       state.matchWinners = winners;
       state.matchWinner = leg.winner;
+      startPlaces();
       return;
     }
     const w = leg.winner;
@@ -229,7 +327,15 @@ export function computeCore<LS, TD>(rules: Rules<LS, TD>, events: readonly GameE
     if (state.finished) {
       state.matchWinners = [w];
       state.matchWinner = w;
+      startPlaces();
     }
+  };
+  /** Sieger steht fest: ab 3 Spielern beginnt die Platzierung. */
+  const startPlaces = () => {
+    if (!canPlayOn || state.matchWinner === null) return;
+    state.places = [[state.matchWinner]];
+    placed.add(state.matchWinner);
+    afterPlace();
   };
 
   // 2. Legs der Reihe nach durchspielen.
@@ -242,10 +348,10 @@ export function computeCore<LS, TD>(rules: Rules<LS, TD>, events: readonly GameE
 
     for (let round = 1; ; round++) {
       let playedThisRound = 0;
-      const active = lo.filter((s) => !rules.isDone?.(ls, s));
+      const active = lo.filter((s) => !placed.has(s) && !rules.isDone?.(ls, s));
       for (let oi = 0; oi < lo.length; oi++) {
         const slot = lo[oi];
-        if (rules.isDone?.(ls, slot)) continue;
+        if (placed.has(slot) || rules.isDone?.(ls, slot)) continue;
         playedThisRound++;
         const k = key(legNo, slot, round);
         const turnDarts = darts.get(k);
@@ -306,6 +412,18 @@ export function computeCore<LS, TD>(rules: Rules<LS, TD>, events: readonly GameE
             });
             state.actions.push({ kind: 'dart', id: e.id, turn });
             if (endsTurn) turn.ended = true;
+            if (placing) {
+              // Um die Plätze: Wer fertig ist, bekommt den nächsten Platz; der Werfer hört dann auf.
+              if (checkPlaces(ls, slot)) {
+                if (placed.has(slot)) turn.ended = true;
+                afterPlace();
+                if (!placing) {
+                  turn.ended = true;
+                  legDecided = true;
+                }
+              }
+              continue;
+            }
             const w = rules.winners(ls, { afterTurn: false, round, lastInRound: false });
             if (w) {
               turn.ended = true;
@@ -325,7 +443,14 @@ export function computeCore<LS, TD>(rules: Rules<LS, TD>, events: readonly GameE
         leg.turns.push(turn);
         if (confirm) state.actions.push({ kind: 'confirm', id: confirm.id, turn });
 
-        if (turn.complete && !legDecided) {
+        if (turn.complete && !legDecided && placing) {
+          // Manche Modi stehen erst nach der Aufnahme fest (X01: Rest nach afterDarts)
+          if (checkPlaces(ls, slot)) {
+            if (placed.has(slot)) turn.ended = true;
+            afterPlace();
+            if (!placing) legDecided = true;
+          }
+        } else if (turn.complete && !legDecided) {
           const lastInRound = active.indexOf(slot) === active.length - 1;
           const w = rules.winners(ls, { afterTurn: true, round, lastInRound });
           if (w) {
@@ -346,10 +471,12 @@ export function computeCore<LS, TD>(rules: Rules<LS, TD>, events: readonly GameE
           break replay;
         }
         if (legDecided) {
-          if (state.finished) {
+          if (state.finished || state.askPlayOn) {
             state.currentTurn = turn;
             break replay;
           }
+          // Um die Plätze weiterspielen: dasselbe Leg läuft weiter
+          if (placing) continue;
           if (format?.sets && leg.winner !== null && state.legsWonInSet[leg.winner] >= winsNeeded(format.legs)) {
             setNo++;
             for (const s of order) state.legsWonInSet[s] = 0;
@@ -374,6 +501,16 @@ export function computeCore<LS, TD>(rules: Rules<LS, TD>, events: readonly GameE
   }
   for (const e of confirms.values()) {
     if (!used.has(e.id)) ignored.push({ id: e.id, reason: 'Bestätigung ohne Aufnahme' });
+  }
+
+  // Rückgängig: Kam die letzte Antwort nach der letzten Aktion, wird zuerst sie zurückgenommen,
+  // nach „Weiterspielen“ samt dem Weiter davor, damit die Frage sofort wieder erscheint.
+  const answer = usedAnswers[usedAnswers.length - 1];
+  const last = state.actions[state.actions.length - 1];
+  if (answer && (!last || position.get(answer)! > position.get(last.id)!)) {
+    state.undoFirst = [answer];
+    const end = [...playOn.values()].find((a) => a.id === answer)!.end;
+    if (!end && last?.kind === 'confirm') state.undoFirst.push(last.id);
   }
   return state;
 }
@@ -413,6 +550,20 @@ export function throwDartCore<LS, TD>(
   };
 }
 
+/** Antwort auf „Weiterspielen um die Plätze?“ (SPEC 5.0). Weiterspielen bestätigt zugleich die letzte Aufnahme. */
+export function decidePlayOn<LS, TD>(state: CoreState<LS, TD>, end: boolean): NewEvent[] {
+  const t = state.currentTurn;
+  if (!state.askPlayOn || !t || !state.places) return [];
+  const confirm = end ? [] : confirmTurnCore(state, {});
+  return [
+    ...confirm,
+    {
+      type: 'game.decision',
+      payload: { gameId: state.gameId, slot: t.slot, turnIndex: t.turnIndex, kind: 'playOn', end, placed: state.places.flat().length },
+    },
+  ];
+}
+
 /** „Weiter“: füllt fehlende Darts als Fehlwurf auf (SPEC 3.4) und bestätigt die Aufnahme. */
 export function confirmTurnCore<LS, TD>(state: CoreState<LS, TD>, rules: Pick<Rules<LS, TD>, 'autoMiss'>): NewEvent[] {
   const t = state.currentTurn;
@@ -432,6 +583,9 @@ export function confirmTurnCore<LS, TD>(state: CoreState<LS, TD>, rules: Pick<Ru
 
 /** Rückgängig: letzter Dart, oder letztes „Weiter“ samt aufgefüllter Darts (SPEC 5.1). */
 export function undoCore<LS, TD>(state: CoreState<LS, TD>): NewEvent[] {
+  if (state.undoFirst.length) {
+    return state.undoFirst.map((targetId) => ({ type: 'event.voided', payload: { gameId: state.gameId, targetId, reason: 'undo' } }));
+  }
   const last = state.actions[state.actions.length - 1];
   if (!last) return [];
   const ids = [last.id];

@@ -35,13 +35,26 @@ export function formatWhen(ts: number): string {
 /** Eine Zeile mit Titel, Zeit, Spielern, Ergebnis und Favoriten-Stern; antippen öffnet das Spiel. */
 export function GameRow({ game, profiles, favorite }: { game: GameInfo; profiles: readonly Profile[]; favorite: boolean }) {
   const { events } = useAppData();
-  const winners = game.ended === 'finished' ? (computeGame(game, events).state.matchWinners ?? []) : [];
+  const result = game.ended === 'finished' ? computeGame(game, events).state : null;
+  const winners = result?.matchWinners ?? [];
   const names = game.created.participants.map((p) => participantName(p, profiles));
   // Turnierpartien mit Turniername (SPEC 8.5)
   const tag = game.created.tournament;
   const tournamentName = tag ? listTournaments(events).find((t) => t.created.tournamentId === tag.tournamentId)?.created.name : undefined;
   const winnerNames = game.created.participants.filter((p) => winners.includes(p.slot)).map((p) => participantName(p, profiles));
-  const status = game.ended === 'abandoned' ? 'abgebrochen' : game.ended === null ? 'läuft' : winnerNames.length ? `🏆 ${winnerNames.join(', ')}` : '';
+  const nameOfSlot = (slot: number) => participantName(game.created.participants.find((p) => p.slot === slot)!, profiles);
+  // Nach dem Weiterspielen um die Plätze: „🏆 Gian · 2. Jörn · 3. Lena“ (SPEC 5.0)
+  const places = result?.places && result.places.length > 1
+    ? result.places.slice(1).map((g, i) => `${2 + result.places!.slice(1, i + 1).flat().length}. ${g.map(nameOfSlot).join(', ')}`)
+    : [];
+  const status =
+    game.ended === 'abandoned'
+      ? 'abgebrochen'
+      : game.ended === null
+        ? 'läuft'
+        : winnerNames.length
+          ? [`🏆 ${winnerNames.join(', ')}`, ...places].join(' · ')
+          : '';
   return (
     <li class="list-row game-row">
       <a href={href({ name: 'review', gameId: game.created.gameId })}>

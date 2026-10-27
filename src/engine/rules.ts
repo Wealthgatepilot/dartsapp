@@ -118,6 +118,7 @@ export function doublesRules(s: DoublesSettings): string[] {
       `Nach ${targetsOf(s).length} × ${n} Darts ist Schluss. Es gewinnt, wer die meisten Treffer hat.`,
     );
   }
+  out.push('Ist der Erste fertig, fragt die App: weiterspielen, bis alle fertig sind, oder das Spiel beenden. Beim Beenden zählt der Stand bis dahin.');
   out.push('Am Ende siehst du für jedes Feld Würfe, Treffer und Trefferquote.');
   return out;
 }
@@ -162,6 +163,12 @@ const START_VARIANTS: Variant[] = [
   { name: 'Wer beginnt: wie eingetragen', text: 'Es geht in der Reihenfolge los, in der die Spieler ausgewählt wurden.' },
 ];
 
+/** Um die Plätze weiterspielen (SPEC 5.0). */
+const PLAY_ON_VARIANT: Variant = {
+  name: 'Um die Plätze weiterspielen',
+  text: 'Ab 3 Spielern fragt die App nach dem Sieg: weiterspielen um Platz 2 oder Spiel beenden. Wer weiterspielt, spielt das letzte Leg ohne den Sieger zu Ende; der Nächste, der fertig ist, wird Zweiter.',
+};
+
 const MATCH_VARIANTS: Variant[] = [
   { name: 'First to', text: 'Wer zuerst die eingestellte Zahl Legs gewinnt, gewinnt das Spiel. „First to 3“ heißt: 3 gewonnene Legs.' },
   { name: 'Best of', text: 'Gespielt wird höchstens die eingestellte Zahl Legs (immer ungerade). „Best of 5“ heißt: Wer zuerst 3 gewinnt.' },
@@ -197,6 +204,7 @@ export function x01Variants(): Variant[] {
       name: 'Handicap',
       text: 'Jeder Spieler kann einen eigenen Startwert bekommen, z. B. 501 gegen 301. So haben unterschiedlich starke Spieler eine faire Chance. Die Statistik vergleicht jeden nur mit Spielen vom selben Startwert.',
     },
+    PLAY_ON_VARIANT,
     ...START_VARIANTS,
   ];
 }
@@ -220,6 +228,7 @@ export function cricketVariants(): Variant[] {
       text: 'Wie oft eine Zahl getroffen werden muss, bis sie zu ist. Üblich ist 3; mehr macht das Spiel länger, weniger kürzer.',
     },
     ...MATCH_VARIANTS,
+    PLAY_ON_VARIANT,
     ...START_VARIANTS,
   ];
 }
@@ -307,6 +316,7 @@ export function atcVariants(): Variant[] {
       name: 'Sprünge',
       text: 'Nur bei Ring „beliebig“: Ein Double bringt 2 Ziele weiter, ein Triple 3. Das Spiel wird schneller, Doubles und Triples lohnen sich.',
     },
+    PLAY_ON_VARIANT,
     ...START_VARIANTS,
   ];
 }

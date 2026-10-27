@@ -292,6 +292,12 @@ Annahmen: Die Frage kommt nur einmal je Spiel, auch bei mehr als 2 Spielern; Rü
 
 - [x] Doppelfeld-Training: Blöcke zeigen Ziel, Darts aufs aktuelle Doppel, Darts gesamt, „Bei Treffer“ (Quote auf dem Doppel, wenn der nächste trifft) und Quote; „Getroffen“ und „Falsch“ entfallen (Treffer stehen im Kästchen). „Quote bei Treffer“ war auf dem iPhone zu lang, daher „Bei Treffer“.
 
+- [x] Um die Plätze weiterspielen (SPEC 5.0, G79–G85): X01, Cricket und Around the Clock fragen ab 3 Spielern nach dem Sieg „Weiterspielen um Platz 2“ oder „Spiel beenden“; das Doppelfeld-Training fragt wie 121, wenn der Erste fertig ist. Plätze im Ergebnis und im Spielverlauf.
+
+Annahmen (Plätze): Gilt nur für Spiele ab diesem Stand (Vermerk `playOn` im Spiel), damit ältere beendete Spiele nicht wieder aufgehen. Bei X01 mit mehreren Legs wird nur das letzte Leg weitergespielt. Spiel- und Leg-Siege zählen nur für den Sieger; alle Darts danach zählen normal. Bei Cricket zählen für Platz 2 usw. nur die noch nicht platzierten Gegner. Die Frage kommt auch, wenn nur Computer übrig sind. „Weiterspielen“ bestätigt die letzte Aufnahme gleich mit; Rückgängig nimmt beides zusammen zurück.
+
+Verworfen (Plätze): ein neues Leg nur um die Plätze (zu lang, die Stände sind schon da); die Frage auch bei 2 Spielern (Gianluca: sinnlos); Plätze in die Turnier-Tabelle übernehmen (Turnierpartien haben immer 2 Spieler).
+
 Verworfen: „Spiel beenden“ als dauerhafter Knopf (Gianluca wünscht eine Frage im richtigen Moment); Beenden durch automatisches Überspringen aller offenen Zahlen (würde die Statistik verfälschen).
 
 ## Phase 5 – Daten mehrerer Geräte

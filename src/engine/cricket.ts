@@ -38,6 +38,8 @@ export interface CricketSetup {
   gameId: string;
   settings: CricketSettings;
   order: number[];
+  /** Um die Plätze weiterspielen erlaubt (neue Spiele, SPEC 5.0). */
+  playOn?: boolean;
 }
 
 export interface CricketTurnData {
@@ -94,10 +96,10 @@ function cricketRules(setup: CricketSetup): Rules<CricketLegState, CricketTurnDa
   const { settings: s, order } = setup;
   const others = (slot: number) => order.filter((x) => x !== slot);
 
-  /** Hat dieser Spieler gewonnen? Alles zu und Punkte passen zur Variante (SPEC 7.2, Regeln 7 und 8). */
-  const hasWon = (ls: CricketLegState, slot: number) =>
+  /** Hat dieser Spieler gewonnen? Alles zu und Punkte passen zur Variante (SPEC 7.2, Regeln 7 und 8), gegenüber `rivals`. */
+  const hasWon = (ls: CricketLegState, slot: number, rivals = others(slot)) =>
     s.targets.every((n) => isClosed(ls, slot, n, s.closeAt)) &&
-    others(slot).every((o) =>
+    rivals.every((o) =>
       s.variant === 'standard' ? ls.points[slot] >= ls.points[o] : ls.points[slot] <= ls.points[o],
     );
 
@@ -147,8 +149,9 @@ function cricketRules(setup: CricketSetup): Rules<CricketLegState, CricketTurnDa
 
       // Gewonnen? Zuerst der Werfer, dann die anderen (bei Cut-Throat können Punkte an Gegner
       // einen Spieler, der schon alles zu hat, auf den letzten Platz der Punkte bringen).
+      // Beim Ausspielen der Plätze steht der Sieger schon fest; die Plätze vergibt finishedAt.
       const candidates = [slot, ...others(slot)];
-      const w = candidates.find((p) => hasWon(ls, p));
+      const w = ls.winner === null ? candidates.find((p) => hasWon(ls, p)) : undefined;
       if (w !== undefined) {
         ls.winner = w;
         return { scored: counted, endsTurn: true };
@@ -156,6 +159,9 @@ function cricketRules(setup: CricketSetup): Rules<CricketLegState, CricketTurnDa
       return { scored: counted, endsTurn: false };
     },
     winners: (ls) => (ls.winner === null ? null : [ls.winner]),
+    ...(setup.playOn
+      ? { finishedAt: (ls: CricketLegState, slot: number, remaining: number[]) => hasWon(ls, slot, remaining.filter((o) => o !== slot)) }
+      : {}),
   };
 }
 

@@ -277,7 +277,7 @@ export function useStartGame() {
     });
     const method: StartMethod = picks.length < 2 ? 'asEntered' : start;
     await append([
-      { type: 'game.created', payload: { ...mode, gameId, participants, seed: Date.now(), start: method } as GameCreatedPayload },
+      { type: 'game.created', payload: { ...mode, gameId, participants, seed: Date.now(), start: method, playOn: true } as GameCreatedPayload },
       ...(method === 'asEntered'
         ? [
             {
