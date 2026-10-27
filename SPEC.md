@@ -481,7 +481,7 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 3. Eingabe über Treffer/Falsch (4.5). Treffer = genau das Ziel-Double (beim Bull: Bullseye).
 4. **Bis zum Treffer:** Ein Ziel bleibt, bis es getroffen ist. Danach kommt sofort das nächste Ziel, auch mitten in der Aufnahme. Ein Spieler ist fertig, wenn er alle 21 Ziele getroffen hat. Fertige Spieler werden übersprungen. Spielende, wenn alle fertig sind. Platzierung: wenigste Darts.
 5. **Feste Zahl n:** Jedes Ziel bekommt genau n Darts, egal ob getroffen. Nach n Darts wechselt das Ziel, auch mitten in der Aufnahme. Spielende nach 21 × n Darts je Spieler. Platzierung: meiste Treffer, bei Gleichstand gleicher Platz.
-6. Anzeige je Spieler: Ziel, Getroffen, Falsch, geworfene Darts, Quote %. Verlaufstabelle: Ziel und benötigte Darts.
+6. Anzeige je Spieler (Block, Wunsch Gianluca 27.10.2026): Ziel (z. B. 5/21), Darts auf das aktuelle Ziel, Darts gesamt, „Bei Treffer“ (Quote auf dem aktuellen Ziel, wenn der nächste Dart trifft: (Treffer + 1) / (Darts + 1) auf dieses Ziel), Quote % gesamt; getroffene Felder im Kästchen. Verlaufstabelle: Ziel und benötigte Darts.
 7. **Ergebnis am Ende**, je Spieler und Feld: Würfe, Treffer, Trefferquote in %; dazu Gesamtwürfe und Gesamtquote.
 
 **Regeltext:** Ziele; Bull nur Bullseye; Folge gemeinsam/eigen; Modus.

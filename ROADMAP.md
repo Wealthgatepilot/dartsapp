@@ -290,6 +290,8 @@ Entscheidungen Gianluca: alle Duell-Modi (X01, Cricket, Shanghai, Count-Up, Arou
 
 Annahmen: Die Frage kommt nur einmal je Spiel, auch bei mehr als 2 Spielern; Rückgängig im Fenster nimmt den letzten Dart zurück. Beim Beenden zählen angefangene Zahlen weder als geschafft noch als übersprungen und nicht in die Statistik; nach „Weiterspielen“ zählt alles normal. Ältere Spiele, in denen jemand vergeblich zweimal übersprungen hat, rechnen das zweite Überspringen jetzt mit.
 
+- [x] Doppelfeld-Training: Blöcke zeigen Ziel, Darts aufs aktuelle Doppel, Darts gesamt, „Bei Treffer“ (Quote auf dem Doppel, wenn der nächste trifft) und Quote; „Getroffen“ und „Falsch“ entfallen (Treffer stehen im Kästchen). „Quote bei Treffer“ war auf dem iPhone zu lang, daher „Bei Treffer“.
+
 Verworfen: „Spiel beenden“ als dauerhafter Knopf (Gianluca wünscht eine Frage im richtigen Moment); Beenden durch automatisches Überspringen aller offenen Zahlen (würde die Statistik verfälschen).
 
 ## Phase 5 – Daten mehrerer Geräte

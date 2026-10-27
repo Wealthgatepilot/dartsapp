@@ -1,4 +1,4 @@
-// Doppelfeld-Training (SPEC 7.4): Ziel je Spieler, Getroffen/Falsch/Darts/Quote, Eingabe über drei Flächen.
+// Doppelfeld-Training (SPEC 7.4): Ziel je Spieler, Darts aufs Ziel und gesamt, Quote bei Treffer und gesamt, Eingabe über drei Flächen.
 
 import { useMemo } from 'preact/hooks';
 import {
@@ -61,6 +61,7 @@ function Cards({
   const blocks: Block[] = order.map((slot) => {
     const p = state.players[slot];
     const t = currentTarget(p);
+    const onTarget = t ? (p.stats[fieldLabel(t)] ?? { darts: 0, hits: 0 }) : null;
     return {
       slot,
       name: nameOf(slot),
@@ -71,8 +72,10 @@ function Cards({
       pages: [
         [
           { label: 'Ziel', value: `${Math.min(p.index + 1, p.sequence.length)}/${p.sequence.length}` },
-          { label: 'Getroffen', value: `${p.hits} / ${p.darts}` },
-          { label: 'Falsch', value: String(p.darts - p.hits) },
+          { label: t ? `Darts auf ${fieldLabel(t)}` : 'Darts auf Ziel', value: t ? String(p.dartsOnTarget) : '—' },
+          { label: 'Darts gesamt', value: String(p.darts) },
+          // Quote auf dem aktuellen Ziel, falls der nächste Dart trifft
+          { label: 'Bei Treffer', value: onTarget ? quote(onTarget.hits + 1, onTarget.darts + 1) : '—' },
           { label: 'Quote', value: quote(p.hits, p.darts) },
         ],
       ],

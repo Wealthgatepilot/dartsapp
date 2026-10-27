@@ -60,8 +60,11 @@ test('ganzes Doppelfeld-Training bis zum Treffer', async ({ page }) => {
   await tap(page, 'hit');
   await expect(page.locator('.hm-hit')).not.toHaveText(firstTarget);
   await next(page); // 2 Darts aufgefüllt als Falsch
-  await expect(card('Gian').locator('.block-stat', { hasText: 'Getroffen' })).toContainText('1 / 3');
-  await expect(card('Gian').locator('.block-stat', { hasText: 'Falsch' })).toContainText('2');
+  // 1 Treffer aufs erste Ziel, dann 2 Falsch aufs zweite
+  await expect(card('Gian').locator('.block-stat', { hasText: 'Darts auf' })).toContainText('2');
+  await expect(card('Gian').locator('.block-stat', { hasText: 'Darts gesamt' })).toContainText('3');
+  await expect(card('Gian').locator('.block-stat', { hasText: 'Bei Treffer' })).toContainText('33,3 %');
+  await expect(card('Gian').locator('.block-badge')).toHaveText('1');
 
   // Jörn trifft alles, Gian trifft ab jetzt alles
   for (let r = 0; r < 7; r++) {
@@ -71,8 +74,9 @@ test('ganzes Doppelfeld-Training bis zum Treffer', async ({ page }) => {
     for (let i = 0; i < 3; i++) await tap(page, 'hit'); // Gian
     await next(page);
   }
-  await expect(card('Jörn').locator('.block-stat', { hasText: 'Getroffen' })).toContainText('21 / 21');
-  await expect(card('Jörn').locator('.block-stat', { hasText: 'Falsch' })).toContainText('0');
+  await expect(card('Jörn').locator('.block-stat', { hasText: 'Darts gesamt' })).toContainText('21');
+  await expect(card('Jörn').locator('.block-stat', { hasText: /^Quote\s*100/ })).toHaveCount(1);
+  await expect(card('Jörn').locator('.block-badge')).toHaveText('21');
   await next(page);
 
   // Gian hat 1 + 18 = 19 Ziele, es fehlen 2
