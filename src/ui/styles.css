@@ -1883,18 +1883,35 @@ button.pill-x {
 }
 /* Tablet quer, X01/Training/Bob's: Die Zahl richtet sich nach dem Platz, den die Blöcke wirklich haben. */
 @media (orientation: landscape) and (min-height: 600px) {
+  /* Jeder Block teilt sich die Höhe; die große Zahl bekommt genau den Rest nach Kopf und Kennzahlen
+     und richtet ihre Schriftgröße nach diesem Rest. So passt es bei jeder Zahl von Kennzahl-Zeilen,
+     ohne Scrollen (Rückmeldung Gianluca 28.10.2026, iPad quer). */
   @supports (height: 1cqh) {
     .screen-game .panel-scroll > .blocks {
-      container-type: size;
+      min-height: 0;
+      grid-auto-rows: minmax(0, 1fr);
+    }
+    .screen-game .panel-scroll > .blocks .block {
+      min-height: 0;
+      overflow: hidden;
     }
     .screen-game .panel-scroll > .blocks .block-big {
-      font-size: clamp(56px, calc((100cqh - 310px) / 2), 170px);
+      flex: 1 1 0;
+      min-height: 0;
+      container-type: size;
+      display: flex;
+      align-items: center;
+      font-size: 0;
     }
-    .screen-game .panel-scroll > .blocks-1 .block-big {
-      font-size: min(280px, 30cqh, 36cqw);
+    .screen-game .panel-scroll > .blocks .block-big > span {
+      font-size: min(170px, 88cqh, 44cqw);
     }
-    .screen-game .panel-scroll > .blocks-many .block-big {
-      font-size: min(90px, 7cqh, 15cqw);
+    .screen-game .panel-scroll > .blocks-1 .block-big > span {
+      font-size: min(280px, 88cqh, 44cqw);
+    }
+    /* Ab 3 Spielern zwei Blöcke je Zeile, sonst bleibt für die Zahl kaum Höhe. */
+    .screen-game .panel-scroll > .blocks-many {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 }

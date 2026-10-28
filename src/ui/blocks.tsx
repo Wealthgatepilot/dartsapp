@@ -73,7 +73,9 @@ export function PlayerBlocks({ blocks, activeSlot }: { blocks: Block[]; activeSl
                 </span>
               )}
             </div>
-            <div class="block-big">{b.big}</div>
+            <div class="block-big">
+              <span>{b.big}</span>
+            </div>
             {b.note && <div class="block-note">{b.note}</div>}
             <button
               type="button"
