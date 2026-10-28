@@ -496,7 +496,7 @@ Für jeden Modus: Einstellungen, Regeln, Spielende, Regeltext. Standardwerte sin
 5. **Feste Zahl n:** Jedes Ziel bekommt genau n Darts, egal ob getroffen. Nach n Darts wechselt das Ziel, auch mitten in der Aufnahme. Spielende nach 21 × n Darts je Spieler. Platzierung: meiste Treffer, bei Gleichstand gleicher Platz.
 6. Anzeige je Spieler (Block, Wunsch Gianluca 27.10.2026): Ziel (z. B. 5/21), Darts auf das aktuelle Ziel, Darts gesamt, „Bei Treffer“ (Quote auf dem aktuellen Ziel, wenn der nächste Dart trifft: (Treffer + 1) / (Darts + 1) auf dieses Ziel), Quote % gesamt; getroffene Felder im Kästchen. Verlaufstabelle: Ziel und benötigte Darts.
 7. Ist der Erste fertig und andere nicht, fragt die App einmal: Weiterspielen oder Spiel beenden (wie 121, Regel 6; Wunsch Gianluca 27.10.2026). Beim Beenden gilt: mehr getroffene Ziele vor weniger Darts (bis zum Treffer) bzw. meiste Treffer (feste Zahl).
-8. **Ergebnis am Ende**, je Spieler und Feld: Würfe, Treffer, Trefferquote in %; dazu Gesamtwürfe und Gesamtquote.
+8. **Ergebnis am Ende** (neu gestaltet, Wunsch Gianluca 28.10.2026): oben je Spieler eine Karte mit Platz, Gesamtquote (groß), Treffer/Darts, Ø Darts je getroffenem Doppel, stärkstem und schwächstem Feld (höchste bzw. niedrigste Quote unter den Feldern mit Würfen; bei Gleichstand alle). Darunter je Ziel eine Kachel mit einer Zeile je Spieler: Balken in Spielerfarbe (Quote), Quote und klein Treffer/Darts; die bessere Quote auf dem Feld ist fett, „—“ = Feld nicht erreicht. Die Kacheln ordnen sich nach der Breite an.
 
 **Regeltext:** Ziele; Bull nur Bullseye; Folge gemeinsam/eigen; Modus.
 
@@ -675,6 +675,7 @@ Eine Turnierpartie ist ein `game.created` mit zusätzlich `tournament: { tournam
 - **Zielwahl:** X01 auf T20 bis Rest ≤ 170, dann nach Experten-Checkout-Tabelle; Cricket: offene Zielzahl mit höchstem Wert, dann Punkte, wenn Gegner offen; andere Modi: aktuelles Ziel.
 - Das getroffene Feld ergibt sich aus der Position nach den Board-Maßen (Kapitel 1).
 - Der Computer wirft mit kurzer Pause pro Dart (0,8 s), die Darts erscheinen als Pills. Weiter tippt der Mensch.
+- **Stufen erklärt** (Wunsch Gianluca, 28.10.2026): Im Setup steht unter „Computer, Stufe“ eine Zeile zur gewählten Stufe (Ø 3 Darts und Doppelquote, gerundet aus der Einstellung unten, ohne Schwankungen). Der Knopf „Stufen erklärt“ zeigt alle 10 Stufen mit Ø 3 Darts, Doppelquote und einer Einordnung (1 Anfänger, 2 Gelegenheitsspieler, 3 Hobbyspieler, 4 Kneipen-Stammspieler, 5 guter Kneipenspieler, 6 Vereinsspieler, 7 starker Ligaspieler, 8 Spitze der Liga, 9 Halbprofi, 10 Profi) und erklärt die Schwankungen.
 - Computer haben keine Statistik. Spiele gegen den Computer zählen für das Profil des Menschen, sind aber in der Statistik filterbar („gegen Computer“).
 
 **Umsetzung (Phase 3, 26.10.2026)**
@@ -774,8 +775,9 @@ Bezeichnungen: `D` = geworfene Darts des Spielers im Leg (inklusive Bust-Darts u
 - **Treffer-Heatmap:** gezeichnetes Board, jedes Feld (S/D/T je Zahl, SB, DB, Daneben) eingefärbt nach Anteil: `Darts auf dieses Feld / alle Board-Darts × 100 %`. Farben als Wärmebild: selten blau, mittel weiß, oft rot; Felder ohne Darts bleiben dunkel (Wunsch Gianluca, 26.10.2026). Nur Darts aus der Board-Eingabe (`field` bekannt). Filter: Modus, Zeitraum.
 - **Doppelquote je Feld** (D1–D20, Bullseye), in drei Spalten:
   - aus dem Training: `Treffer / Würfe` auf dieses Double (Doppelfeld-Training, Bob's 27)
-  - aus X01: `Checkouts auf dieses Double / Double-Versuche auf dieses Double`
+  - aus Checkouts (X01 und 121, beide Formen; 121 seit 28.10.2026 auf Wunsch Gianluca): `Checkouts auf dieses Double / Double-Versuche auf dieses Double`. Ein Versuch ist jeder Dart bei einem Rest, der mit einem Dart auf ein Double checkbar ist (bei 121 ohne In-Regel).
   - zusammen: Summe der Treffer / Summe der Versuche
+  - Die Tabelle erscheint bei X01, Training, Bob's 27 und 121 und zeigt immer alle Quellen.
 
 ---
 

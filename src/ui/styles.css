@@ -2020,3 +2020,114 @@ button.pill-x {
   gap: 4px;
   font-size: 17px;
 }
+
+/* Computer-Stufen (SPEC 9) */
+.bot-level-line {
+  margin: -2px 0 6px;
+}
+.link-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--accent-text);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.bot-levels tr.current td {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  font-weight: 700;
+}
+
+/* Ergebnis Doppelfeld-Training (SPEC 7.4 Regel 8): Karten je Spieler, Kacheln je Ziel */
+.dres {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.dres-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+.dres-card {
+  background: var(--raised);
+  border: 3px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+.dres-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+.dres-big {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 2px 0;
+  font-variant-numeric: tabular-nums;
+}
+.dres-kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+}
+.dres-kv span {
+  color: var(--muted);
+}
+.dres-kv b {
+  text-align: right;
+}
+@media (max-width: 500px) {
+  .dres-big {
+    font-size: 26px;
+  }
+  .dres-kv {
+    font-size: 12px;
+    flex-wrap: wrap;
+    column-gap: 4px;
+  }
+}
+.dres-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  gap: 6px;
+}
+.dres-tile {
+  background: var(--raised);
+  border-radius: 8px;
+  padding: 5px 8px 6px;
+}
+.dres-field {
+  font-size: 15px;
+}
+.dres-row {
+  display: grid;
+  grid-template-columns: 9px 1fr auto;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.dres-row.best {
+  font-weight: 800;
+}
+.dres-row small {
+  color: var(--muted);
+  font-size: 10px;
+}
+.dres-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+}
+.dres-bar i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 3px;
+}

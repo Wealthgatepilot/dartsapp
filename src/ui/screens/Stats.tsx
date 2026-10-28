@@ -186,7 +186,7 @@ export function Stats() {
         </section>
       )}
 
-      {(mode === 'x01' || mode === 'doubles' || mode === 'bobs') && (
+      {(mode === 'x01' || mode === 'doubles' || mode === 'bobs' || mode === 'finish' || mode === 'one21') && (
         <DoubleTable records={mine.filter((r) => r.doublesSource)} />
       )}
     </div>
@@ -306,7 +306,7 @@ function DoubleTable({ records }: { records: LegRecord[] }) {
               <tr>
                 <th>Feld</th>
                 <th>Training</th>
-                <th>X01</th>
+                <th>Checkouts</th>
                 <th>Zusammen</th>
               </tr>
             </thead>
@@ -325,7 +325,10 @@ function DoubleTable({ records }: { records: LegRecord[] }) {
           </table>
         </div>
       )}
-      <p class="muted small">X01: ein Versuch ist jeder Dart bei einem Rest, der mit einem Dart auf ein Double checkbar ist.</p>
+      <p class="muted small">
+        Training: Doppelfeld-Training und Bob's 27. Checkouts: X01 und 121; ein Versuch ist jeder Dart bei einem Rest, der mit
+        einem Dart auf ein Double checkbar ist.
+      </p>
     </section>
   );
 }

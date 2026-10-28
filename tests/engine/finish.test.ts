@@ -18,6 +18,7 @@ import {
   type FinishState,
 } from '../../src/engine/finish';
 import { formatCheckout } from '../../src/engine/checkout';
+import { checkoutDoubles } from '../../src/engine/metrics';
 import { parseField } from '../../src/engine/types';
 
 const A = 0;
@@ -184,5 +185,12 @@ describe('121 mit zufälligen Finishes', () => {
     g.add(skipFinish(g.state)); // B überspringt, 0 Darts
     expect(g.state.finished).toBe(true);
     expect(g.state.matchWinners).toEqual([A]);
+  });
+});
+
+describe('121 in der Doppelquote (SPEC 11.6)', () => {
+  it('jeder Dart bei checkbarem Rest ist ein Double-Versuch, der Checkout ein Treffer', () => {
+    const g = Finish.create({ rounds: 1 }, 1, 81).turn('T19', 'S4', 'D10'); // 81 → 24 (D12-Versuch, S4) → 20 (D10 getroffen)
+    expect(checkoutDoubles(g.state.legs[0].turns, A, 'double')).toEqual({ D12: { darts: 1, hits: 0 }, D10: { darts: 1, hits: 1 } });
   });
 });

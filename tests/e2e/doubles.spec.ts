@@ -32,8 +32,9 @@ test('Training nur auf D16 und D20', async ({ page }) => {
   await tap(page, 'hit');
   const end = page.getByRole('dialog', { name: 'Spielende' });
   await expect(end).toContainText('Gian gewinnt');
-  await expect(end.locator('tbody tr')).toHaveCount(3); // Gesamt, D16, D20
-  await expect(end.locator('tr', { hasText: 'Gesamt' })).toContainText('2/3');
+  await expect(end.locator('.dres-tile')).toHaveCount(2); // D16, D20
+  await expect(end.locator('.dres-card')).toContainText('2 / 3');
+  await expect(end.locator('.dres-card')).toContainText('66,7 %');
 });
 
 test('ganzes Doppelfeld-Training bis zum Treffer', async ({ page }) => {
@@ -90,8 +91,10 @@ test('ganzes Doppelfeld-Training bis zum Treffer', async ({ page }) => {
   await tap(page, 'hit');
   const end = page.getByRole('dialog', { name: 'Spielende' });
   await expect(end).toContainText('Jörn gewinnt'); // 21 gegen 23 Darts
-  await expect(end.locator('tr', { hasText: 'Gesamt' })).toContainText('21/23');
-  await expect(end.locator('tr', { hasText: 'Gesamt' })).toContainText('21/21 · 100 %');
+  await expect(end.locator('.dres-card', { hasText: 'Gian' })).toContainText('21 / 23');
+  await expect(end.locator('.dres-card', { hasText: 'Jörn' })).toContainText('21 / 21');
+  await expect(end.locator('.dres-card', { hasText: 'Jörn' })).toContainText('1.');
+  await expect(end.locator('.dres-tile')).toHaveCount(21);
   await end.getByRole('button', { name: 'Fertig' }).click();
   await expect(page.locator('.list-row', { hasText: 'Doppelfeld-Training' })).toContainText('🏆 Jörn');
 });

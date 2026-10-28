@@ -50,6 +50,26 @@ export const BOT_SIGMA_HUMAN: Record<number, number> = {
 
 export const BOT_TARGET_AVERAGE: Record<number, number> = { 1: 25, 2: 35, 3: 45, 4: 52, 5: 60, 6: 67, 7: 75, 8: 83, 9: 92, 10: 100 };
 
+/** „Stufen erklärt“ (SPEC 9): Ø 3 Darts und Doppelquote aus der Einstellung ohne Schwankungen (gerundet), dazu eine Einordnung. */
+export const BOT_LEVEL_INFO: Record<number, { avg: number; doubleRate: number; like: string }> = {
+  1: { avg: 25, doubleRate: 3, like: 'Anfänger' },
+  2: { avg: 35, doubleRate: 7, like: 'Gelegenheitsspieler' },
+  3: { avg: 45, doubleRate: 12, like: 'Hobbyspieler' },
+  4: { avg: 52, doubleRate: 16, like: 'Kneipen-Stammspieler' },
+  5: { avg: 60, doubleRate: 20, like: 'guter Kneipenspieler' },
+  6: { avg: 67, doubleRate: 23, like: 'Vereinsspieler' },
+  7: { avg: 75, doubleRate: 27, like: 'starker Ligaspieler' },
+  8: { avg: 83, doubleRate: 32, like: 'Spitze der Liga' },
+  9: { avg: 92, doubleRate: 38, like: 'Halbprofi' },
+  10: { avg: 100, doubleRate: 43, like: 'Profi' },
+};
+
+/** Kurze Zeile zur Stufe, z. B. „Stufe 5 ≈ Ø 60 Punkte je Aufnahme, trifft etwa jedes 5. Doppel“. */
+export function botLevelLine(level: number): string {
+  const i = BOT_LEVEL_INFO[level];
+  return `Stufe ${level} ≈ Ø ${i.avg} Punkte je Aufnahme, trifft etwa jedes ${Math.round(100 / i.doubleRate)}. Doppel`;
+}
+
 export interface Point {
   x: number;
   y: number;

@@ -6,6 +6,7 @@ import { computeGame, listGames, type GameInfo } from './games';
 import {
   atcMetrics,
   bobsMetrics,
+  checkoutDoubles,
   countUpMetrics,
   cricketLegMetrics,
   doublesMetrics,
@@ -133,7 +134,7 @@ export interface LegRecord {
   values: Partial<Record<MetricKey, number>>;
   /** Bei Shanghai: Zielzahl des schnellsten Shanghai. */
   shanghaiField?: number;
-  /** Doppelquote je Feld: aus X01 (Double-Versuche) bzw. aus dem Training. */
+  /** Doppelquote je Feld: aus Checkouts (X01, 121; Quelle 'x01') bzw. aus dem Training. */
   doubles: DoubleTally;
   doublesSource?: 'x01' | 'training';
   /** Heatmap: Board-Darts je Feld (S20, T19, 0 …). */
@@ -393,7 +394,9 @@ export function legRecords(events: readonly AppEvent[]): LegRecord[] {
           won: !!s.matchWinners?.includes(p.slot),
           darts: m.darts,
           values,
-          doubles: {},
+          // Checkouts zählen in die Doppelquote wie bei X01 (SPEC 11.6)
+          doubles: checkoutDoubles(s.legs[0].turns, p.slot, s.setup.settings.outMode),
+          doublesSource: 'x01',
           heat: heatOf(s.legs[0].turns, p.slot),
         });
       } else if (computed.mode === 'finish') {
@@ -412,7 +415,9 @@ export function legRecords(events: readonly AppEvent[]): LegRecord[] {
           won: !!s.matchWinners?.includes(p.slot),
           darts: m.darts,
           values,
-          doubles: {},
+          // Checkouts zählen in die Doppelquote wie bei X01 (SPEC 11.6)
+          doubles: checkoutDoubles(s.legs[0].turns, p.slot, s.setup.settings.outMode),
+          doublesSource: 'x01',
           heat: heatOf(s.legs[0].turns, p.slot),
         });
       } else if (computed.mode === 'doubles') {

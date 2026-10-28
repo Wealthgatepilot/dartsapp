@@ -62,6 +62,29 @@ export function doubleTarget(rest: number): string | null {
   return null;
 }
 
+/**
+ * Double-Versuche und Checkouts je Double in Checkout-Übungen (121, beide Formen; SPEC 11.6):
+ * wie bei X01 jeder Dart bei einem Rest, der mit einem Dart auf ein Double checkbar ist, ohne In-Regel.
+ */
+export function checkoutDoubles(
+  turns: readonly { slot: number; startRest: number; checkout: boolean; darts: readonly { scored: number }[] }[],
+  slot: number,
+  outMode: InOut,
+): DoubleTally {
+  const out: DoubleTally = {};
+  if (outMode === 'single') return out;
+  for (const t of turns) {
+    if (t.slot !== slot) continue;
+    let rest = t.startRest;
+    t.darts.forEach((d, i) => {
+      const target = doubleTarget(rest);
+      if (target) addTally(out, target, t.checkout && i === t.darts.length - 1);
+      rest -= d.scored;
+    });
+  }
+  return out;
+}
+
 export function x01LegMetrics(leg: X01Leg, slot: number, outMode: InOut, limit = Infinity): X01LegMetrics {
   const m: X01LegMetrics = {
     darts: 0,

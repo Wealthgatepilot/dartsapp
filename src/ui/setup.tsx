@@ -5,7 +5,8 @@ import type { Race } from '../engine/core';
 import type { GameCreatedPayload, Participant, StartMethod } from '../engine/events';
 import { listProfiles, type Profile } from '../engine/profiles';
 import { uuidv7 } from '../data/ids';
-import { Segmented, Stepper } from './components';
+import { BOT_LEVEL_INFO, botLevelLine } from '../engine/bot';
+import { Modal, Segmented, Stepper } from './components';
 import { useAppData } from './data';
 import { href, navigate } from './router';
 
@@ -81,6 +82,7 @@ export function PlayerPicker({
   const [guest, setGuest] = useState('');
   const [botLevel, setBotLevel] = useState(5);
   const [botHuman, setBotHuman] = useState(true);
+  const [showLevels, setShowLevels] = useState(false);
 
   const toggle = (profileId: string) =>
     onChange((cur) =>
@@ -148,6 +150,13 @@ export function PlayerPicker({
           + Computer
         </button>
       </div>
+      <p class="muted small bot-level-line">
+        {botLevelLine(botLevel)} ·{' '}
+        <button type="button" class="link-btn" onClick={() => setShowLevels(true)}>
+          Stufen erklärt
+        </button>
+      </p>
+      {showLevels && <BotLevels current={botLevel} onClose={() => setShowLevels(false)} />}
       <div class="setting">
         <span>Schwankungen (Form, Streaks, Druck)</span>
         <Segmented
@@ -289,4 +298,40 @@ export function useStartGame() {
     ]);
     navigate({ name: 'game', gameId }, true);
   };
+}
+
+/** Alle Computer-Stufen im Überblick (SPEC 9, „Stufen erklärt“). */
+function BotLevels({ current, onClose }: { current: number; onClose: () => void }) {
+  return (
+    <Modal title="Computer-Stufen" onClose={onClose}>
+      <p>
+        Der Computer zielt wie ein Mensch und streut daneben. Je höher die Stufe, desto enger die Streuung. Die Werte stammen
+        aus 10 000 simulierten Legs 501 Double-Out.
+      </p>
+      <table class="table bot-levels">
+        <thead>
+          <tr>
+            <th>Stufe</th>
+            <th>Ø 3 Darts</th>
+            <th>Doppelquote</th>
+            <th>etwa wie</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(BOT_LEVEL_INFO).map(([level, i]) => (
+            <tr key={level} class={Number(level) === current ? 'current' : undefined}>
+              <td>{level}</td>
+              <td>{i.avg}</td>
+              <td>{i.doubleRate} %</td>
+              <td>{i.like}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p class="muted small">
+        <strong>Schwankungen an:</strong> Der Computer hat Tagesform, gute und schlechte Phasen und wird bei Matchdarts nervöser.
+        Der Schnitt bleibt gleich, die Doppelquote ist etwas niedriger.
+      </p>
+    </Modal>
+  );
 }

@@ -40,3 +40,16 @@ test('Ausbullen gegen den Computer: er wirft selbst', async ({ page }) => {
   await page.getByRole('button', { name: /^Wurf bestätigen/ }).click();
   await expect(page.locator('.bull-tile', { hasText: 'Computer 5' })).toContainText('mm', { timeout: 10_000 });
 });
+
+test('Computer-Stufen erklärt (SPEC 9)', async ({ page }) => {
+  await page.goto('./#/x01');
+  await expect(page.locator('.bot-level-line')).toContainText('Stufe 5 ≈ Ø 60 Punkte je Aufnahme, trifft etwa jedes 5. Doppel');
+  await page.getByRole('button', { name: 'Stufe mehr' }).click();
+  await expect(page.locator('.bot-level-line')).toContainText('Stufe 6 ≈ Ø 67');
+  await page.getByRole('button', { name: 'Stufen erklärt' }).click();
+  const dlg = page.getByRole('dialog', { name: 'Computer-Stufen' });
+  await expect(dlg.locator('tbody tr')).toHaveCount(10);
+  await expect(dlg.locator('tr.current')).toContainText('Vereinsspieler');
+  await dlg.getByRole('button', { name: 'Schließen' }).click();
+  await expect(dlg).toHaveCount(0);
+});

@@ -298,6 +298,15 @@ Annahmen (Plätze): Gilt nur für Spiele ab diesem Stand (Vermerk `playOn` im Sp
 
 Verworfen (Plätze): ein neues Leg nur um die Plätze (zu lang, die Stände sind schon da); die Frage auch bei 2 Spielern (Gianluca: sinnlos); Plätze in die Turnier-Tabelle übernehmen (Turnierpartien haben immer 2 Spieler).
 
+- [x] Tablet quer (28.10.2026): Die große Zahl im Block passt sich dem Restplatz an, kein Scrollen mehr (vorher feste Annahme für 3 Kennzahl-Zeilen); ab 3 Spielern 2 × 2.
+- [x] Doppelfeld-Endstatistik neu: Karten je Spieler (Platz, Quote, Treffer/Darts, Ø Darts je Doppel, stärkstes/schwächstes Feld), Kacheln je Ziel mit Balken.
+- [x] Computer-Stufen erklärt: Zeile unter der Stufe und Fenster „Stufen erklärt“ mit allen 10 Stufen.
+- [x] Doppelquote je Feld in der Langzeitstatistik: 121 (beide Formen) zählt wie X01 in die Spalte „Checkouts“; die Tabelle erscheint auch bei 121.
+
+Annahmen (28.10.2026): Bezeichnungen der Stufen („Anfänger“ … „Profi“) sind ein Vorschlag; Doppelquote und Average der Stufen ohne Schwankungen. Bei stärkstem/schwächstem Feld höchstens drei Felder, dann „+ n“. Bei 121 ohne In-Regel; Single-Out zählt nicht.
+
+Verworfen: Endstatistik weiter als Tabelle mit drei Teilen (auf dem iPad gequetscht, schwer lesbar); eigene Spalte „121“ in der Doppelquote (Checkouts sind dasselbe wie bei X01).
+
 Verworfen: „Spiel beenden“ als dauerhafter Knopf (Gianluca wünscht eine Frage im richtigen Moment); Beenden durch automatisches Überspringen aller offenen Zahlen (würde die Statistik verfälschen).
 
 ## Phase 5 – Daten mehrerer Geräte

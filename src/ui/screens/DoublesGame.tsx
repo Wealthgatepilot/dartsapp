@@ -53,7 +53,7 @@ export function DoublesGame({ game, gameEvents, nameOf, colorOf }: ModeViewProps
         onHit: (input) => throwDoublesDart(state, true, input),
         onMiss: (input) => throwDoublesDart(state, false, input),
       }}
-      endTable={<Results state={state} order={game.order} nameOf={nameOf} />}
+      endTable={<Results state={state} order={game.order} nameOf={nameOf} colorOf={colorOf} />}
     />
   );
 }
@@ -111,56 +111,96 @@ function History({ state, slot }: { state: DoublesState; slot: number }) {
 /**
  * Ergebnis je Spieler und Feld (SPEC 7.4, Regel 7). Bei vielen Feldern zwei Tabellen: im Querformat
  * nebeneinander, im Hochformat untereinander wie eine (Wunsch Gianluca: alles ohne Scrollen sehen).
- */
-function Results({ state, order, nameOf }: { state: DoublesState; order: number[]; nameOf: (s: number) => string }) {
+ *//** Ergebnis am Ende (SPEC 7.4 Regel 8): je Spieler eine Karte, darunter je Ziel eine Kachel mit Balken. */
+function Results({
+  state,
+  order,
+  nameOf,
+  colorOf,
+}: {
+  state: DoublesState;
+  order: number[];
+  nameOf: (s: number) => string;
+  colorOf: (s: number) => string;
+}) {
   const keys = targetsOf(state.setup.settings).map(fieldLabel);
-  // Bis zu drei Teile mit etwa gleich vielen Zeilen; die Gesamt-Zeile zählt im ersten Teil mit.
-  const per = keys.length > 6 ? Math.ceil((keys.length + 1) / 3) : keys.length + 1;
-  const parts = [keys.slice(0, per - 1), keys.slice(per - 1, 2 * per - 1), keys.slice(2 * per - 1)].filter(
-    (p, i) => i === 0 || p.length,
-  );
+  const fixed = state.setup.settings.mode.kind === 'fixed';
+  const p = (slot: number) => state.players[slot];
+  // Platz wie beim Sieger: bis zum Treffer mehr Ziele, dann weniger Darts; feste Zahl meiste Treffer
+  const score = (slot: number) => (fixed ? p(slot).hits : p(slot).index * 1_000_000 - p(slot).darts);
+  const ranked = [...order].sort((a, b) => score(b) - score(a));
+  const place = (slot: number) => 1 + ranked.filter((s) => score(s) > score(slot)).length;
+  const rate = (st?: { hits: number; darts: number }) => (st && st.darts ? st.hits / st.darts : null);
+  /** Stärkstes bzw. schwächstes Feld (bei Gleichstand bis zu drei, dann „+ n“). */
+  const extreme = (slot: number, pick: (a: number, b: number) => number) => {
+    const rated = keys.map((k) => [k, rate(p(slot).stats[k])] as const).filter((x): x is readonly [string, number] => x[1] !== null);
+    if (!rated.length) return '—';
+    const best = rated.reduce((m, [, r]) => pick(m, r), rated[0][1]);
+    const fields = rated.filter(([, r]) => r === best).map(([k]) => k);
+    const shown = fields.length > 3 ? `${fields.slice(0, 3).join(', ')} + ${fields.length - 3}` : fields.join(', ');
+    return `${shown} · ${quote(best * 1000, 1000)}`;
+  };
   return (
-    <div class="results-fit">
-      {parts.map((part, i) => (
-        <table key={i} class="table results-table">
-          <thead>
-            <tr>
-              <th>Feld</th>
-              {order.map((slot) => (
-                <th key={slot}>{nameOf(slot)}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {i === 0 && (
-              <tr>
-                <td>
-                  <strong>Gesamt</strong>
-                </td>
-                {order.map((slot) => {
-                  const p = state.players[slot];
-                  return (
-                    <td key={slot}>
-                      <strong>
-                        {p.hits}/{p.darts} · {quote(p.hits, p.darts)}
-                      </strong>
-                    </td>
-                  );
-                })}
-              </tr>
-            )}
-            {part.map((key) => (
-              <tr key={key}>
-                <td>{key}</td>
-                {order.map((slot) => {
-                  const st = state.players[slot].stats[key];
-                  return <td key={slot}>{st ? `${st.hits}/${st.darts} · ${quote(st.hits, st.darts)}` : '—'}</td>;
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ))}
+    <div class="dres">
+      <div class="dres-cards">
+        {ranked.map((slot) => {
+          const pl = p(slot);
+          return (
+            <div key={slot} class={place(slot) === 1 ? 'dres-card win' : 'dres-card'} style={{ borderColor: place(slot) === 1 ? colorOf(slot) : undefined }}>
+              <div class="dres-head">
+                <span class="dot" style={{ background: colorOf(slot) }} /> {nameOf(slot)} · {place(slot)}.
+              </div>
+              <div class="dres-big">{quote(pl.hits, pl.darts)}</div>
+              <div class="dres-kv">
+                <span>Treffer / Darts</span>
+                <b>
+                  {pl.hits} / {pl.darts}
+                </b>
+              </div>
+              <div class="dres-kv">
+                <span>Ø Darts je Doppel</span>
+                <b>{pl.hits ? (pl.darts / pl.hits).toLocaleString('de-DE', { maximumFractionDigits: 1 }) : '—'}</b>
+              </div>
+              <div class="dres-kv">
+                <span>Stärkstes</span>
+                <b>{extreme(slot, Math.max)}</b>
+              </div>
+              <div class="dres-kv">
+                <span>Schwächstes</span>
+                <b>{extreme(slot, Math.min)}</b>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div class="dres-grid">
+        {keys.map((key) => {
+          const rates = order.map((slot) => rate(p(slot).stats[key]));
+          const top = Math.max(...rates.map((r) => r ?? -1));
+          const alone = rates.filter((r) => r === top).length === 1;
+          return (
+            <div key={key} class="dres-tile">
+              <b class="dres-field">{key}</b>
+              {order.map((slot, i) => {
+                const st = p(slot).stats[key];
+                const r = rates[i];
+                return (
+                  <div key={slot} class={r !== null && r === top && alone && order.length > 1 ? 'dres-row best' : 'dres-row'}>
+                    <span class="dot" style={{ background: colorOf(slot) }} />
+                    <span class="dres-bar">
+                      <i style={{ width: `${(r ?? 0) * 100}%`, background: colorOf(slot) }} />
+                    </span>
+                    <span>
+                      {st ? quote(st.hits, st.darts) : '—'} {st && <small>{st.hits}/{st.darts}</small>}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+      <p class="muted small">Balken = Quote auf dem Feld · klein: Treffer/Darts · fett = besser auf diesem Feld · „—“ = Feld nicht erreicht</p>
     </div>
   );
 }
