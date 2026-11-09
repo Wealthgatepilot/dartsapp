@@ -43,9 +43,23 @@ function germanVoice(): SpeechSynthesisVoice | undefined {
   return speechSynthesis.getVoices().find((v) => v.lang?.toLowerCase().startsWith('de'));
 }
 
+/**
+ * Automatisierte Tests sprechen nie laut (Wunsch Gianluca): Steuert ein Testwerkzeug den Browser
+ * (`navigator.webdriver`), bleibt die echte Stimme stumm. Der Sprachtest ersetzt sie durch eine
+ * stille Attrappe und hört so weiter mit.
+ */
+function silentForTests(): boolean {
+  return (
+    typeof navigator !== 'undefined' &&
+    navigator.webdriver === true &&
+    typeof SpeechSynthesis !== 'undefined' &&
+    window.speechSynthesis instanceof SpeechSynthesis
+  );
+}
+
 /** Text vorlesen (eine laufende Ansage wird abgebrochen). */
 export function speak(text: string | null): void {
-  if (!text || !speechSupported() || !speechEnabled()) return;
+  if (!text || !speechSupported() || !speechEnabled() || silentForTests()) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'de-DE';
@@ -59,7 +73,7 @@ export function speak(text: string | null): void {
  * (SPEC 10). Deshalb beim Tippen auf „Spiel starten“ eine stumme Ansage.
  */
 export function unlockSpeech(): void {
-  if (!speechSupported() || !speechEnabled()) return;
+  if (!speechSupported() || !speechEnabled() || silentForTests()) return;
   const u = new SpeechSynthesisUtterance(' ');
   u.volume = 0;
   speechSynthesis.speak(u);

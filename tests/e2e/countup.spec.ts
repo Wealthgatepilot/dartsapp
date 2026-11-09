@@ -90,6 +90,8 @@ test('Count-Up mit Zeit: Uhr, Pause, Zeit um, Runde zu Ende; zusammen als Team',
   await page.clock.fastForward('10:00');
   await expect(pause).toContainText(/Noch (3:00|2:5\d)/);
   await pause.getByRole('button', { name: 'Weiter' }).click();
+  // Erst werfen, wenn das Pause-Fenster weg ist (auf langsamen Rechnern dauert das Speichern einen Moment)
+  await expect(pause).toHaveCount(0);
 
   // Jörn wirft, dann ist die Zeit um, während Gian in Runde 2 wirft → Jörn darf Runde 2 noch werfen
   await turn(page, 'S20', 'S5'); // Jörn 25
