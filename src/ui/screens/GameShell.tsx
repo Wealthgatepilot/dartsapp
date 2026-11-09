@@ -59,6 +59,8 @@ export interface ShellProps {
   isTarget?: (n: number) => boolean;
   /** Tabelle am Spielende. */
   endTable: ComponentChildren;
+  /** Eigener Titel am Spielende (z. B. Count-Up zusammen: Team-Ergebnis). */
+  endTitle?: string;
   /**
    * Platz über dem Board im Hochformat in Pixeln, für eine große Tafel (Cricket). Gesetzt darf das Board
    * dort kleiner werden, damit die Tafel ganz sichtbar bleibt.
@@ -347,6 +349,7 @@ export function GameShell(p: ShellProps) {
       {state.finished && (
         <MatchEnd
           winners={state.matchWinners ?? []}
+          title={p.endTitle}
           places={state.places}
           nameOf={p.nameOf}
           onUndo={() => act(p.undo())}

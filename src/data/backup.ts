@@ -114,7 +114,10 @@ export function checkEvent(e: unknown): string | null {
         : 'Ausbullen-Wurf unvollständig';
     case 'game.decision':
       // Shanghai bzw. 121 (finishEnd): Spiel beenden ja/nein; 121: Zahl überspringen
-      return isStr(p.gameId) && isNum(p.slot) && isNum(p.turnIndex) && (p.kind === 'skip' || typeof p.end === 'boolean')
+      return isStr(p.gameId) &&
+        isNum(p.slot) &&
+        isNum(p.turnIndex) &&
+        (p.kind === 'skip' || p.kind === 'pause' || p.kind === 'resume' || (p.kind === 'timeUp' && isNum(p.lastRound)) || typeof p.end === 'boolean')
         ? null
         : 'Entscheidung unvollständig';
     case 'game.favorite':

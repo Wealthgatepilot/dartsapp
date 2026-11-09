@@ -2,7 +2,7 @@
 
 import { computeBobs, type BobsSetup, type BobsState } from './bobs';
 import { atcVariantLabel, computeAtc, type AtcSetup, type AtcState } from './atc';
-import { computeCountUp, type CountUpSetup, type CountUpState } from './countup';
+import { computeCountUp, countUpLimitLabel, type CountUpSetup, type CountUpState } from './countup';
 import { computeCricket, type CricketSetup, type CricketState } from './cricket';
 import { computeKiller, type KillerSetup, type KillerState } from './killer';
 import { computeOne21, type One21Setup, type One21State } from './one21';
@@ -189,7 +189,7 @@ export function gameTitle(c: GameCreatedPayload): string {
     case 'doubles':
       return 'Doppelfeld-Training';
     case 'countup':
-      return `Count-Up · ${c.settings.rounds === 1 ? '1 Runde' : `${c.settings.rounds} Runden`}`;
+      return `Count-Up · ${countUpLimitLabel(c.settings)}${c.settings.scoring === 'team' && c.participants.length > 1 ? ' · zusammen' : ''}`;
     case 'atc':
       return `Around the Clock${atcVariantLabel(c.settings)}`;
     case 'bobs':

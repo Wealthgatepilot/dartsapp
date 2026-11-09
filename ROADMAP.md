@@ -307,6 +307,12 @@ Annahmen (28.10.2026): Bezeichnungen der Stufen („Anfänger“ … „Profi“
 
 Verworfen: Endstatistik weiter als Tabelle mit drei Teilen (auf dem iPad gequetscht, schwer lesbar); eigene Spalte „121“ in der Doppelquote (Checkouts sind dasselbe wie bei X01).
 
+- [x] Count-Up mit Zeit und Team (09.11.2026, SPEC 7.10, G86–G91): Begrenzung Runden oder Zeit (5–180 Min) mit Pause; Wertung gegeneinander oder zusammen; Spielerblöcke mit Ø 3 Darts, letzter Aufnahme, Darts und Aufnahmen 80+ … 180 schon während des Werfens; dieselben Zahlen im Ergebnis und in der Langzeitstatistik.
+
+Annahmen (Count-Up): Die Uhr startet mit dem ersten Dart; Rückgängig ändert an ihr nichts. Ist die Zeit um, wird die Runde zu Ende gespielt, damit alle gleich oft geworfen haben; beginnt gerade eine neue Runde, ist sofort Schluss. Vergleichsgruppe bei Zeit: Minuten und Spielerzahl (allein 60 Min ist nicht mit 60 Min zu zweit vergleichbar). Bei „zusammen“ teilen sich alle das Ergebnis, Kennzahlen bleiben je Spieler. Im Turnier nur Runden. Während der Pause ist die Eingabe gesperrt, auch für den Computer.
+
+Verworfen (Count-Up): Uhr startet beim Öffnen des Spiels (man steht dann noch nicht am Board); bei Zeitablauf sofort Schluss (wer zuerst wirft, hätte eine Aufnahme mehr); die Zeit nur auf dem Gerät mitzählen (ginge beim Schließen der App verloren – die Uhrzeiten der Ereignisse reichen).
+
 Verworfen: „Spiel beenden“ als dauerhafter Knopf (Gianluca wünscht eine Frage im richtigen Moment); Beenden durch automatisches Überspringen aller offenen Zahlen (würde die Statistik verfälschen).
 
 ## Phase 5 – Daten mehrerer Geräte

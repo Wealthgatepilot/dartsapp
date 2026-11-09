@@ -2,6 +2,7 @@
 // (bzw. Durchgang) ein Eintrag mit Kennzahlen. Daraus rechnen Verlauf, Heatmap, Doppelquote und Rekorde.
 
 import type { AppEvent } from './events';
+import { countUpLimitLabel } from './countup';
 import { computeGame, listGames, type GameInfo } from './games';
 import {
   atcMetrics,
@@ -86,6 +87,12 @@ export const METRICS: Record<Mode, MetricDef[]> = {
   countup: [
     { key: 'points', label: 'Endpunkte', better: 'higher', digits: 0 },
     { key: 'avg', label: '3-Dart-Average', better: 'higher', digits: 2 },
+    { key: 's80', label: 'Aufnahmen 80–99', better: 'higher', digits: 0 },
+    { key: 's100', label: 'Aufnahmen 100–119', better: 'higher', digits: 0 },
+    { key: 's120', label: 'Aufnahmen 120–139', better: 'higher', digits: 0 },
+    { key: 's140', label: 'Aufnahmen 140–159', better: 'higher', digits: 0 },
+    { key: 's160', label: 'Aufnahmen 160–179', better: 'higher', digits: 0 },
+    { key: 's180', label: 'Aufnahmen 180', better: 'higher', digits: 0 },
   ],
   atc: [
     { key: 'dartsToFinish', label: 'Darts bis zum Ende', better: 'lower', endOnly: true, digits: 0 },
@@ -172,7 +179,13 @@ export function groupOf(game: GameInfo, slot: number): { group: string; label: s
       };
     }
     case 'countup':
-      return { group: `countup|${c.settings.rounds}`, label: `Count-Up · ${c.settings.rounds === 1 ? '1 Runde' : `${c.settings.rounds} Runden`}` };
+      // Zeit: getrennt nach Minuten und Spielerzahl, weil sich die Darts je Spieler mit der Spielerzahl ändern
+      return c.settings.limit === 'time'
+        ? {
+            group: `countup|t${c.settings.minutes ?? 60}|${c.participants.length}`,
+            label: `Count-Up · ${countUpLimitLabel(c.settings)} · ${c.participants.length === 1 ? 'allein' : `${c.participants.length} Spieler`}`,
+          }
+        : { group: `countup|${c.settings.rounds}`, label: `Count-Up · ${countUpLimitLabel(c.settings)}` };
     case 'atc':
       return {
         group: `atc|${c.settings.withBull}|${c.settings.ring}|${c.settings.ring === 'any' && c.settings.jumps}`,
@@ -312,7 +325,7 @@ export function legRecords(events: readonly AppEvent[]): LegRecord[] {
         const s = computed.state;
         const m = countUpMetrics(s, p.slot);
         if (!m.darts) continue;
-        const values: LegRecord['values'] = { points: m.points };
+        const values: LegRecord['values'] = { points: m.points, s80: m.s80, s100: m.s100, s120: m.s120, s140: m.s140, s160: m.s160, s180: m.s180 };
         if (m.avg !== null) values.avg = m.avg;
         out.push({
           ...base,
@@ -553,6 +566,7 @@ export function metricsAt(
     const m = countUpMetrics(c.state, slot, limit);
     put('avg', m.avg);
     v.points = m.points;
+    for (const k of ['s80', 's100', 's120', 's140', 's160', 's180'] as const) v[k] = m[k];
   } else if (c.mode === 'atc') {
     put('hitRate', atcMetrics(c.state, slot, limit).hitRate);
   } else if (c.mode === 'bobs') {

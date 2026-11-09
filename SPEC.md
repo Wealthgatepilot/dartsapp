@@ -132,7 +132,7 @@ Statt „Spielstand 351“ speichert die App nur, **was passiert ist**: „Dart 
 | `bulloff.throw` | `gameId`, `slot`, `attempt`, `xMm`, `yMm`, `distanceMm` | Ein Ausbullen-Dart |
 | `dart.thrown` | siehe 3.4 | Jeder Dart |
 | `turn.confirmed` | `gameId`, `leg`, `slot`, `turnIndex` | „Weiter“ getippt |
-| `game.decision` | `gameId`, `slot`, `turnIndex`, `kind`, `end`, bei `playOn` auch `placed` | Antwort auf eine Frage im Spiel (Shanghai; 121: `skip`, `finishEnd`; Doppelfeld: `finishEnd`; um Plätze weiterspielen: `playOn`, 5.0) |
+| `game.decision` | `gameId`, `slot`, `turnIndex`, `kind`, `end`, bei `playOn` auch `placed`, bei `timeUp` `lastRound` | Antwort auf eine Frage im Spiel (Shanghai; 121: `skip`, `finishEnd`; Doppelfeld: `finishEnd`; um Plätze weiterspielen: `playOn`, 5.0); Count-Up mit Zeit: `pause`, `resume`, `timeUp` (7.10) |
 | `event.voided` | `gameId`, `targetId`, `reason` (`undo` / `edit`) | Rückgängig oder Runde bearbeiten |
 | `game.ended` | `gameId`, `reason` (`finished` / `abandoned`) | Spielende (Ergebnis wird berechnet, nicht gespeichert) |
 | `game.hidden` | `gameId` | Spiel aus Listen und Statistik ausblenden (nur mit Freigabe, nie echtes Löschen) |
@@ -597,11 +597,23 @@ Regeln: Je Ziel eine Aufnahme. Treffer aufs Ziel zählen Zahl × Multiplikator (
 
 | Einstellung | Werte |
 |---|---|
+| Begrenzung | **Runden**, Zeit (Wunsch Gianluca, 09.11.2026) |
 | Runden | **8** (1–50) |
+| Zeit | **60 Minuten** (5–180, in 5er-Schritten) |
+| Wertung (ab 2 Spielern) | **gegeneinander**, zusammen (Wunsch Gianluca, 09.11.2026) |
 
-Regeln: Jede Aufnahme zählt ihre Punkte (Single-Bull 25, Bullseye 50). Nach der letzten Runde gewinnen die meisten Punkte, bei Gleichstand teilen sich die Spieler den Sieg. Kennzahlen: Endpunkte, 3-Dart-Average (Vergleichsgruppe: Rundenzahl).
+Regeln: Jede Aufnahme zählt ihre Punkte (Single-Bull 25, Bullseye 50).
 
-**Regeltext:** Rundenzahl; Punkte je Dart; Sieger.
+- **Runden:** Nach der letzten Runde ist Schluss.
+- **Zeit:** Die Uhr startet mit dem ersten Dart des Spiels. „Pause“ hält sie an, „Weiter“ lässt sie weiterlaufen; während der Pause sind Eingaben gesperrt. Ist die Zeit um, speichert die App ein Ereignis `game.decision` mit `kind = timeUp` und `lastRound`: Eine angefangene Aufnahme wird zu Ende geworfen; bei mehreren Spielern wird die Runde zu Ende gespielt, damit alle gleich viele Aufnahmen haben. Hat die nächste Runde noch nicht begonnen, ist sofort Schluss. Die Zeit ergibt sich aus den Uhrzeiten der Ereignisse (erster Dart, `pause`, `resume`), deshalb läuft sie auch bei geschlossener App weiter; ist sie beim Öffnen schon abgelaufen, wird `timeUp` nachgetragen. Rückgängig ändert an der Uhr nichts.
+- **Gegeneinander:** Es gewinnen die meisten Punkte, bei Gleichstand teilen sich die Spieler den Sieg.
+- **Zusammen:** Alle Punkte zählen für ein gemeinsames Team-Ergebnis (Summe, Team-Average); alle teilen sich das Ergebnis. Die Kennzahlen je Spieler bleiben einzeln.
+
+Anzeige: Spielerblöcke (5.3) mit den Punkten groß; Seite 1: Ø 3 Darts, letzte Aufnahme, Darts; Seite 2: Aufnahmen 80+, 100+, 120+, 140+, 160+, 180 (Bereiche wie bei X01: 80–99 usw.). Bei „Zeit“ steht die Restzeit groß über der Aufnahme (letzte Minute orange) mit Knopf „Pause“; bei „Zusammen“ eine Team-Zeile mit Summe und Average. Ergebnis: Punkte, Ø 3 Darts und Aufnahmen 80+ … 180 je Spieler (bei „Zusammen“ dazu das Team).
+
+Kennzahlen: Endpunkte, 3-Dart-Average, Aufnahmen 80–99 … 180 (Vergleichsgruppe: Rundenzahl bzw. Minuten). Im Turnier gibt es nur Runden.
+
+**Regeltext:** Begrenzung (Runden oder Zeit, Uhr, Pause, Ende der Runde); Punkte je Dart; Wertung gegeneinander oder zusammen.
 
 ---
 
@@ -952,6 +964,12 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G83 | Cricket, 3 Spieler | A gewinnt, Weiterspielen; B hat alles zu und mehr Punkte als C | B ist Zweiter, A zählt beim Punktevergleich nicht mehr |
 | G84 | Around the Clock, 3 Spieler | A fertig, Weiterspielen, Rückgängig | die Antwort ist zurückgenommen, die Frage steht wieder an |
 | G85 | Doppelfeld, 2 Spieler | A fertig | Frage; Beenden → A gewinnt (mehr Ziele), B mit offenem Ziel |
+| G86 | Count-Up Zeit, 1 Spieler | Zeit um mitten in der Aufnahme (1 Dart geworfen) | Aufnahme darf zu Ende geworfen werden, danach Spielende |
+| G87 | Count-Up Zeit, 2 Spieler | Zeit um, während B in Runde 3 wirft | B wirft zu Ende, dann Schluss: beide 3 Aufnahmen |
+| G88 | Count-Up Zeit, 2 Spieler | Zeit um, A hat Runde 3 noch nicht begonnen | sofort Schluss nach Runde 2 |
+| G89 | Count-Up Zeit | Uhr: erster Dart 10:00, Pause 10:20–10:30, jetzt 10:40 | 30 Minuten verstrichen |
+| G90 | Count-Up zusammen, 2 Spieler | A 60, B 45 Punkte | Team 105, beide teilen das Ergebnis |
+| G91 | Count-Up | Aufnahmen 85, 100, 180 | 80+ = 1, 100+ = 1, 180 = 1 |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

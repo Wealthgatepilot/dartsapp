@@ -61,6 +61,11 @@ export type DecisionPayload = { gameId: string; slot: number; turnIndex: number 
   | { kind: 'finishEnd'; end: boolean }
   /** Sieger steht fest (ab 3 Spielern): um die weiteren Plätze weiterspielen (false) oder beenden (true), SPEC 5.0. */
   | { kind: 'playOn'; end: boolean; placed: number }
+  /** Count-Up mit Zeit (SPEC 7.10): Uhr anhalten bzw. weiterlaufen lassen. */
+  | { kind: 'pause' }
+  | { kind: 'resume' }
+  /** Count-Up mit Zeit: Zeit abgelaufen; nach Runde lastRound ist Schluss. */
+  | { kind: 'timeUp'; lastRound: number }
 );
 
 /** Ein Ausbullen-Dart: angetippte Stelle in mm vom Mittelpunkt (x nach rechts, y nach unten), SPEC 6.4. */

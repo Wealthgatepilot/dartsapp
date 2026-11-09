@@ -268,15 +268,25 @@ export function doublesVariants(): Variant[] {
 
 export function countUpRules(s: CountUpSettings): string[] {
   return [
-    `Gespielt werden ${s.rounds === 1 ? '1 Runde' : `${s.rounds} Runden`}. Pro Runde wirft jeder 3 Darts.`,
+    s.limit === 'time'
+      ? `Gespielt wird ${s.minutes ?? 60} Minuten lang, abwechselnd je 3 Darts. Die Uhr startet mit dem ersten Dart; „Pause“ hält sie an.`
+      : `Gespielt werden ${s.rounds === 1 ? '1 Runde' : `${s.rounds} Runden`}. Pro Runde wirft jeder 3 Darts.`,
+    ...(s.limit === 'time'
+      ? ['Ist die Zeit um, wird die angefangene Aufnahme zu Ende geworfen und die Runde zu Ende gespielt, damit alle gleich oft geworfen haben.']
+      : []),
     'Jeder Dart zählt seine Punkte: Zahl mal Ring (Double doppelt, Triple dreifach), Single-Bull 25, Bullseye 50. Es wird nichts abgezogen.',
-    'Nach der letzten Runde gewinnt, wer die meisten Punkte hat. Bei Gleichstand teilen sich die Spieler den Sieg.',
+    s.scoring === 'team'
+      ? 'Zusammen: Alle Punkte werden als Team-Ergebnis zusammengezählt. Jeder sieht trotzdem seine eigenen Punkte und seinen Average.'
+      : 'Am Ende gewinnt, wer die meisten Punkte hat. Bei Gleichstand teilen sich die Spieler den Sieg.',
   ];
 }
 
 export function countUpVariants(): Variant[] {
   return [
     { name: 'Runden', text: 'Wie viele Runden gespielt werden (1–50). Üblich sind 8 Runden, also 24 Darts.' },
+    { name: 'Zeit', text: 'Statt Runden eine feste Zeit (5–180 Minuten): Wie viele Punkte schaffst du z. B. in einer Stunde? Mit Pause-Knopf.' },
+    { name: 'Gegeneinander', text: 'Jeder spielt für sich, die meisten Punkte gewinnen.' },
+    { name: 'Zusammen', text: 'Alle Punkte zählen für ein gemeinsames Team-Ergebnis.' },
     ...START_VARIANTS,
   ];
 }

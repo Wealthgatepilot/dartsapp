@@ -231,15 +231,42 @@ export interface CountUpMetrics {
   points: number;
   /** 3-Dart-Average = Punkte / Darts × 3 */
   avg: number | null;
+  /** Aufnahmen je Bereich 80–99 … 180 wie bei X01 (nur vollständige Aufnahmen). */
+  s80: number;
+  s100: number;
+  s120: number;
+  s140: number;
+  s160: number;
+  s180: number;
+  /** Punkte der letzten vollständigen Aufnahme. */
+  lastTurn: number | null;
+}
+
+/** Bereich einer Aufnahme: 180, 160+, 140+, 120+, 100+, 80+ (getrennt, wie X01). */
+export function scoreBucket(points: number): 's80' | 's100' | 's120' | 's140' | 's160' | 's180' | null {
+  if (points === 180) return 's180';
+  if (points >= 160) return 's160';
+  if (points >= 140) return 's140';
+  if (points >= 120) return 's120';
+  if (points >= 100) return 's100';
+  if (points >= 80) return 's80';
+  return null;
 }
 
 export function countUpMetrics(state: CountUpState, slot: number, limit = Infinity): CountUpMetrics {
-  const m: CountUpMetrics = { darts: 0, points: 0, avg: null };
+  const m: CountUpMetrics = { darts: 0, points: 0, avg: null, s80: 0, s100: 0, s120: 0, s140: 0, s160: 0, s180: 0, lastTurn: null };
   outer: for (const t of state.legs[0].turns.filter((x) => x.slot === slot)) {
+    let turnPoints = 0;
     for (const d of t.darts) {
       if (m.darts >= limit) break outer;
       m.darts++;
       m.points += d.scored;
+      turnPoints += d.scored;
+    }
+    if (t.complete) {
+      const b = scoreBucket(turnPoints);
+      if (b) m[b]++;
+      m.lastTurn = turnPoints;
     }
   }
   m.avg = ratio(m.points * 3, m.darts);

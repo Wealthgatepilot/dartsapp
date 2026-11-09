@@ -2131,3 +2131,33 @@ button.pill-x {
   inset: 0 auto 0 0;
   border-radius: 3px;
 }
+
+/* Count-Up mit Zeit und Team (SPEC 7.10) */
+.cu-timer {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.cu-timer strong {
+  font-size: 40px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.cu-timer-last strong {
+  color: var(--accent-text);
+}
+.cu-team {
+  text-align: center;
+  margin-bottom: 6px;
+  font-size: 17px;
+}
+@media (orientation: landscape) and (min-height: 600px) {
+  .cu-timer strong {
+    font-size: 64px;
+  }
+  .cu-team {
+    font-size: 22px;
+  }
+}

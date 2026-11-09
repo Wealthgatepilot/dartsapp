@@ -4,6 +4,7 @@ import type { ComponentChildren } from 'preact';
 
 export function MatchEnd({
   winners,
+  title: ownTitle,
   places,
   nameOf,
   children,
@@ -13,6 +14,8 @@ export function MatchEnd({
   doneLabel = 'Fertig',
 }: {
   winners: number[];
+  /** Ersetzt „… gewinnt“, z. B. beim Team-Ergebnis. */
+  title?: string;
   /** Plätze nach dem Weiterspielen (SPEC 5.0); null = keine Platzierung. */
   places?: number[][] | null;
   nameOf: (slot: number) => string;
@@ -24,11 +27,12 @@ export function MatchEnd({
   doneLabel?: string;
 }) {
   const title =
-    winners.length === 1
+    ownTitle ??
+    (winners.length === 1
       ? `🏆 ${nameOf(winners[0])} gewinnt`
       : winners.length > 1
         ? `🏆 Gleichstand: ${winners.map(nameOf).join(', ')}`
-        : 'Spiel beendet';
+        : 'Spiel beendet');
   return (
     <div class="modal-backdrop">
       <div class="modal match-end" role="dialog" aria-label="Spielende">
