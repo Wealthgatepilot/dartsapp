@@ -791,6 +791,14 @@ Bezeichnungen: `D` = geworfene Darts des Spielers im Leg (inklusive Bust-Darts u
   - zusammen: Summe der Treffer / Summe der Versuche
   - Die Tabelle erscheint bei X01, Training, Bob's 27 und 121 und zeigt immer alle Quellen.
 
+### 11.7 Vergleich (Wunsch Gianluca, 15.11.2026)
+
+Oben auf der Statistik-Seite: **Einzeln | Vergleich**. Der Vergleich hat drei Reiter. Modus, Zeitraum, mit/ohne Computer gelten wie in der Einzelansicht; verglichen werden nur Profile; es wird nichts gespeichert, alles wird aus den Spielen berechnet.
+
+- **Spieler:** 2 bis 4 Profile. Grundlage sind ihre abgeschlossenen Legs bzw. Durchgänge in einer gemeinsamen Vergleichsgruppe (Standard: die Gruppe mit den meisten Legs der gewählten Spieler zusammen, wählbar). Tabelle: je Kennzahl eine Zeile, je Spieler Schnitt und Rekord (wie 11.6 „Übersicht“), dazu Anzahl Legs; bei Zählwerten (80+ … 180) der Schnitt je Leg. Der beste Schnitt einer Zeile ist hervorgehoben (bei „niedriger ist besser“ der niedrigste); bei Gleichstand alle. Diagramm: Verlauf der gewählten Kennzahl als gleitender Durchschnitt der letzten 10, eine Linie je Spieler in seiner Profilfarbe, mit Legende; Tabelle als Alternative.
+- **Direkt:** zwei Profile. Grundlage sind beendete Spiele des gewählten Modus, in denen beide als Profil mitgespielt haben (alle Einstellungen; ohne Count-Up „zusammen“). Bilanz: Siege A, Siege B, Unentschieden (beide unter den Siegern), „andere“ (ein Dritter hat gewonnen); bei X01 und Cricket auch gewonnene Legs. Kennzahlen beider nur aus diesen Spielen (Schnitt). Die letzten 5 Duelle mit Datum und Sieger; Antippen öffnet den Rückblick.
+- **Zeiträume:** ein Profil; Fenster 7, 30, 90 oder 365 Tage. „Jetzt“ = die letzten n Tage, „vorher“ = die n Tage davor. Je Kennzahl: Schnitt vorher, Schnitt jetzt, Veränderung (Differenz; grün = besser, rot = schlechter, je nach Richtung der Kennzahl). Ohne Legs in einem Fenster „—“. Vergleichsgruppe wie in der Einzelansicht.
+
 ---
 
 ## 12. Bestleistungs-Vergleich
@@ -970,6 +978,11 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G89 | Count-Up Zeit | Uhr: erster Dart 10:00, Pause 10:20–10:30, jetzt 10:40 | 30 Minuten verstrichen |
 | G90 | Count-Up zusammen, 2 Spieler | A 60, B 45 Punkte | Team 105, beide teilen das Ergebnis |
 | G91 | Count-Up | Aufnahmen 85, 100, 180 | 80+ = 1, 100+ = 1, 180 = 1 |
+| G92 | Vergleich Spieler, X01 | A: Legs mit Average 50 und 70, B: 40 | A Schnitt 60, B 40; A hervorgehoben; Rekord A 70 |
+| G93 | Vergleich Spieler | A nur 301, B nur 501, beide 3 Legs 501 … | Standardgruppe = die mit den meisten Legs beider zusammen |
+| G94 | Direkt, 3 Spiele | A gewinnt 2, B 1; ein weiteres Spiel ohne B | Bilanz 2 : 1, das Spiel ohne B zählt nicht |
+| G95 | Zeiträume 30 Tage | Average 50 vor 40 Tagen, 60 vor 10 Tagen | vorher 50, jetzt 60, Veränderung +10 (besser) |
+| G96 | Zeiträume, Darts bis zum Finish | vorher 21, jetzt 18 | Veränderung −3, gilt als besser |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

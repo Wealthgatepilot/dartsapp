@@ -47,3 +47,57 @@ test('Statistik nach einem X01-Leg', async ({ page }) => {
   // Doppelquote: Versuch bei Rest 20 auf D10 getroffen
   await expect(page.locator('tr', { has: page.locator('td', { hasText: /^D10$/ }) })).toContainText('1/1');
 });
+
+test('Vergleich: Spieler nebeneinander, direkt und Zeiträume (SPEC 11.7)', async ({ page }) => {
+  test.setTimeout(90_000); // spielt vorher zwei Spiele durch
+  page.on('dialog', (d) => d.accept());
+  await createProfiles(page, 'Gian', 'Jörn');
+  // Zwei Count-Up-Spiele über 1 Runde: Gian 60 und 180, Jörn 30 und 45
+  for (const [g, j] of [
+    [['S20', 'S20', 'S20'], ['S10', 'S10', 'S10']],
+    [['T20', 'T20', 'T20'], ['S15', 'S15', 'S15']],
+  ]) {
+    await page.goto('./#/count-up');
+    // Beim zweiten Spiel erst das gemerkte Setup abwarten (es wird kurz nach dem Öffnen geladen)
+    if (g[0] === 'T20') await expect(page.locator('.order')).toContainText('Jörn');
+    // Auf 1 Runde stellen (das Setup merkt sich den letzten Wert)
+    const runden = Number(await page.locator('.stepper[aria-label="Runden"] span').innerText());
+    for (let i = 1; i < runden; i++) await page.getByRole('button', { name: 'Runden weniger' }).click();
+    await expect(page.locator('.stepper[aria-label="Runden"] span')).toHaveText('1');
+    if (!(await page.locator('.order').getByText('Gian').count())) await page.getByRole('button', { name: 'Gian' }).click();
+    if (!(await page.locator('.order').getByText('Jörn').count())) await page.getByRole('button', { name: 'Jörn' }).click();
+    await page.getByRole('radio', { name: 'wie eingetragen' }).click();
+    await page.getByRole('button', { name: 'Spiel starten' }).click();
+    await turn(page, ...g);
+    for (const f of j) await dart(page, f);
+    await page.getByRole('dialog', { name: 'Spielende' }).getByRole('button', { name: 'Fertig' }).click();
+    // „Fertig“ führt zur Startseite; erst danach weiter, sonst überholt dieser Wechsel den nächsten Aufruf
+    await expect(page.getByRole('heading', { name: 'Letzte Spiele' })).toBeVisible();
+  }
+
+  await page.goto('./#/statistik');
+  await page.getByRole('radio', { name: 'Vergleich' }).click();
+  await page.getByRole('radio', { name: 'Count-Up' }).click();
+
+  // Spieler nebeneinander: Gian Schnitt 120, Jörn 37,5; Gian hervorgehoben
+  await page.getByRole('radio', { name: 'Spieler' }).click();
+  const points = page.locator('.compare-table tr', { has: page.locator('td', { hasText: 'Endpunkte' }) });
+  await expect(points.locator('td').nth(1)).toContainText('120,0');
+  await expect(points.locator('td').nth(1)).toHaveClass(/compare-best/);
+  await expect(points.locator('td').nth(2)).toContainText('37,5');
+  await expect(page.locator('.chart-legend')).toContainText('Gian');
+  await expect(page.locator('.chart-legend')).toContainText('Jörn');
+  await expect(page.getByRole('heading', { name: 'Treffer-Heatmap' })).toHaveCount(0); // nur in der Einzelansicht
+
+  // Direkt: 2 : 0
+  await page.getByRole('radio', { name: 'Direkt' }).click();
+  await expect(page.locator('.duel-score')).toContainText('2 : 0');
+  await expect(page.locator('.list-row')).toHaveCount(2);
+
+  // Zeiträume: beide Spiele in „jetzt“, vorher leer
+  await page.getByRole('radio', { name: 'Zeiträume' }).click();
+  await expect(page.getByRole('radio', { name: 'alles' })).toHaveCount(0); // eigenes Zeitfenster statt Zeitraum-Filter
+  const row = page.locator('.compare-table tr', { has: page.locator('td', { hasText: 'Endpunkte' }) });
+  await expect(row.locator('td').nth(1)).toHaveText('—');
+  await expect(row.locator('td').nth(2)).toContainText('120,0');
+});

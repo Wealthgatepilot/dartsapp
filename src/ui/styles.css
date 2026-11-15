@@ -2161,3 +2161,38 @@ button.pill-x {
     font-size: 22px;
   }
 }
+
+/* Vergleich in der Statistik (SPEC 11.7) */
+.compare-table td small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+}
+.compare-table td.compare-best {
+  font-weight: 800;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.compare-info {
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.duel-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: 18px;
+  font-weight: 700;
+}
+.duel-score strong {
+  font-size: 40px;
+  font-variant-numeric: tabular-nums;
+}
+.delta-good {
+  color: var(--good);
+  font-weight: 700;
+}
+.delta-bad {
+  color: var(--bad);
+  font-weight: 700;
+}

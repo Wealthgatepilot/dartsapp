@@ -18,6 +18,7 @@ import { HeatBoard, TrendChart } from '../charts';
 import { Segmented, TopBar } from '../components';
 import { useAppData } from '../data';
 import { href } from '../router';
+import { StatsCompare, type CompareTab } from './StatsCompare';
 
 const MODES: { value: Mode; label: string }[] = [
   { value: 'x01', label: 'X01' },
@@ -41,7 +42,7 @@ const PERIODS = [
 const DAY = 86_400_000;
 
 /** Kleine Merkhilfe pro Gerät (Browser-Speicher, nur Bequemlichkeit). */
-function remember<T>(key: string, fallback: T): [T, (v: T) => void] {
+export function remember<T>(key: string, fallback: T): [T, (v: T) => void] {
   const [v, setV] = useState<T>(() => {
     try {
       const s = localStorage.getItem(key);
@@ -78,6 +79,8 @@ export function Stats() {
   const [mode, setMode] = remember<Mode>('stats.mode', 'x01');
   const [period, setPeriod] = remember<number>('stats.period', 0);
   const [withBots, setWithBots] = remember<boolean>('stats.withBots', true);
+  const [view, setView] = remember<'single' | 'compare'>('stats.view', 'single');
+  const [compareTab, setCompareTab] = remember<CompareTab>('stats.compareTab', 'players');
   const [groupSel, setGroupSel] = useState<string | null>(null);
   const [metricSel, setMetricSel] = useState<MetricKey | null>(null);
 
@@ -113,17 +116,29 @@ export function Stats() {
     <div class="page">
       <TopBar title="Statistik" back={href({ name: 'home' })} />
 
-      <div class="chips">
-        {profiles.map((p) => (
-          <button
-            key={p.profileId}
-            class={p.profileId === profile.profileId ? 'chip on' : 'chip'}
-            onClick={() => setProfileId(p.profileId)}
-          >
-            <span class="dot" style={{ background: p.color }} /> {p.name}
-          </button>
-        ))}
-      </div>
+      <Segmented
+        label="Ansicht"
+        value={view}
+        options={[
+          { value: 'single', label: 'Einzeln' },
+          { value: 'compare', label: 'Vergleich' },
+        ]}
+        onChange={setView}
+      />
+
+      {view === 'single' && (
+        <div class="chips">
+          {profiles.map((p) => (
+            <button
+              key={p.profileId}
+              class={p.profileId === profile.profileId ? 'chip on' : 'chip'}
+              onClick={() => setProfileId(p.profileId)}
+            >
+              <span class="dot" style={{ background: p.color }} /> {p.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div class="filters">
         <Segmented
@@ -132,7 +147,8 @@ export function Stats() {
           options={MODES.filter((m) => m.value !== 'one21' || all.some((r) => r.mode === 'one21'))}
           onChange={(m) => (setMode(m), setGroupSel(null), setMetricSel(null))}
         />
-        <Segmented value={period} options={PERIODS} onChange={setPeriod} />
+        {/* Der Reiter „Zeiträume“ hat sein eigenes Zeitfenster */}
+        {!(view === 'compare' && compareTab === 'periods') && <Segmented value={period} options={PERIODS} onChange={setPeriod} />}
         {anyBot && (
           <Segmented
             label="Spiele gegen den Computer"
@@ -144,7 +160,7 @@ export function Stats() {
             onChange={(v) => setWithBots(v === 'mit')}
           />
         )}
-        {groups.length > 1 && (
+        {view === 'single' && groups.length > 1 && (
           <select class="select" value={group} onChange={(e) => setGroupSel((e.target as HTMLSelectElement).value)}>
             {groups.map((g) => (
               <option key={g.group} value={g.group}>
@@ -153,10 +169,22 @@ export function Stats() {
             ))}
           </select>
         )}
-        {groups.length === 1 && <span class="muted small">{groups[0].label}</span>}
+        {view === 'single' && groups.length === 1 && <span class="muted small">{groups[0].label}</span>}
       </div>
 
-      {!records.length ? (
+      {view === 'compare' ? (
+        <StatsCompare
+          events={events}
+          records={all.filter((r) => r.mode === mode && r.complete && (withBots || !r.vsBot))}
+          profiles={profiles}
+          mode={mode}
+          since={since}
+          withBots={withBots}
+          defs={defs}
+          tab={compareTab}
+          onTab={setCompareTab}
+        />
+      ) : !records.length ? (
         <p class="muted">Noch keine abgeschlossenen Spiele in diesem Modus und Zeitraum.</p>
       ) : (
         <>
@@ -178,7 +206,7 @@ export function Stats() {
         </>
       )}
 
-      {mode !== 'doubles' && mode !== 'bobs' && inMode.length > 0 && (
+      {view === 'single' && mode !== 'doubles' && mode !== 'bobs' && inMode.length > 0 && (
         <section class="card">
           <h2>Treffer-Heatmap</h2>
           <p class="muted small">Alle {MODES.find((m) => m.value === mode)!.label}-Spiele im Zeitraum, nur Eingaben über das Board.</p>
@@ -186,7 +214,7 @@ export function Stats() {
         </section>
       )}
 
-      {(mode === 'x01' || mode === 'doubles' || mode === 'bobs' || mode === 'finish' || mode === 'one21') && (
+      {view === 'single' && (mode === 'x01' || mode === 'doubles' || mode === 'bobs' || mode === 'finish' || mode === 'one21') && (
         <DoubleTable records={mine.filter((r) => r.doublesSource)} />
       )}
     </div>

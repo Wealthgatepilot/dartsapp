@@ -313,6 +313,12 @@ Annahmen (Count-Up): Die Uhr startet mit dem ersten Dart; Rückgängig ändert a
 
 Verworfen (Count-Up): Uhr startet beim Öffnen des Spiels (man steht dann noch nicht am Board); bei Zeitablauf sofort Schluss (wer zuerst wirft, hätte eine Aufnahme mehr); die Zeit nur auf dem Gerät mitzählen (ginge beim Schließen der App verloren – die Uhrzeiten der Ereignisse reichen).
 
+- [x] Vergleich in der Langzeitstatistik (15.11.2026, SPEC 11.7, G92–G96): Schalter „Einzeln | Vergleich“; Reiter Spieler (2–4 Profile nebeneinander, Diagramm mit einer Linie je Spieler), Direkt (Bilanz und Kennzahlen aus gemeinsamen Spielen, letzte Duelle), Zeiträume (letzte n Tage gegen die n Tage davor, grün/rot).
+
+Annahmen (Vergleich): Nur Profile. Gemeinsame Vergleichsgruppe = die mit den meisten Legs der Gewählten zusammen. Direkt: alle Einstellungen eines Modus, Count-Up „zusammen“ ausgenommen; „andere“ = ein Dritter hat gewonnen. Hervorgehoben wird nur ein echter Vorsprung, nicht ein Gleichstand. Diagramm über das Datum, weil Spieler unterschiedlich viele Legs haben. Heatmap und Doppelquote bleiben in der Einzelansicht.
+
+Verworfen (Vergleich): Diagramm über die Leg-Nummer (Linien wären bei unterschiedlich vielen Legs nicht vergleichbar); Direkt nur in einer Vergleichsgruppe (zu wenige Duelle); Zeiträume über den allgemeinen Zeitraum-Filter (der kennt kein „davor“).
+
 Verworfen: „Spiel beenden“ als dauerhafter Knopf (Gianluca wünscht eine Frage im richtigen Moment); Beenden durch automatisches Überspringen aller offenen Zahlen (würde die Statistik verfälschen).
 
 ## Phase 5 – Daten mehrerer Geräte

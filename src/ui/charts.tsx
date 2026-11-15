@@ -228,3 +228,131 @@ export function HeatBoard({ counts, total }: { counts: Record<string, number>; t
     </div>
   );
 }
+
+// ---------- Vergleich: mehrere Spieler (SPEC 11.7) ----------
+
+export interface CompareSeries {
+  name: string;
+  /** Profilfarbe: Die Farbe gehört zum Spieler, nicht zur Reihenfolge. */
+  color: string;
+  points: SeriesPoint[];
+}
+
+/** Gleitender Durchschnitt je Spieler als Linie über der Zeit; Antippen zeigt den Stand aller am gewählten Tag. */
+export function CompareChart({ series, digits, unit, label }: { series: CompareSeries[]; digits: number; unit?: string; label: string }) {
+  const [at, setAt] = useState<number | null>(null);
+  const [table, setTable] = useState(false);
+  const withPoints = series.filter((s) => s.points.length);
+  if (!withPoints.length) return <p class="muted">Noch keine Werte.</p>;
+
+  const W = 340;
+  const H = 190;
+  const L = 44;
+  const R = 10;
+  const T = 10;
+  const B = 24;
+  const all = withPoints.flatMap((s) => s.points);
+  const t0 = Math.min(...all.map((p) => p.ts));
+  const t1 = Math.max(...all.map((p) => p.ts));
+  const ticks = niceTicks(Math.min(...all.map((p) => p.moving)), Math.max(...all.map((p) => p.moving)));
+  const y0 = ticks[0];
+  const y1 = ticks[ticks.length - 1];
+  const x = (ts: number) => (t1 === t0 ? (L + W - R) / 2 : L + ((ts - t0) / (t1 - t0)) * (W - L - R));
+  const y = (v: number) => T + (1 - (v - y0) / (y1 - y0 || 1)) * (H - T - B);
+  const shownTs = at ?? t1;
+  /** Stand eines Spielers am Tag `ts`: sein letzter Schnitt bis dahin. */
+  const valueAt = (s: CompareSeries, ts: number) => [...s.points].reverse().find((p) => p.ts <= ts)?.moving ?? null;
+
+  const pick = (e: PointerEvent) => {
+    const r = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
+    const px = ((e.clientX - r.left) / r.width) * W;
+    let best = all[0].ts;
+    for (const p of all) if (Math.abs(x(p.ts) - px) < Math.abs(x(best) - px)) best = p.ts;
+    setAt(best);
+  };
+
+  return (
+    <div class="chart">
+      <div class="chart-info compare-info">
+        <span class="muted">{date(shownTs)}</span>
+        {withPoints.map((s) => {
+          const v = valueAt(s, shownTs);
+          return (
+            <span key={s.name}>
+              <span class="key-dot" style={{ background: s.color }} /> {s.name} <strong>{v === null ? '—' : fmt(v, digits, unit)}</strong>
+            </span>
+          );
+        })}
+      </div>
+      {table ? (
+        <div class="results-scroll">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Spieler</th>
+                <th>Legs</th>
+                <th>{label}: Schnitt der letzten 10</th>
+              </tr>
+            </thead>
+            <tbody>
+              {withPoints.map((s) => (
+                <tr key={s.name}>
+                  <td>{s.name}</td>
+                  <td>{s.points.length}</td>
+                  <td>{fmt(s.points[s.points.length - 1].moving, digits, unit)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <svg class="chart-svg" viewBox={`0 0 ${W} ${H}`} onPointerDown={pick} onPointerMove={pick} role="img" aria-label={`Vergleich ${label}`}>
+          {ticks.map((t) => (
+            <g key={t}>
+              <line x1={L} x2={W - R} y1={y(t)} y2={y(t)} class="chart-grid" />
+              <text x={L - 6} y={y(t)} class="chart-tick" text-anchor="end" dominant-baseline="central">
+                {fmt(t, t % 1 === 0 ? 0 : digits)}
+              </text>
+            </g>
+          ))}
+          <text x={L} y={H - 6} class="chart-tick">
+            {date(t0)}
+          </text>
+          {t1 !== t0 && (
+            <text x={W - R} y={H - 6} class="chart-tick" text-anchor="end">
+              {date(t1)}
+            </text>
+          )}
+          {withPoints.map((s) =>
+            s.points.length > 1 ? (
+              <path
+                key={s.name}
+                d={s.points.map((p, i) => `${i ? 'L' : 'M'} ${x(p.ts).toFixed(1)} ${y(p.moving).toFixed(1)}`).join(' ')}
+                class="chart-line"
+                style={{ stroke: s.color }}
+              />
+            ) : (
+              <circle key={s.name} cx={x(s.points[0].ts)} cy={y(s.points[0].moving)} r={4} class="chart-dot" style={{ fill: s.color }} />
+            ),
+          )}
+          {withPoints.map((s) => {
+            const v = valueAt(s, shownTs);
+            return v === null ? null : <circle key={`m${s.name}`} cx={x(shownTs)} cy={y(v)} r={5} class="chart-dot" style={{ fill: s.color }} />;
+          })}
+          <line x1={x(shownTs)} x2={x(shownTs)} y1={T} y2={H - B} class="chart-cross" />
+        </svg>
+      )}
+      <div class="chart-legend">
+        {withPoints.map((s) => (
+          <span key={s.name}>
+            <span class="key-line" style={{ background: s.color }} /> {s.name}
+          </span>
+        ))}
+        <button class="btn btn-small" onClick={() => setTable(!table)}>
+          {table ? 'Diagramm' : 'Tabelle'}
+        </button>
+      </div>
+      <p class="muted small">Linie = Schnitt der letzten 10 Legs je Spieler.</p>
+    </div>
+  );
+}
