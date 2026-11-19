@@ -44,3 +44,18 @@ test('X01: Spielerblöcke mit Legs, Kennzahlen und zweiter Seite', async ({ page
   await expect(gian.locator('.block-stat', { hasText: 'First 9' })).toContainText('180,00');
   await expect(joern.locator('.block-stat', { hasText: 'First 9' })).toBeVisible();
 });
+
+test('X01 mit mehreren Legs: Ø Leg und Ø Match untereinander', async ({ page }) => {
+  await createProfiles(page, 'Gian', 'Jörn');
+  await page.goto('./#/x01');
+  await page.getByRole('button', { name: 'Gian' }).click();
+  await page.getByRole('button', { name: 'Jörn' }).click();
+  await page.getByRole('button', { name: 'Legs mehr' }).click(); // first to 2
+  await page.getByRole('radio', { name: 'wie eingetragen' }).click();
+  await page.getByRole('button', { name: 'Spiel starten' }).click();
+  await turn(page, 'T20', 'T20', 'T20');
+  const gian = page.locator('.block', { hasText: 'Gian' });
+  if (page.viewportSize()!.height < 500) return; // Handy quer: ohne Kennzahlen
+  await expect(gian.locator('.block-stat', { hasText: 'Ø Leg' })).toContainText('180,00');
+  await expect(gian.locator('.block-stat', { hasText: 'Ø Match' })).toContainText('180,00');
+});

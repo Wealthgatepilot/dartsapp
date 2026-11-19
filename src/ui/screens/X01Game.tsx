@@ -6,7 +6,7 @@ import { x01SetupOf } from '../../engine/games';
 import { x01LegMetrics } from '../../engine/metrics';
 import { formatAverage, legNumbers, matchNumbers, turnScore } from '../../engine/stats';
 import { fieldLabel, points } from '../../engine/types';
-import { computeX01, confirmTurn, planEdit, throwDart, undo, type Turn, type X01State } from '../../engine/x01';
+import { computeX01, confirmTurn, planEdit, throwDart, undo, winsNeeded, type Turn, type X01State } from '../../engine/x01';
 import { type Block, PlayerBlocks } from '../blocks';
 import { Modal } from '../components';
 import type { ModeViewProps } from './Game';
@@ -89,6 +89,7 @@ function Scoreboard({
   const sets = state.setup.settings.sets;
   const out = state.setup.settings.outMode;
   const leg = state.legs[state.legs.length - 1];
+  const multiLeg = !!sets || winsNeeded(state.setup.settings.legs) > 1;
   const blocks: Block[] = order.map((slot) => {
     const match = matchNumbers(state.legs, slot);
     const legMetrics = state.legs.map((l) => x01LegMetrics(l, slot, out));
@@ -105,18 +106,33 @@ function Scoreboard({
       badge: sets ? `${state.setsWon[slot]}·${state.legsWonInSet[slot]}` : String(state.legsWon[slot]),
       badgeLabel: sets ? 'Sets · Legs' : 'Legs',
       note: !state.isIn[slot] ? 'noch nicht drin' : undefined,
-      pages: [
-        [
-          { label: 'Ø 3 Darts', value: formatAverage(match.average) },
-          { label: 'Letzte Aufnahme', value: last ? (last.bust ? 'Bust' : String(turnScore(last))) : '–' },
-          { label: 'Darts', value: String(current.darts) },
-        ],
-        [
-          { label: 'First 9', value: formatAverage(current.first9) },
-          { label: 'Checkout', value: attempts ? `${Math.round((checkouts / attempts) * 100)} %` : '–' },
-          { label: 'Bestes Leg', value: finishes.length ? `${Math.min(...finishes)} Darts` : '–' },
-        ],
-      ],
+      // Mehrere Legs: Schnitt im laufenden Leg und im ganzen Match untereinander (Wunsch Gianluca, 19.11.2026)
+      pages: multiLeg
+        ? [
+            [
+              { label: 'Ø Leg', value: formatAverage(current.avg) },
+              { label: 'Ø Match', value: formatAverage(match.average) },
+              { label: 'Letzte Aufnahme', value: last ? (last.bust ? 'Bust' : String(turnScore(last))) : '–' },
+            ],
+            [
+              { label: 'Darts im Leg', value: String(current.darts) },
+              { label: 'First 9', value: formatAverage(current.first9) },
+              { label: 'Checkout', value: attempts ? `${Math.round((checkouts / attempts) * 100)} %` : '–' },
+            ],
+            [{ label: 'Bestes Leg', value: finishes.length ? `${Math.min(...finishes)} Darts` : '–' }],
+          ]
+        : [
+            [
+              { label: 'Ø 3 Darts', value: formatAverage(match.average) },
+              { label: 'Letzte Aufnahme', value: last ? (last.bust ? 'Bust' : String(turnScore(last))) : '–' },
+              { label: 'Darts', value: String(current.darts) },
+            ],
+            [
+              { label: 'First 9', value: formatAverage(current.first9) },
+              { label: 'Checkout', value: attempts ? `${Math.round((checkouts / attempts) * 100)} %` : '–' },
+              { label: 'Bestes Leg', value: finishes.length ? `${Math.min(...finishes)} Darts` : '–' },
+            ],
+          ],
     };
   });
   return <PlayerBlocks blocks={blocks} activeSlot={activeSlot} />;
