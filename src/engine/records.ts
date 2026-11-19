@@ -46,7 +46,8 @@ export type MetricKey =
   | 'successes'
   | 'successRate'
   | 'dartsPerFinish'
-  | 'firstTryRate';
+  | 'firstTryRate'
+  | 'dartsPerHit';
 
 export interface MetricDef {
   key: MetricKey;
@@ -83,7 +84,10 @@ export const METRICS: Record<Mode, MetricDef[]> = {
     { key: 'fastestShanghai', label: 'Schnellstes Shanghai (Darts)', better: 'lower', endOnly: true, digits: 0 },
     { key: 'points', label: 'Endpunkte', better: 'higher', digits: 0 },
   ],
-  doubles: [{ key: 'hitRate', label: 'Trefferquote', better: 'higher', digits: 1, unit: '%' }],
+  doubles: [
+    { key: 'hitRate', label: 'Trefferquote', better: 'higher', digits: 1, unit: '%' },
+    { key: 'dartsPerHit', label: 'Darts je Treffer', better: 'lower', digits: 2 },
+  ],
   countup: [
     { key: 'points', label: 'Endpunkte', better: 'higher', digits: 0 },
     { key: 'avg', label: '3-Dart-Average', better: 'higher', digits: 2 },
@@ -444,7 +448,10 @@ export function legRecords(events: readonly AppEvent[]): LegRecord[] {
           complete: s.finished,
           won: !!s.matchWinners?.includes(p.slot),
           darts: m.darts,
-          values: m.hitRate !== null ? { hitRate: m.hitRate } : {},
+          values: {
+            ...(m.hitRate !== null ? { hitRate: m.hitRate } : {}),
+            ...(m.hits ? { dartsPerHit: m.darts / m.hits } : {}),
+          },
           doubles: m.perField,
           doublesSource: 'training',
           heat: {},
@@ -588,7 +595,9 @@ export function metricsAt(
     put('successRate', m.successRate);
     v.successes = m.successes;
   } else if (c.mode === 'doubles') {
-    put('hitRate', doublesMetrics(c.state, slot, limit).hitRate);
+    const m = doublesMetrics(c.state, slot, limit);
+    put('hitRate', m.hitRate);
+    if (m.hits) v.dartsPerHit = m.darts / m.hits;
   }
   return v;
 }

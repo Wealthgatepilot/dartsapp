@@ -1,7 +1,16 @@
 // Vergleich in der Langzeitstatistik (SPEC 11.7): Spieler nebeneinander, direkter Vergleich, Zeiträume.
 
 import { useState } from 'preact/hooks';
-import { comparePeriods, comparePlayers, duels, type MetricSummary } from '../../engine/compare';
+import {
+  DOUBLE_KEYS,
+  comparePeriods,
+  comparePlayers,
+  doubleFields,
+  duels,
+  fieldRate,
+  splitPeriods,
+  type MetricSummary,
+} from '../../engine/compare';
 import type { AppEvent } from '../../engine/events';
 import type { Mode } from '../../engine/metrics';
 import type { Profile } from '../../engine/profiles';
@@ -165,6 +174,9 @@ function Players({ records, profiles, defs }: { records: LegRecord[]; profiles: 
             </div>
             <p class="muted small">Schnitt je Leg im Zeitraum, darunter der Rekord. Hervorgehoben: der bessere Schnitt.</p>
           </section>
+          <DoubleTable
+            columns={sel.map((p) => ({ id: p.profileId, name: p.name, color: p.color, tally: doubleFields(c.legs[p.profileId]) }))}
+          />
           {metric && (
             <section class="card">
               <h2>Verlauf</h2>
@@ -270,6 +282,13 @@ function Duel({
               </table>
             )}
           </section>
+          <DoubleTable
+            title="Quote je Doppel in diesen Spielen"
+            columns={[
+              { id: a.profileId, name: a.name, color: a.color, tally: doubleFields(d.recordsA) },
+              { id: b.profileId, name: b.name, color: b.color, tally: doubleFields(d.recordsB) },
+            ]}
+          />
           <section class="card">
             <h2>Letzte Duelle</h2>
             <ul class="list">
@@ -357,6 +376,138 @@ function Periods({ records, profiles, defs }: { records: LegRecord[]; profiles: 
           </p>
         </section>
       )}
+      <DoublePeriods records={mine.filter((r) => r.group === group)} days={days} now={now} />
     </>
+  );
+}
+
+// ---------- Quote je Doppel (SPEC 11.7) ----------
+
+const pct = (v: number | null) => (v === null ? '—' : `${v.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`);
+
+/** Je Doppel eine Zeile, je Spieler Quote und Treffer/Würfe; die bessere Quote ist hervorgehoben. */
+function DoubleTable({
+  columns,
+  title = 'Quote je Doppel',
+}: {
+  columns: { id: string; name: string; color: string; tally: Record<string, { darts: number; hits: number }> }[];
+  title?: string;
+}) {
+  const keys = DOUBLE_KEYS.filter((k) => columns.some((c) => c.tally[k]?.darts));
+  if (!keys.length) return null;
+  const total = (t: Record<string, { darts: number; hits: number }>) =>
+    Object.values(t).reduce((n, v) => ({ darts: n.darts + v.darts, hits: n.hits + v.hits }), { darts: 0, hits: 0 });
+  const row = (label: string, cells: { darts: number; hits: number }[], strong = false) => {
+    const rates = cells.map(fieldRate);
+    const values = rates.filter((r): r is number => r !== null);
+    const top = values.length > 1 && !values.every((v) => v === values[0]) ? Math.max(...values) : null;
+    return (
+      <tr key={label}>
+        <td>{strong ? <strong>{label}</strong> : label}</td>
+        {cells.map((t, i) => (
+          <td key={columns[i].id} class={top !== null && rates[i] === top ? 'compare-best' : undefined}>
+            {pct(rates[i])}
+            {t.darts > 0 && (
+              <small>
+                {t.hits}/{t.darts}
+              </small>
+            )}
+          </td>
+        ))}
+      </tr>
+    );
+  };
+  return (
+    <section class="card">
+      <h2>{title}</h2>
+      <div class="results-scroll">
+        <table class="table compare-table">
+          <thead>
+            <tr>
+              <th>Feld</th>
+              {columns.map((c) => (
+                <th key={c.id}>
+                  <span class="dot" style={{ background: c.color }} /> {c.name}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {row(
+              'Gesamt',
+              columns.map((c) => total(c.tally)),
+              true,
+            )}
+            {keys.map((k) =>
+              row(
+                k,
+                columns.map((c) => c.tally[k] ?? { darts: 0, hits: 0 }),
+              ),
+            )}
+          </tbody>
+        </table>
+      </div>
+      <p class="muted small">Treffer/Würfe auf das Doppel. Hervorgehoben: die bessere Quote.</p>
+    </section>
+  );
+}
+
+/** Zeiträume: Quote je Doppel vorher und jetzt, Veränderung in Prozentpunkten. */
+function DoublePeriods({ records, days, now }: { records: LegRecord[]; days: number; now: number }) {
+  const { earlier, recent } = splitPeriods(records, days, now);
+  const before = doubleFields(earlier);
+  const after = doubleFields(recent);
+  const keys = DOUBLE_KEYS.filter((k) => before[k]?.darts || after[k]?.darts);
+  if (!keys.length) return null;
+  return (
+    <section class="card">
+      <h2>Quote je Doppel</h2>
+      <div class="results-scroll">
+        <table class="table compare-table">
+          <thead>
+            <tr>
+              <th>Feld</th>
+              <th>Vorher</th>
+              <th>Jetzt</th>
+              <th>Veränderung</th>
+            </tr>
+          </thead>
+          <tbody>
+            {keys.map((k) => {
+              const b = fieldRate(before[k]);
+              const a = fieldRate(after[k]);
+              const delta = a !== null && b !== null ? a - b : null;
+              return (
+                <tr key={k}>
+                  <td>{k}</td>
+                  <td>
+                    {pct(b)}
+                    {before[k]?.darts ? (
+                      <small>
+                        {before[k].hits}/{before[k].darts}
+                      </small>
+                    ) : null}
+                  </td>
+                  <td>
+                    {pct(a)}
+                    {after[k]?.darts ? (
+                      <small>
+                        {after[k].hits}/{after[k].darts}
+                      </small>
+                    ) : null}
+                  </td>
+                  <td class={delta === null || delta === 0 ? undefined : delta > 0 ? 'delta-good' : 'delta-bad'}>
+                    {delta === null
+                      ? '—'
+                      : `${delta > 0 ? '+' : delta < 0 ? '−' : '±'}${Math.abs(delta).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} P.${delta > 0 ? ' ▲' : delta < 0 ? ' ▼' : ''}`}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p class="muted small">Veränderung in Prozentpunkten (P.).</p>
+    </section>
   );
 }

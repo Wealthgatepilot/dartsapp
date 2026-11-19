@@ -799,6 +799,7 @@ Oben auf der Statistik-Seite: **Einzeln | Vergleich**. Der Vergleich hat drei Re
 - **Spieler:** 2 bis 4 Profile. Grundlage sind ihre abgeschlossenen Legs bzw. Durchgänge in einer gemeinsamen Vergleichsgruppe (Standard: die Gruppe mit den meisten Legs der gewählten Spieler zusammen, wählbar). Tabelle: je Kennzahl eine Zeile, je Spieler Schnitt und Rekord (wie 11.6 „Übersicht“), dazu Anzahl Legs; bei Zählwerten (80+ … 180) der Schnitt je Leg. Der beste Schnitt einer Zeile ist hervorgehoben (bei „niedriger ist besser“ der niedrigste); bei Gleichstand alle. Diagramm: Verlauf der gewählten Kennzahl als gleitender Durchschnitt der letzten 10, eine Linie je Spieler in seiner Profilfarbe, mit Legende; Tabelle als Alternative.
 - **Direkt:** zwei Profile. Grundlage sind beendete Spiele des gewählten Modus, in denen beide als Profil mitgespielt haben (alle Einstellungen; ohne Count-Up „zusammen“). Bilanz: Siege A, Siege B, Unentschieden (beide unter den Siegern), „andere“ (ein Dritter hat gewonnen); bei X01 und Cricket auch gewonnene Legs. Kennzahlen beider nur aus diesen Spielen (Schnitt). Die letzten 5 Duelle mit Datum und Sieger; Antippen öffnet den Rückblick.
 - **Zeiträume:** ein Profil; Fenster 7, 30, 90 oder 365 Tage. „Jetzt“ = die letzten n Tage, „vorher“ = die n Tage davor. Je Kennzahl: Schnitt vorher, Schnitt jetzt, Veränderung (Differenz; grün = besser, rot = schlechter, je nach Richtung der Kennzahl). Ohne Legs in einem Fenster „—“. Vergleichsgruppe wie in der Einzelansicht.
+- **Quote je Doppel** (Wunsch Gianluca, 19.11.2026): In allen drei Reitern eine Tabelle D1–D20 und Bull (nur Felder mit Würfen) plus Gesamt, aus den Legs der jeweiligen Auswahl: Spieler und Direkt je Spieler Quote und Treffer/Würfe (bessere Quote hervorgehoben, Gleichstand nicht), Zeiträume vorher, jetzt und Veränderung in Prozentpunkten. Quellen wie 11.6 (Training, Bob's 27, Checkouts aus X01 und 121). Training bekommt zusätzlich die Kennzahl „Darts je Treffer“ (Würfe / Treffer, weniger ist besser).
 
 ---
 
@@ -984,6 +985,7 @@ Quellen: [WebKit – Updates to Storage Policy](https://webkit.org/blog/14403/up
 | G94 | Direkt, 3 Spiele | A gewinnt 2, B 1; ein weiteres Spiel ohne B | Bilanz 2 : 1, das Spiel ohne B zählt nicht |
 | G95 | Zeiträume 30 Tage | Average 50 vor 40 Tagen, 60 vor 10 Tagen | vorher 50, jetzt 60, Veränderung +10 (besser) |
 | G96 | Zeiträume, Darts bis zum Finish | vorher 21, jetzt 18 | Veränderung −3, gilt als besser |
+| G97 | Quote je Doppel | Training 1: D16 1/4, D20 1/2; Training 2: D16 3/4 | D16 4/8 = 50 %, D1 ohne Würfe „—“ |
 
 ### 14.3 Eigenschaften der Checkout-Tabelle (für alle drei Out-Arten, 1–3 Darts)
 

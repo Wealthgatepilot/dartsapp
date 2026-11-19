@@ -29,6 +29,29 @@ export function summarize(records: readonly LegRecord[], def: MetricDef): Metric
 /** Ist a besser als b, gemessen an der Richtung der Kennzahl? */
 export const better = (def: MetricDef, a: number, b: number) => (def.better === 'higher' ? a > b : a < b);
 
+// ---------- Quote je Doppel (SPEC 11.7) ----------
+
+/** Doppel in Board-Reihenfolge der Auswertung: D1 … D20, Bull. */
+export const DOUBLE_KEYS = [...Array.from({ length: 20 }, (_, i) => `D${i + 1}`), 'DB'];
+
+export type FieldTally = Record<string, { darts: number; hits: number }>;
+
+/** Würfe und Treffer je Doppel über Legs, aus allen Quellen (Training, Bob's 27, Checkouts). */
+export function doubleFields(records: readonly LegRecord[]): FieldTally {
+  const out: FieldTally = {};
+  for (const r of records) {
+    for (const [k, v] of Object.entries(r.doubles)) {
+      const t = (out[k] ??= { darts: 0, hits: 0 });
+      t.darts += v.darts;
+      t.hits += v.hits;
+    }
+  }
+  return out;
+}
+
+/** Quote in Prozent, null ohne Würfe. */
+export const fieldRate = (t?: { darts: number; hits: number }) => (t && t.darts ? (t.hits / t.darts) * 100 : null);
+
 // ---------- Spieler nebeneinander ----------
 
 export interface PlayerComparison {
@@ -99,6 +122,9 @@ export interface DuelSummary {
   legsB: number;
   /** Kennzahlen beider nur aus diesen Spielen. */
   rows: { def: MetricDef; a: MetricSummary; b: MetricSummary }[];
+  /** Abgeschlossene Legs beider aus diesen Spielen (z. B. für die Quote je Doppel). */
+  recordsA: LegRecord[];
+  recordsB: LegRecord[];
 }
 
 const MODES_WITH_LEGS: Mode[] = ['x01', 'cricket'];
@@ -148,6 +174,8 @@ export function duels(
   const count = (r: Duel['result']) => out.filter((d) => d.result === r).length;
   return {
     duels: out.sort((x, y) => y.ts - x.ts),
+    recordsA: ra,
+    recordsB: rb,
     winsA: count('a'),
     winsB: count('b'),
     draws: count('draw'),
@@ -174,15 +202,22 @@ export interface PeriodRow {
 
 const DAY = 86_400_000;
 
+/** Legs der letzten `days` Tage („recent“) und der `days` Tage davor („earlier“). */
+export function splitPeriods(records: readonly LegRecord[], days: number, now: number) {
+  const cut = now - days * DAY;
+  const start = now - 2 * days * DAY;
+  return {
+    recent: records.filter((r) => r.ts >= cut && r.ts <= now),
+    earlier: records.filter((r) => r.ts >= start && r.ts < cut),
+  };
+}
+
 /**
  * „Jetzt“ = die letzten `days` Tage, „vorher“ = die `days` Tage davor (SPEC 11.7, G95, G96).
  * `records`: abgeschlossene Legs eines Profils in einer Vergleichsgruppe.
  */
 export function comparePeriods(records: readonly LegRecord[], defs: readonly MetricDef[], days: number, now: number): PeriodRow[] {
-  const cut = now - days * DAY;
-  const start = now - 2 * days * DAY;
-  const recent = records.filter((r) => r.ts >= cut && r.ts <= now);
-  const earlier = records.filter((r) => r.ts >= start && r.ts < cut);
+  const { earlier, recent } = splitPeriods(records, days, now);
   return defs
     .map((def) => {
       const before = summarize(earlier, def);

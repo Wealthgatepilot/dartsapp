@@ -1,7 +1,7 @@
 // Vergleich in der Langzeitstatistik (SPEC 11.7), Gegenprüfung G92–G96.
 
 import { describe, expect, it } from 'vitest';
-import { comparePeriods, comparePlayers, duels } from '../../src/engine/compare';
+import { DOUBLE_KEYS, comparePeriods, comparePlayers, doubleFields, duels, fieldRate } from '../../src/engine/compare';
 import { DEFAULT_COUNTUP, computeCountUp, confirmCountUpTurn, throwCountUpDart } from '../../src/engine/countup';
 import type { AppEvent, NewAppEvent } from '../../src/engine/events';
 import { METRICS, legRecords, type LegRecord } from '../../src/engine/records';
@@ -121,5 +121,16 @@ describe('Zeiträume', () => {
     expect(row.before.avg).toBeNull();
     expect(row.delta).toBeNull();
     expect(row.improved).toBeNull();
+  });
+});
+
+describe('Quote je Doppel (SPEC 11.7, G97)', () => {
+  it('G97: Würfe und Treffer je Doppel über mehrere Trainings zusammengezählt', () => {
+    const t = (doubles: LegRecord['doubles']) => rec('A', {}, { mode: 'doubles', doubles, doublesSource: 'training' });
+    const sum = doubleFields([t({ D16: { darts: 4, hits: 1 }, D20: { darts: 2, hits: 1 } }), t({ D16: { darts: 4, hits: 3 } })]);
+    expect(sum.D16).toEqual({ darts: 8, hits: 4 });
+    expect(fieldRate(sum.D16)).toBe(50);
+    expect(fieldRate(sum.D1)).toBeNull();
+    expect(DOUBLE_KEYS).toHaveLength(21);
   });
 });

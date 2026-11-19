@@ -101,3 +101,47 @@ test('Vergleich: Spieler nebeneinander, direkt und Zeiträume (SPEC 11.7)', asyn
   await expect(row.locator('td').nth(1)).toHaveText('—');
   await expect(row.locator('td').nth(2)).toContainText('120,0');
 });
+
+test('Vergleich im Training: Quote je Doppel und Darts je Treffer', async ({ page }) => {
+  test.setTimeout(90_000);
+  await createProfiles(page, 'Gian', 'Jörn');
+  await page.goto('./#/training');
+  await page.getByRole('button', { name: 'Gian' }).click();
+  await page.getByRole('button', { name: 'Jörn' }).click();
+  await page.getByRole('button', { name: 'Keine' }).click();
+  await page.getByRole('button', { name: 'D16', exact: true }).click();
+  await page.getByRole('button', { name: 'D20', exact: true }).click();
+  await page.getByRole('radio', { name: 'wie eingetragen' }).click();
+  await page.getByRole('button', { name: 'Spiel starten' }).click();
+  const pills = page.locator('.turnbox .pill');
+  const tap = async (kind: 'hit' | 'miss', n: number) => {
+    await page.locator(kind === 'hit' ? '.hm-hit' : '.hm-miss').click();
+    await expect(pills).toHaveCount(n);
+  };
+  await tap('hit', 1);
+  await tap('hit', 2); // Gian fertig: 2/2
+  await page.getByRole('button', { name: 'Weiter →' }).click();
+  await page.getByRole('dialog', { name: 'Weiterspielen?' }).getByRole('button', { name: 'Weiterspielen' }).click();
+  await tap('miss', 1);
+  await tap('hit', 2);
+  await page.locator('.hm-hit').click(); // Jörn fertig: 2/3 → Spielende
+  await page.getByRole('dialog', { name: 'Spielende' }).getByRole('button', { name: 'Fertig' }).click();
+  await expect(page.getByRole('heading', { name: 'Letzte Spiele' })).toBeVisible();
+
+  await page.goto('./#/statistik');
+  await page.getByRole('radio', { name: 'Vergleich' }).click();
+  await page.getByRole('radio', { name: 'Training' }).click();
+  await page.getByRole('radio', { name: 'Spieler' }).click();
+  const total = page.locator('.card', { hasText: 'Quote je Doppel' }).locator('tr', { hasText: 'Gesamt' });
+  await expect(total.locator('td').nth(1)).toContainText('100,0 %');
+  await expect(total.locator('td').nth(1)).toHaveClass(/compare-best/);
+  await expect(total.locator('td').nth(2)).toContainText('66,7 %');
+  await expect(page.locator('.card', { hasText: 'Quote je Doppel' }).locator('tr', { hasText: 'D16' })).toBeVisible();
+  await expect(page.locator('.compare-table tr', { hasText: 'Darts je Treffer' }).locator('td').nth(2)).toContainText('1,5');
+
+  // Direkt und Zeiträume zeigen die Tabelle ebenfalls
+  await page.getByRole('radio', { name: 'Direkt' }).click();
+  await expect(page.getByRole('heading', { name: 'Quote je Doppel in diesen Spielen' })).toBeVisible();
+  await page.getByRole('radio', { name: 'Zeiträume' }).click();
+  await expect(page.getByRole('heading', { name: 'Quote je Doppel' })).toBeVisible();
+});
