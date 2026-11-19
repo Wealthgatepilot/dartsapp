@@ -320,7 +320,7 @@ Annahmen (Vergleich): Nur Profile. Gemeinsame Vergleichsgruppe = die mit den mei
 Verworfen (Vergleich): Diagramm über die Leg-Nummer (Linien wären bei unterschiedlich vielen Legs nicht vergleichbar); Direkt nur in einer Vergleichsgruppe (zu wenige Duelle); Zeiträume über den allgemeinen Zeitraum-Filter (der kennt kein „davor“).
 
 - [x] Rückmeldungen 19.11.2026: iPad-Seite festgenagelt (Fenster trafen ein Feld daneben, Seite verschob sich beim Eintragen); X01 mit mehreren Legs zeigt Ø Leg und Ø Match; Vergleich mit Quote je Doppel in allen Reitern, Training mit „Darts je Treffer“.
-- [ ] Ablenkung an steckenden Darts für den Computer: Modell und Simulation fertig (`deflect` in bot.ts, `scripts/deflection-sim.ts`, `scripts/deflection-count.ts`), im Spiel noch aus. Gianluca entscheidet nach den Zahlen, ob es ins Spiel kommt und ob die Stufen danach neu eingestellt werden.
+- [x] Ablenkung an steckenden Darts für den Computer (19.11.2026, SPEC 9): im Spiel und beim automatischen Ausspielen an. Stufen auf Wunsch Gianlucas nicht neu eingestellt (Stufe 10 wirft dadurch etwa Ø 96 statt 100); Gianluca meldet sich, falls er nachjustieren will. Auswertung in `scripts/deflection-*.ts`.
 
 - [x] Darts des Computers auf dem Eingabe-Board (19.11.2026, SPEC 9): nummerierte Punkte in seiner Farbe bis „Weiter“; echte mm-Stelle Ring für Ring auf das größere Eingabe-Board übertragen (Test: 20 000 Stellen landen im selben Feld). Annahme: Stellen werden nicht gespeichert, nach Neuladen nur noch die Felder.
 

@@ -116,9 +116,10 @@ export function throwAtPoint(aim: Point, sigma: number, random: () => number): {
   return { point, field: fieldAt(point) };
 }
 
-// ---------- Ablenkung an steckenden Darts (Vorschlag, 19.11.2026; vorerst nur in der Simulation) ----------
+// ---------- Ablenkung an steckenden Darts (Wunsch Gianluca, 19.11.2026, SPEC 9) ----------
 // Ein Dart kann im Flug an Schaft oder Flight eines steckenden Darts abprallen und woanders landen –
-// mal zum Schlechten (T20 → 1), mal zum Guten. Noch nicht im Spiel: Gianluca entscheidet nach den Simulationszahlen.
+// mal zum Schlechten (T20 → 1), mal zum Guten. Im Spiel und beim automatischen Ausspielen an; die Stufen
+// sind bewusst nicht neu eingestellt (Gianluca), starke Stufen werfen dadurch etwas weniger.
 
 export interface Deflection {
   /** Bis zu diesem Abstand (mm) zwischen neuem und steckendem Dart ist Ablenkung möglich. */

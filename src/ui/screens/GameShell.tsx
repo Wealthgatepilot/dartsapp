@@ -4,7 +4,7 @@
 import type { ComponentChildren } from 'preact';
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { decidePlayOn, type CoreState, type DartView, type EditPlan, type TurnBase } from '../../engine/core';
-import { BOT_DELAY_MS, planAim, throwAtPoint, type Point } from '../../engine/bot';
+import { BOT_DELAY_MS, deflect, fieldAt, planAim, throwAtPoint, type Point } from '../../engine/bot';
 import { botAim, botSigma, sameField } from '../../engine/botaim';
 import { matchCallout, turnCallout } from '../../engine/callout';
 import type { DartPayload, GameEvent, NewAppEvent, NewEvent } from '../../engine/events';
@@ -126,9 +126,11 @@ export function GameShell(p: ShellProps) {
       const plan = planAim(wanted, botStuck.current.points);
       // Streuung je nach Stufe, Tagesform, Streak und Druck
       const thrown = throwAtPoint(plan.point, botSigma(g, game.created.seed, bot, plan.target), Math.random);
-      botStuck.current.points.push(thrown.point);
+      // Ablenkung an Darts, die in dieser Aufnahme schon stecken (SPEC 9)
+      const point = deflect(thrown.point, botStuck.current.points, Math.random);
+      botStuck.current.points.push(point);
       const aim = plan.target;
-      const landed = thrown.field;
+      const landed = point === thrown.point ? thrown.field : fieldAt(point);
       const ev = p.hitMiss
         ? sameField(landed, aim)
           ? p.hitMiss.onHit('bot')

@@ -1,7 +1,7 @@
 // Computergegner nach SPEC 9: Board-Geometrie, Zielwahl, Stärkestufen.
 
 import { describe, expect, it } from 'vitest';
-import { BOT_SIGMA, BOT_SIGMA_HUMAN, BOT_TARGET_AVERAGE, aimPoint, fieldAt, planAim, seededRandom, throwAt, x01Aim } from '../../src/engine/bot';
+import { BOT_SIGMA, BOT_SIGMA_HUMAN, BOT_TARGET_AVERAGE, DEFLECTION, aimPoint, deflect, fieldAt, planAim, seededRandom, throwAt, x01Aim } from '../../src/engine/bot';
 import { simulateAverage } from '../../src/engine/botsim';
 import { fieldLabel, parseField } from '../../src/engine/types';
 
@@ -107,5 +107,45 @@ describe('Verdeckte Ziele (Wunsch Gianluca)', () => {
     const plan = planAim(parseField('D16'), [{ x: d16.x * 0.97, y: d16.y * 0.97 }]); // knapp innen, Single 16
     expect(fieldLabel(plan.target)).toBe('D16');
     expect(fieldLabel(fieldAt(plan.point))).toBe('D16');
+  });
+});
+
+describe('Ablenkung an steckenden Darts (SPEC 9, Wunsch Gianluca)', () => {
+  const p = { x: 0, y: 100 };
+  const always = () => 0; // Zufall 0: Ablenkung tritt ein, Richtung und Weite am unteren Ende
+
+  it('ohne steckenden Dart oder weiter als 20 mm: keine Ablenkung', () => {
+    expect(deflect(p, [], always)).toBe(p);
+    expect(deflect(p, [{ x: 0, y: 121 }], always)).toBe(p);
+  });
+
+  it('nah dran: abgelenkt um 4–12 mm, grob weg vom steckenden Dart', () => {
+    const random = seededRandom(7);
+    for (let i = 0; i < 200; i++) {
+      const stuck = { x: 0, y: 105 }; // 5 mm darüber
+      const q = deflect(p, [stuck], () => 0.01 + random() * 0.98);
+      if (q === p) continue;
+      const moved = Math.hypot(q.x - p.x, q.y - p.y);
+      expect(moved).toBeGreaterThanOrEqual(4 - 1e-9);
+      expect(moved).toBeLessThanOrEqual(12 + 1e-9);
+      expect(q.y).toBeLessThan(p.y + 1e-9 + moved * Math.cos(Math.PI / 3)); // nicht zum steckenden hin
+    }
+  });
+
+  it('Chance sinkt mit dem Abstand: bei 5 mm deutlich öfter als bei 15 mm', () => {
+    const count = (gap: number) => {
+      const random = seededRandom(gap);
+      let n = 0;
+      for (let i = 0; i < 20_000; i++) if (deflect(p, [{ x: 0, y: 100 + gap }], random) !== p) n++;
+      return n / 20_000;
+    };
+    expect(count(5)).toBeCloseTo(0.6 * 0.75, 1);
+    expect(count(15)).toBeCloseTo(0.6 * 0.25, 1);
+  });
+
+  it('Stufe 10 mit Ablenkung: Average etwa 96 (Stufen bewusst nicht neu eingestellt)', () => {
+    const avg = simulateAverage(BOT_SIGMA[10], 600, seededRandom(52), { level: 10, human: false, deflection: DEFLECTION });
+    expect(avg).toBeGreaterThan(93);
+    expect(avg).toBeLessThan(99.5);
   });
 });

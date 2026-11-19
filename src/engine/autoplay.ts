@@ -2,7 +2,7 @@
 // Regeln und derselben Zielwahl wie im Spiel – und als normale Ereignisse zurückgegeben.
 
 import { computeAtc, confirmAtcTurn, throwAtcDart } from './atc';
-import { BOT_SIGMA, BOT_SIGMA_HUMAN, aimPoint, gaussian, planAim, throwAtPoint, type Point } from './bot';
+import { BOT_SIGMA, BOT_SIGMA_HUMAN, aimPoint, deflect, fieldAt, gaussian, planAim, throwAtPoint, type Point } from './bot';
 import { botAim, botSigma } from './botaim';
 import { coinOrder, distanceMm } from './bulloff';
 import { computeCountUp, confirmCountUpTurn, throwCountUpDart } from './countup';
@@ -155,8 +155,10 @@ export function autoPlayGame(created: GameCreatedPayload, random: () => number):
     if (stuck.key !== turnKey) stuck = { key: turnKey, points: [] };
     const plan = planAim(wanted, stuck.points);
     const thrown = throwAtPoint(plan.point, botSigma(g, created.seed, bot, plan.target), random);
-    stuck.points.push(thrown.point);
-    const e = driver.throwAt(g, thrown.field);
+    // Ablenkung an Darts, die in dieser Aufnahme schon stecken (SPEC 9)
+    const point = deflect(thrown.point, stuck.points, random);
+    stuck.points.push(point);
+    const e = driver.throwAt(g, point === thrown.point ? thrown.field : fieldAt(point));
     if (!e) break;
     add(e);
     darts++;
