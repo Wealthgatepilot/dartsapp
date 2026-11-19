@@ -116,6 +116,44 @@ export function throwAtPoint(aim: Point, sigma: number, random: () => number): {
   return { point, field: fieldAt(point) };
 }
 
+// ---------- Ablenkung an steckenden Darts (Vorschlag, 19.11.2026; vorerst nur in der Simulation) ----------
+// Ein Dart kann im Flug an Schaft oder Flight eines steckenden Darts abprallen und woanders landen –
+// mal zum Schlechten (T20 → 1), mal zum Guten. Noch nicht im Spiel: Gianluca entscheidet nach den Simulationszahlen.
+
+export interface Deflection {
+  /** Bis zu diesem Abstand (mm) zwischen neuem und steckendem Dart ist Ablenkung möglich. */
+  reachMm: number;
+  /** Wahrscheinlichkeit bei Berührung (Abstand 0); sinkt gleichmäßig bis 0 bei reachMm. */
+  chance: number;
+  /** Wie weit der Dart abgelenkt wird (mm), gleichverteilt zwischen min und max. */
+  minMm: number;
+  maxMm: number;
+}
+
+export const DEFLECTION: Deflection = { reachMm: 20, chance: 0.6, minMm: 4, maxMm: 12 };
+
+/**
+ * Landet ein Dart nahe an einem steckenden, kann er abgelenkt werden: grob weg vom steckenden Dart
+ * (Richtung bis ±60° gestreut), um minMm bis maxMm. Liefert die neue Stelle (oder die alte).
+ */
+export function deflect(point: Point, stuck: readonly Point[], random: () => number, d: Deflection = DEFLECTION): Point {
+  let nearest: Point | null = null;
+  let dist = Infinity;
+  for (const s of stuck) {
+    const k = Math.hypot(point.x - s.x, point.y - s.y);
+    if (k < dist) {
+      dist = k;
+      nearest = s;
+    }
+  }
+  if (!nearest || dist >= d.reachMm) return point;
+  if (random() >= d.chance * (1 - dist / d.reachMm)) return point;
+  const away = dist > 0 ? Math.atan2(point.y - nearest.y, point.x - nearest.x) : random() * 2 * Math.PI;
+  const angle = away + (random() * 2 - 1) * (Math.PI / 3);
+  const len = d.minMm + random() * (d.maxMm - d.minMm);
+  return { x: point.x + Math.cos(angle) * len, y: point.y + Math.sin(angle) * len };
+}
+
 // ---------- Verdeckte Ziele (Wunsch Gianluca, 26.10.2026) ----------
 // Steckt ein Dart der laufenden Aufnahme direkt vor dem Zielpunkt, wirft man nicht stur darauf:
 // Verdeckt ein knapp verfehlter Dart das Ziel, wechseln Profis das Feld (T20 → T19 → T18);

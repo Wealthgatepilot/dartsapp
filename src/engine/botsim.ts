@@ -3,7 +3,7 @@
 // Zwei gleich starke Computer spielen „first to 3“ gegeneinander, damit Druck (Matchdart, Gegner auf Finish)
 // so oft vorkommt wie in echten Spielen.
 
-import { gaussian, planAim, throwAtPoint, x01Aim, type Point } from './bot';
+import { deflect, fieldAt, gaussian, planAim, throwAtPoint, x01Aim, type Deflection, type Point } from './bot';
 import { DAY_FORM_SD, STREAK_KEEP, STREAK_SD, effectiveSigma, onFinish } from './botform';
 import { points } from './types';
 
@@ -15,6 +15,8 @@ export interface SimOptions {
   level: number;
   /** Menschliche Schwankungen an. */
   human: boolean;
+  /** Ablenkung an steckenden Darts (nur Simulation, Vorschlag 19.11.2026). */
+  deflection?: Deflection;
 }
 
 interface Tally {
@@ -56,7 +58,9 @@ function simulateMatch(sigma: number, opts: SimOptions, random: () => number, t:
               missedDoubles: missed[p],
             })
           : sigma;
-        const { point, field: f } = throwAtPoint(plan.point, s, random);
+        const thrown = throwAtPoint(plan.point, s, random);
+        const point = opts.deflection ? deflect(thrown.point, stuck, random, opts.deflection) : thrown.point;
+        const f = opts.deflection ? fieldAt(point) : thrown.field;
         stuck.push(point);
         const after = rest[p] - points(f);
         if (after < 0 || after === 1 || (after === 0 && f.m !== 2)) {
