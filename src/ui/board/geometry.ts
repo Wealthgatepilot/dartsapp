@@ -1,11 +1,47 @@
 // Reine Rechenfunktionen der Board-Eingabe (SPEC 4.2 und 4.3), ohne Bildschirmzugriff,
 // damit sie sich mit Tests prüfen lassen.
 
+import { R as REAL } from '../../engine/bot';
 import { BOARD_ORDER } from '../../engine/types';
 
 /** Zonen als Anteil am Radius des gezeichneten Boards. */
 export const BULL_ZONE = 0.16;
 export const NUMBER_ZONE = 0.84;
+
+/** Ringe des gezeichneten Eingabe-Boards in viewBox-Einheiten (Radius 100); größer als echt, damit man trifft. */
+export const DRAWN = {
+  bullseye: 7,
+  bull: BULL_ZONE * 100,
+  tripleIn: 46,
+  tripleOut: 54,
+  doubleIn: 76,
+  numbers: NUMBER_ZONE * 100,
+  edge: 100,
+} as const;
+
+/** Echter Radius der Scheibe (mm) bis zum Rand des gezeichneten Boards. */
+const REAL_EDGE = 225;
+
+/**
+ * Echte Stelle eines Darts (mm vom Mittelpunkt, y nach oben) auf dem gezeichneten Board (viewBox, y nach unten).
+ * Jeder Ring wird einzeln gestreckt, damit der Punkt im selben Feld liegt wie der echte Dart (SPEC 9).
+ */
+export function mmToDrawn(p: { x: number; y: number }): { x: number; y: number } {
+  const r = Math.hypot(p.x, p.y);
+  if (r === 0) return { x: 0, y: 0 };
+  const bands: [number, number, number, number][] = [
+    [0, REAL.bullseye, 0, DRAWN.bullseye],
+    [REAL.bullseye, REAL.bull, DRAWN.bullseye, DRAWN.bull],
+    [REAL.bull, REAL.tripleIn, DRAWN.bull, DRAWN.tripleIn],
+    [REAL.tripleIn, REAL.tripleOut, DRAWN.tripleIn, DRAWN.tripleOut],
+    [REAL.tripleOut, REAL.doubleIn, DRAWN.tripleOut, DRAWN.doubleIn],
+    [REAL.doubleIn, REAL.doubleOut, DRAWN.doubleIn, DRAWN.numbers],
+    [REAL.doubleOut, REAL_EDGE, DRAWN.numbers, DRAWN.edge - 3],
+  ];
+  const [r0, r1, d0, d1] = bands.find(([, hi]) => r <= hi) ?? bands[bands.length - 1];
+  const drawn = Math.min(DRAWN.edge - 3, d0 + ((Math.min(r, r1) - r0) / (r1 - r0)) * (d1 - d0));
+  return { x: (p.x / r) * drawn, y: (-p.y / r) * drawn };
+}
 
 export type Zone =
   | { kind: 'bull' }

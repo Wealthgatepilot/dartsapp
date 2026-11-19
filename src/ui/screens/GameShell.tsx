@@ -13,6 +13,7 @@ import { gameTitle } from '../../engine/games';
 import { MISS, type Field } from '../../engine/types';
 import { uuidv7 } from '../../data/ids';
 import { Board } from '../board/Board';
+import { mmToDrawn } from '../board/geometry';
 import { TopBar } from '../components';
 import { speak, speechSupported, useSpeechEnabled } from '../speech';
 import { useAppData } from '../data';
@@ -139,6 +140,16 @@ export function GameShell(p: ShellProps) {
     // Nur bei einer neuen Position werfen; der Stand selbst ändert sich mit jedem Dart.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextKey, bot?.slot, state.finished, editing, p.blockConfirm, busy]);
+
+  // Wo die Darts der laufenden Computer-Aufnahme stecken (SPEC 9): bis „Weiter“ als Punkte auf dem Board
+  const shown = state.currentTurn;
+  const botMarks =
+    shown &&
+    !shown.confirmed &&
+    game.created.participants.some((x) => x.slot === shown.slot && x.kind === 'bot') &&
+    botStuck.current.key === `${shown.leg}|${shown.slot}|${shown.turnIndex}`
+      ? botStuck.current.points.slice(0, shown.darts.length).map((pt, i) => ({ ...mmToDrawn(pt), color: p.colorOf(shown.slot), label: String(i + 1) }))
+      : undefined;
 
   /** Ereignisse anhängen; während des Schreibens sind weitere Eingaben gesperrt (kein Doppel-Tipp). */
   const act = async (evs: readonly NewAppEvent[]) => {
@@ -304,7 +315,7 @@ export function GameShell(p: ShellProps) {
         </section>
       ) : (
         <section class="board-wrap">
-          <Board onDart={onDart} disabled={busy || !state.next || botTurn} isTarget={p.isTarget} />
+          <Board onDart={onDart} disabled={busy || !state.next || botTurn} isTarget={p.isTarget} marks={botMarks} />
         </section>
       )}
 

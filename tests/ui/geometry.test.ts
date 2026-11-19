@@ -1,14 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import {
   BULL_ZONE,
+  DRAWN,
   NUMBER_ZONE,
   dragTowardsBar,
+  mmToDrawn,
   numberAtAngle,
   placeBar,
   stepFromDrag,
   zoneAt,
 } from '../../src/ui/board/geometry';
-import { BOARD_ORDER } from '../../src/engine/types';
+import { aimPoint, fieldAt, seededRandom } from '../../src/engine/bot';
+import { BOARD_ORDER, fieldLabel } from '../../src/engine/types';
 
 const R = 100;
 
@@ -102,5 +105,32 @@ describe('Stufenwahl durch Ziehen', () => {
   it('kleine Bewegung in Gegenrichtung bleibt Single, große bricht ab', () => {
     expect(stepFromDrag(-30, 3, 50)).toBe(0);
     expect(stepFromDrag(-61, 3, 50)).toBe(-1);
+  });
+});
+
+describe('Darts des Computers auf dem gezeichneten Board (SPEC 9)', () => {
+  /** Feld einer Stelle auf dem gezeichneten Board: Zahl aus dem Winkel, Ring aus den gezeichneten Radien. */
+  const drawnField = (q: { x: number; y: number }) => {
+    const r = Math.hypot(q.x, q.y);
+    if (r <= DRAWN.bullseye) return 'DB';
+    if (r <= DRAWN.bull) return 'SB';
+    if (r > DRAWN.numbers) return '0';
+    const n = numberAtAngle(q.x, q.y);
+    const m = r > DRAWN.doubleIn ? 'D' : r > DRAWN.tripleIn && r <= DRAWN.tripleOut ? 'T' : 'S';
+    return `${m}${n}`;
+  };
+
+  it('jede echte Stelle landet im selben Feld wie der echte Dart', () => {
+    const random = seededRandom(4711);
+    for (let i = 0; i < 20_000; i++) {
+      const p = { x: (random() * 2 - 1) * 200, y: (random() * 2 - 1) * 200 };
+      expect(drawnField(mmToDrawn(p))).toBe(fieldLabel(fieldAt(p)));
+    }
+  });
+
+  it('T20 liegt oben, auf dem gezeichneten Triple-Ring', () => {
+    const q = mmToDrawn(aimPoint({ n: 20, m: 3 }));
+    expect(q.x).toBeCloseTo(0);
+    expect(q.y).toBeCloseTo(-(DRAWN.tripleIn + DRAWN.tripleOut) / 2);
   });
 });

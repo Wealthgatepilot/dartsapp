@@ -20,8 +20,12 @@ test('X01 gegen den Computer', async ({ page }) => {
   await expect(page.locator('.turn-head')).toContainText('Computer 6');
   await expect(page.getByRole('button', { name: 'Daneben', exact: true })).toBeDisabled();
   await expect(page.locator('.turnbox .pill')).toHaveCount(3, { timeout: 10_000 });
+  // Wo seine Darts stecken: drei nummerierte Punkte auf dem Board (SPEC 9)
+  await expect(page.locator('.board .b-mark')).toHaveCount(3);
+  await expect(page.locator('.board .b-mark').last()).toContainText('3');
   await expect(page.getByRole('button', { name: 'Weiter →' })).toBeEnabled();
   await page.getByRole('button', { name: 'Weiter →' }).click();
+  await expect(page.locator('.board .b-mark')).toHaveCount(0);
   await expect(page.locator('.turnbox')).toContainText('Noch kein Dart');
   await expect(page.locator('.turn-head')).toContainText('Gian');
 });

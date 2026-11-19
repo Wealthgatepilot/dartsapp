@@ -4,8 +4,7 @@
 import { useRef, useState } from 'preact/hooks';
 import { BOARD_ORDER, BULL, MISS, type Field, type Multiplier } from '../../engine/types';
 import {
-  BULL_ZONE,
-  NUMBER_ZONE,
+  DRAWN,
   dragTowardsBar,
   placeBar,
   stepFromDrag,
@@ -26,6 +25,8 @@ interface Props {
   className?: string;
   /** Nur diese Zahlen farbig zeigen (z. B. Cricket, Shanghai), alle anderen grau. 25 = Bull. */
   isTarget?: (n: number) => boolean;
+  /** Wo die Darts des Computers stecken (viewBox-Einheiten, SPEC 9): Punkt in seiner Farbe mit Nummer. */
+  marks?: { x: number; y: number; color: string; label: string }[];
 }
 
 interface Active {
@@ -40,12 +41,12 @@ interface Active {
 
 // Radien der gezeichneten Ringe (Board-Radius = 100). Stilisiert, nicht maßstäblich:
 // Die Trefferzonen entscheiden nur über die Zahl, der Ring kommt aus der Leiste.
-const R_BULL = BULL_ZONE * 100;
-const R_BULLSEYE = 7;
-const R_TRIPLE_IN = 46;
-const R_TRIPLE_OUT = 54;
-const R_DOUBLE_IN = 76;
-const R_NUMBERS = NUMBER_ZONE * 100;
+const R_BULL = DRAWN.bull;
+const R_BULLSEYE = DRAWN.bullseye;
+const R_TRIPLE_IN = DRAWN.tripleIn;
+const R_TRIPLE_OUT = DRAWN.tripleOut;
+const R_DOUBLE_IN = DRAWN.doubleIn;
+const R_NUMBERS = DRAWN.numbers;
 
 function point(r: number, deg: number): string {
   const rad = (deg * Math.PI) / 180;
@@ -77,7 +78,7 @@ function itemsFor(kind: 'bull' | 'number', n: number): { label: string; field: F
   }));
 }
 
-export function Board({ onDart, onPreview, stepPx = 50, disabled = false, className = '', isTarget }: Props) {
+export function Board({ onDart, onPreview, stepPx = 50, disabled = false, className = '', isTarget, marks }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [active, setActive] = useState<Active | null>(null);
   const activeRef = useRef<Active | null>(null);
@@ -200,6 +201,15 @@ export function Board({ onDart, onPreview, stepPx = 50, disabled = false, classN
             </text>
           );
         })}
+        {marks?.map((m) => (
+          <g key={m.label} class="b-mark" aria-label={`Dart ${m.label} des Computers`}>
+            <circle cx={m.x} cy={m.y} r={6.6} class="b-mark-ring" />
+            <circle cx={m.x} cy={m.y} r={5} style={{ fill: m.color }} />
+            <text x={m.x} y={m.y} text-anchor="middle" dominant-baseline="central">
+              {m.label}
+            </text>
+          </g>
+        ))}
       </svg>
       {active?.bar && <RingBar active={active} bar={active.bar} />}
     </>

@@ -322,6 +322,8 @@ Verworfen (Vergleich): Diagramm über die Leg-Nummer (Linien wären bei untersch
 - [x] Rückmeldungen 19.11.2026: iPad-Seite festgenagelt (Fenster trafen ein Feld daneben, Seite verschob sich beim Eintragen); X01 mit mehreren Legs zeigt Ø Leg und Ø Match; Vergleich mit Quote je Doppel in allen Reitern, Training mit „Darts je Treffer“.
 - [ ] Ablenkung an steckenden Darts für den Computer: Modell und Simulation fertig (`deflect` in bot.ts, `scripts/deflection-sim.ts`, `scripts/deflection-count.ts`), im Spiel noch aus. Gianluca entscheidet nach den Zahlen, ob es ins Spiel kommt und ob die Stufen danach neu eingestellt werden.
 
+- [x] Darts des Computers auf dem Eingabe-Board (19.11.2026, SPEC 9): nummerierte Punkte in seiner Farbe bis „Weiter“; echte mm-Stelle Ring für Ring auf das größere Eingabe-Board übertragen (Test: 20 000 Stellen landen im selben Feld). Annahme: Stellen werden nicht gespeichert, nach Neuladen nur noch die Felder.
+
 Verworfen: „Spiel beenden“ als dauerhafter Knopf (Gianluca wünscht eine Frage im richtigen Moment); Beenden durch automatisches Überspringen aller offenen Zahlen (würde die Statistik verfälschen).
 
 ## Phase 5 – Daten mehrerer Geräte

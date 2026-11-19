@@ -692,7 +692,8 @@ a.btn {
   width: min(86vw, 52svh);
   height: min(86vw, 52svh);
 }
-.board-disabled {
+/* Gesperrt: nur das Board blass, die Darts des Computers bleiben gut sichtbar */
+.board-disabled > :not(.b-mark) {
   opacity: 0.45;
 }
 
@@ -2206,4 +2207,26 @@ html.page-locked body {
   position: fixed;
   inset: 0;
   width: 100%;
+}
+
+/* Darts des Computers auf dem Board (SPEC 9) */
+.b-mark circle {
+  stroke: #fff;
+  stroke-width: 1.4;
+}
+.b-mark .b-mark-ring {
+  fill: #1f2328;
+  stroke: none;
+}
+.b-mark text {
+  font-size: 6.5px;
+  font-weight: 800;
+  fill: #fff;
+  stroke: #1f2328;
+  stroke-width: 0.8px;
+  paint-order: stroke;
+  pointer-events: none;
+}
+.b-mark {
+  pointer-events: none;
 }
