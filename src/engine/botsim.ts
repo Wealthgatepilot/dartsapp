@@ -17,6 +17,8 @@ export interface SimOptions {
   human: boolean;
   /** Ablenkung an steckenden Darts (nur Simulation, Vorschlag 19.11.2026). */
   deflection?: Deflection;
+  /** Für Auswertungen: je Double-Versuch, ob ein Dart dieser Aufnahme nahe (≤ 20 mm) am Zielpunkt steckt und ob gecheckt wurde. */
+  onDouble?: (near: boolean, hit: boolean) => void;
 }
 
 interface Tally {
@@ -63,6 +65,10 @@ function simulateMatch(sigma: number, opts: SimOptions, random: () => number, t:
         const f = opts.deflection ? fieldAt(point) : thrown.field;
         stuck.push(point);
         const after = rest[p] - points(f);
+        if (chance && opts.onDouble) {
+          const near = stuck.slice(0, -1).some((d) => Math.hypot(d.x - plan.point.x, d.y - plan.point.y) <= 20);
+          opts.onDouble(near, after === 0 && f.m === 2);
+        }
         if (after < 0 || after === 1 || (after === 0 && f.m !== 2)) {
           if (chance) missed[p]++;
           t.points -= turnStart - rest[p]; // Bust: die Punkte dieser Aufnahme zählen nicht
