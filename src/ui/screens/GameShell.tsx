@@ -95,6 +95,7 @@ export function GameShell(p: ShellProps) {
 
   useWakeLock();
   useNoPinchZoom();
+  useLockPage();
   const [speechOn, setSpeechOn] = useSpeechEnabled();
 
   // Am Spielende den Sieger ansagen – nur wenn das Spiel gerade eben endet, nicht beim Öffnen eines fertigen Spiels.
@@ -394,6 +395,30 @@ function useNoPinchZoom() {
       document.removeEventListener('gesturestart', stop);
       document.removeEventListener('gesturechange', stop);
       document.removeEventListener('touchmove', twoFingers);
+    };
+  }, []);
+}
+
+/**
+ * Die Spielseite darf sich nie verschieben (Rückmeldung Gianluca, iPad, 19.11.2026): Safari federt beim schnellen
+ * Tippen gelegentlich nach und bleibt ein paar Punkte verschoben stehen. Dann liegen die Trefferflächen von Fenstern
+ * (Runde bearbeiten, Frage „Weiterspielen?“) neben dem, was man sieht. Solange ein Spiel offen ist, ist die Seite
+ * deshalb festgenagelt; verschiebt sie sich doch, springt sie sofort zurück.
+ */
+function useLockPage() {
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add('page-locked');
+    const back = () => {
+      if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
+    };
+    back();
+    window.addEventListener('scroll', back, { passive: true });
+    window.visualViewport?.addEventListener('scroll', back);
+    return () => {
+      root.classList.remove('page-locked');
+      window.removeEventListener('scroll', back);
+      window.visualViewport?.removeEventListener('scroll', back);
     };
   }, []);
 }

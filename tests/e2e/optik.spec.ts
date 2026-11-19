@@ -59,3 +59,25 @@ test('X01 mit mehreren Legs: Ø Leg und Ø Match untereinander', async ({ page }
   await expect(gian.locator('.block-stat', { hasText: 'Ø Leg' })).toContainText('180,00');
   await expect(gian.locator('.block-stat', { hasText: 'Ø Match' })).toContainText('180,00');
 });
+
+test('Spielseite verschiebt sich nicht (iPad-Rückmeldung), nach dem Spiel wieder normal', async ({ page }) => {
+  page.on('dialog', (d) => d.accept());
+  await createProfiles(page, 'Gian');
+  await page.goto('./#/x01');
+  await page.getByRole('button', { name: 'Gian' }).click();
+  await page.getByRole('button', { name: 'Spiel starten' }).click();
+  await expect(page.locator('html')).toHaveClass(/page-locked/);
+  // Seite künstlich länger machen und verschieben: sie bleibt oben
+  const y = await page.evaluate(async () => {
+    const tall = document.createElement('div');
+    tall.style.height = '3000px';
+    document.body.appendChild(tall);
+    window.scrollTo(0, 400);
+    await new Promise((r) => setTimeout(r, 100));
+    tall.remove();
+    return window.scrollY;
+  });
+  expect(y).toBe(0);
+  await page.getByRole('button', { name: 'Abbrechen' }).click();
+  await expect(page.locator('html')).not.toHaveClass(/page-locked/);
+});

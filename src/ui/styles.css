@@ -2196,3 +2196,14 @@ button.pill-x {
   color: var(--bad);
   font-weight: 700;
 }
+
+/* Spiel offen: Seite festgenagelt, damit Safari sie nicht verschiebt (GameShell, useLockPage) */
+html.page-locked,
+html.page-locked body {
+  overflow: hidden;
+}
+html.page-locked body {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+}
